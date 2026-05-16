@@ -237,6 +237,7 @@ function hapusMenu(index) {
   localStorage.setItem('menu', JSON.stringify(menu));
   renderMenu();
 }
+
 function renderKasir() {
   const container = document.getElementById('kasir');
   if(mejaAktif === null) {
@@ -278,6 +279,8 @@ function renderKasir() {
           </div>
 
           <div id="billRingkasan"></div>
+          
+          <button onclick="cetakBill()" class="btn-info" style="width:100%; margin-top:5px;">🖨️ Cetak Bill</button>
           <button onclick="bayarMeja()" class="btn-success" style="width:100%; margin-top:10px;">💵 Bayar</button>
         </div>
       </div>
@@ -302,7 +305,8 @@ function renderKasir() {
   });
 
   renderOrder();
-}
+}  
+
 function cetakBill() {
   const meja = mejaList[mejaAktif];
   if(meja.items.length === 0) return alert('Belum ada order untuk dicetak!');
