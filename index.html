@@ -1,130 +1,102 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kasir Naotajun</title>
-<style>
-:root {
-  --primary: #2196f3;
-  --bg: #f5f5f5;
-  --card: #fff;
-  --text: #333;
-}
-[data-theme="green"] { --primary: #4caf50; }
-[data-theme="red"] { --primary: #f44336; }
-[data-theme="blue"] { --primary: #2196f3; }
-[data-theme="dark"] { --primary: #607d8b; --bg: #1a1a1a; --card: #2d2d2d; --text: #fff; }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-header { background: var(--primary); color: #fff; padding: 15px 20px; }
-header h1 { font-size: 20px; }
-.theme-selector { display: flex; gap: 8px; margin: 15px 20px; align-items: center; }
-.theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-.theme-dot.green { background: #4caf50; }
-.theme-dot.red { background: #f44336; }
-.theme-dot.blue { background: #2196f3; }
-.theme-dot.dark { background: #607d8b; }
-
-nav { display: flex; gap: 5px; background: #fff; padding: 0 20px; border-bottom: 2px solid #eee; overflow-x: auto; }
-nav button { padding: 12px 20px; border: none; background: none; cursor: pointer; white-space: nowrap; color: var(--text); }
-nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); font-weight: bold; }
-
-.container { padding: 20px; max-width: 1200px; margin: 0 auto; }
-.card { background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-input, select, button { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-button { background: var(--primary); color: #fff; border: none; cursor: pointer; }
-button:hover { opacity: 0.9; }
-.btn-danger { background: #f44336; }
-.btn-warning { background: #ff9800; }
-.btn-success { background: #4caf50; }
-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-th { background: var(--primary); color: #fff; }
-tr:hover { background: rgba(0,0,0,0.05); }
-.text-center { text-align: center; }
-.flex { display: flex; gap: 10px; flex-wrap: wrap; }
-.mb-20 { margin-bottom: 20px; }
-.badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #fff; }
-.badge-food { background: #4caf50; }
-.badge-beverage { background: #2196f3; }
-.hidden { display: none; }
-.edit-form { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ddd; }
-.meja-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-.meja-card { padding: 20px; border-radius: 8px; text-align: center; color: #fff; cursor: pointer; }
-.meja-kosong { background: #4caf50; }
-.meja-terisi { background: #ff9800; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Kasir</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .flex { display: flex; gap: 10px; }
+    .mb-20 { margin-bottom: 20px; }
+    input, select, button { padding: 8px; font-size: 14px; }
+    button { cursor: pointer; }
+    .hidden { display: none; }
+    .meja-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  </style>
 </head>
-<body data-theme="blue">
+<body>
 
-<header>
-  <h1>🍽️ Kasir Naotajun</h1>
-</header>
+  <div class="tabs">
+    <button onclick="showTab('menu')">Menu</button>
+    <button onclick="showTab('meja')">Meja</button>
+  </div>
 
-<div class="theme-selector">
-  <span>Pilih Tema:</span>
-  <div class="theme-dot green" onclick="setTheme('green')"></div>
-  <div class="theme-dot red" onclick="setTheme('red')"></div>
-  <div class="theme-dot blue" onclick="setTheme('blue')"></div>
-  <div class="theme-dot dark" onclick="setTheme('dark')"></div>
-</div>
-
-<nav>
-  <button class="nav-btn active" onclick="showTab('meja')">🪑 Meja</button>
-  <button class="nav-btn" onclick="showTab('menu')">📋 Menu</button>
-  <button class="nav-btn" onclick="showTab('kasir')">💰 Kasir</button>
-  <button class="nav-btn" onclick="showTab('laporan')">📊 Laporan</button>
-  <button class="nav-btn" onclick="showTab('backup')">💾 Backup</button>
-</nav>
-
-<div class="container">
-  <div id="meja" class="tab-content"></div>
-  <div id="menu" class="tab-content hidden"></div>
-  <div id="kasir" class="tab-content hidden"></div>
-  <div id="laporan" class="tab-content hidden"></div>
-  <div id="backup" class="tab-content hidden"></div>
-</div>
+  <div id="menu" class="tab-content"></div>
+  <div id="meja" class="tab-content hidden"></div>
 
 <script>
-let data = JSON.parse(localStorage.getItem('kasirData')) || {
-  meja: [],
-  menu: [],
-  transaksi: [],
-  pesananAktif: {}
-};
-let editId = null;
-let mejaAktif = null;
-
-function setTheme(theme) {
-  document.body.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-}
-document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'blue');
-
+// ====== TAB FUNCTION ======
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById(tab).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    if(btn.textContent.includes(tab==='meja'?'Meja':tab==='menu'?'Menu':tab==='kasir'?'Kasir':tab==='laporan'?'Laporan':'Backup')) {
-      btn.classList.add('active');
+  
+  if(tab === 'menu') renderMenu();
+  if(tab === 'meja') renderMeja();
+}
+
+// ====== MENU MODULE ======
+function renderMenu() {
+  const container = document.getElementById('menu');
+  container.innerHTML = `
+    <div class="card">
+      <h2>📋 Kelola Menu</h2>
+      
+      <div id="editForm">
+        <h3>Edit Menu</h3>
+        <div class="flex mb-20">
+          <input type="text" id="editNama" placeholder="Nama Menu">
+          <input type="number" id="editHarga" placeholder="Harga">
+          <select id="editTipe">
+            <option value="Food">Food</option>
+            <option value="Beverage">Beverage</option>
+          </select>
+          <select id="editSubKategori">
+            <option value="Minuman Ringan">Minuman Ringan</option>
+            <option value="Kopi">Kopi</option>
+            <option value="Makanan Berat">Makanan Berat</option>
+          </select>
+        </div>
+        <button onclick="simpanEdit()">Simpan</button>
+      </div>
+    </div>
+  `;
+
+  // Event listener Enter untuk pindah kolom
+  document.getElementById('editNama').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editHarga').focus();
     }
   });
 
-  if(tab === 'meja') renderMeja();
-  if(tab === 'menu') renderMenu();
-  if(tab === 'kasir') renderKasir();
-  if(tab === 'laporan') renderLaporan();
-  if(tab === 'backup') renderBackup();
+  document.getElementById('editHarga').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editTipe').focus();
+    }
+  });
+
+  document.getElementById('editTipe').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editSubKategori').focus();
+    }
+  });
+
+  document.getElementById('editSubKategori').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      simpanEdit();
+    }
+  });
 }
 
-function save() {
-  localStorage.setItem('kasirData', JSON.stringify(data));
+function simpanEdit() {
+  alert('Data disimpan!');
 }
 
-// ===== MEJA MODULE =====
+// ====== MEJA MODULE ======
 function renderMeja() {
   const container = document.getElementById('meja');
   container.innerHTML = `
@@ -134,514 +106,18 @@ function renderMeja() {
         <input type="text" id="namaMeja" placeholder="Nama Meja">
         <button onclick="tambahMeja()">+ Tambah Meja</button>
       </div>
-
       <div class="meja-grid" id="gridMeja"></div>
-
-      <h3 style="margin-top:30px;">Tabel Meja</h3>
-      <table>
-        <thead>
-          <tr><th>No</th><th>Nama Meja</th><th>Status</th><th>Aksi</th></tr>
-        </thead>
-        <tbody id="listMeja"></tbody>
-      </table>
     </div>
   `;
-
-  renderGridMeja();
-  renderTabelMeja();
-}
-
-function renderGridMeja() {
-  const grid = document.getElementById('gridMeja');
-  if(data.meja.length === 0) {
-    grid.innerHTML = '<p class="text-center">Belum ada meja. Tambah dulu!</p>';
-    return;
-  }
-
-  grid.innerHTML = data.meja.map(m => `
-    <div class="meja-card ${m.status==='terisi'?'meja-terisi':'meja-kosong'}" onclick="bukaKasirMeja(${m.id})">
-      <h3>${m.nama}</h3>
-      <p>${m.status==='terisi'?'TERISI':'KOSONG'}</p>
-    </div>
-  `).join('');
-}
-
-function renderTabelMeja() {
-  const tbody = document.getElementById('listMeja');
-  tbody.innerHTML = data.meja.map((m, i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${m.nama}</td>
-      <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'kosong'}</span></td>
-      <td>
-        ${m.status==='kosong'
-       ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
-          : `<button class="btn-warning" onclick="bukaKasirMeja(${m.id})">Buka Kasir</button>
-             <button class="btn-danger" onclick="checkOutMeja(${m.id})">Check Out</button>`
-        }
-        <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
-      </td>
-    </tr>
-  `).join('');
 }
 
 function tambahMeja() {
-  const nama = document.getElementById('namaMeja').value.trim();
-  if(!nama) return alert('Isi nama meja!');
-  data.meja.push({id: Date.now(), nama, status: 'kosong'});
-  save();
-  renderMeja();
-  document.getElementById('namaMeja').value = '';
+  alert('Meja ditambah!');
 }
 
-function checkInMeja(id) {
-  id = parseInt(id);
-  const meja = data.meja.find(m => m.id === id);
-  if(!meja) {
-    alert('Meja tidak ditemukan. Refresh halaman.');
-    return;
-  }
-
-  meja.status = 'terisi';
-  data.pesananAktif[id] = data.pesananAktif[id] || [];
-  save();
-  renderMeja();
-  alert(`${meja.nama} berhasil Check In!`);
-}
-
-function checkOutMeja(id) {
-  id = parseInt(id);
-  const meja = data.meja.find(m => m.id === id);
-  if(!meja) return;
-
-  if(!confirm(`Check Out ${meja.nama}? Pesanan akan diselesaikan.`)) return;
-
-  const pesanan = data.pesananAktif[id] || [];
-  if(pesanan.length > 0) {
-    const total = pesanan.reduce((sum, p) => sum + (p.harga * p.qty), 0);
-    data.transaksi.push({
-      id: Date.now(),
-      tanggal: new Date().toISOString(),
-      meja: meja.nama,
-      items: pesanan,
-      total: total,
-      status: 'Lunas'
-    });
-    data.pesananAktif[id] = [];
-  }
-
-  meja.status = 'kosong';
-  save();
-  renderMeja();
-  alert(`${meja.nama} berhasil Check Out!`);
-}
-
-function hapusMeja(id) {
-  id = parseInt(id);
-  if(!confirm('Hapus meja ini?')) return;
-  data.meja = data.meja.filter(m => m.id!== id);
-  delete data.pesananAktif[id];
-  save();
-  renderMeja();
-}
-
-function bukaKasirMeja(id) {
-  id = parseInt(id);
-  const meja = data.meja.find(m => m.id === id);
-  if(!meja) return;
-  if(meja.status!== 'terisi') {
-    alert('Meja belum Check In!');
-    return;
-  }
-  mejaAktif = id;
-  showTab('kasir');
-}
-
-// ===== MENU MODULE =====
-function renderMenu() {
-  const container = document.getElementById('menu');
-  container.innerHTML = `
-    <div class="card">
-      <h2>📋 Kelola Menu</h2>
-
-      <div id="editForm" class="edit-form hidden">
-        <h3>Edit Menu</h3>
-        <div class="flex mb-20">
-          <input type="text" id="editNama" placeholder="Nama Menu">
-          <input type="text" id="editHarga" placeholder="Harga">
-          <select id="editTipe">
-            <option value="Food">Food</option>
-            <option value="Beverage">Beverage</option>
-          </select>
-          <select id="editSubKategori">
-            <option value="Makanan Berat">Makanan Berat</option>
-            <option value="Camilan">Camilan</option>
-            <option value="Minuman Ringan">Minuman Ringan</option>
-            <option value="Minuman Keras">Minuman Keras</option>
-          </select>
-        </div>
-        <button class="btn-success" onclick="simpanEdit()">Simpan</button>
-        <button class="btn-warning" onclick="batalEdit()">Batal</button>
-      </div>
-
-      <div class="flex mb-20">
-        <input type="text" id="namaMenu" placeholder="Nama Menu">
-        <input type="text" id="hargaMenu" placeholder="Harga contoh: 45000">
-        <select id="tipeMenu">
-          <option value="Food">Food</option>
-          <option value="Beverage">Beverage</option>
-        </select>
-        <select id="subKategoriMenu">
-          <option value="Makanan Berat">Makanan Berat</option>
-          <option value="Camilan">Camilan</option>
-          <option value="Minuman Ringan">Minuman Ringan</option>
-          <option value="Minuman Keras">Minuman Keras</option>
-        </select>
-        <button onclick="tambahMenu()">+ Tambah Menu</button>
-      </div>
-
-      <div class="flex mb-20">
-        <button onclick="filterMenu('All')" class="btn-success">All</button>
-        <button onclick="filterMenu('Food')">Food</button>
-        <button onclick="filterMenu('Beverage')">Beverage</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr><th>No</th><th>Nama Menu</th><th>Tipe</th><th>Sub Kategori</th><th>Harga</th><th>Aksi</th></tr>
-        </thead>
-        <tbody id="listMenu"></tbody>
-      </table>
-    </div>
-  `;
-  filterMenu('All');
-}
-
-let filterAktif = 'All';
-function filterMenu(tipe) {
-  filterAktif = tipe;
-  const tbody = document.getElementById('listMenu');
-  let dataFilter = tipe === 'All'
-? data.menu
-    : data.menu.filter(m => (m.tipe || 'Food') === tipe);
-
-  if(dataFilter.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Belum ada menu ${tipe}</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = dataFilter.map((m, i) => {
-    let tipeMenu = m.tipe || 'Food';
-    let subKat = m.subKategori || 'Makanan Berat';
-    return `
-    <tr>
-      <td>${i+1}</td>
-      <td>${m.nama}</td>
-      <td><span class="badge ${tipeMenu==='Food'?'badge-food':'badge-beverage'}">${tipeMenu}</span></td>
-      <td>${subKat}</td>
-      <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
-      <td>
-        <button class="btn-warning" onclick="editMenu(${m.id})">Edit</button>
-        <button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button>
-      </td>
-    </tr>
-  `}).join('');
-}
-
-function tambahMenu() {
-  const nama = document.getElementById('namaMenu').value.trim();
-  let hargaStr = document.getElementById('hargaMenu').value.replace(/\./g, '');
-  const harga = parseInt(hargaStr);
-  const tipe = document.getElementById('tipeMenu').value;
-  const subKategori = document.getElementById('subKategoriMenu').value;
-
-  if(!nama || isNaN(harga)) return alert('Lengkapi data dengan benar!');
-
-  data.menu.push({id: Date.now(), nama, harga, tipe, subKategori});
-  save();
-  filterMenu(filterAktif);
-  document.getElementById('namaMenu').value = '';
-  document.getElementById('hargaMenu').value = '';
-}
-
-function editMenu(id) {
-  editId = parseInt(id);
-  const item = data.menu.find(m => m.id === editId);
-  if(!item) return;
-
-  document.getElementById('editForm').classList.remove('hidden');
-  document.getElementById('editNama').value = item.nama;
-  document.getElementById('editHarga').value = item.harga;
-  document.getElementById('editTipe').value = item.tipe || 'Food';
-  document.getElementById('editSubKategori').value = item.subKategori || 'Makanan Berat';
-
-  window.scrollTo(0, 0);
-}
-
-function simpanEdit() {
-  if(editId === null) return;
-
-  const nama = document.getElementById('editNama').value.trim();
-  let hargaStr = document.getElementById('editHarga').value.replace(/\./g, '');
-  const harga = parseInt(hargaStr);
-  const tipe = document.getElementById('editTipe').value;
-  const subKategori = document.getElementById('editSubKategori').value;
-
-  if(!nama || isNaN(harga)) return alert('Lengkapi data dengan benar!');
-
-  const index = data.menu.findIndex(m => m.id === editId);
-  if(index!== -1) {
-    data.menu[index] = {id: editId, nama, harga, tipe, subKategori};
-    save();
-    filterMenu(filterAktif);
-    batalEdit();
-    alert('Data berhasil diupdate!');
-  }
-}
-
-function batalEdit() {
-  editId = null;
-  document.getElementById('editForm').classList.add('hidden');
-  document.getElementById('editNama').value = '';
-  document.getElementById('editHarga').value = '';
-}
-
-function hapusMenu(id) {
-  id = parseInt(id);
-  if(!confirm('Hapus menu ini?')) return;
-  data.menu = data.menu.filter(m => m.id!== id);
-  save();
-  filterMenu(filterAktif);
-}
-
-// ===== KASIR MODULE =====
-function renderKasir() {
-  const container = document.getElementById('kasir');
-
-  if(!mejaAktif) {
-    container.innerHTML = `
-      <div class="card">
-        <h2>💰 Kasir</h2>
-        <p>Pilih meja yang sudah Check In untuk input pesanan.</p>
-        <div class="flex" style="margin-top:15px;">
-          ${data.meja.filter(m => m.status==='terisi').map(m =>
-            `<button class="btn-success" onclick="setMejaAktif(${m.id})">${m.nama}</button>`
-          ).join('')}
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  const meja = data.meja.find(m => m.id === mejaAktif);
-  const pesanan = data.pesananAktif[mejaAktif] || [];
-  const total = pesanan.reduce((sum, p) => sum + (p.harga * p.qty), 0);
-
-  container.innerHTML = `
-    <div class="card">
-      <h2>💰 Kasir - ${meja.nama}</h2>
-      <button class="btn-warning" onclick="tutupKasir()">← Kembali</button>
-
-      ${data.menu.length === 0
-    ? '<p style="margin-top:15px;">Belum ada menu. Tambah menu dulu di tab Menu.</p>'
-        : `
-      <div class="flex mb-20" style="margin-top:20px;">
-        <select id="selectMenu">
-          ${data.menu.map(m => `<option value="${m.id}">${m.nama} - Rp ${m.harga.toLocaleString('id-ID')}</option>`).join('')}
-        </select>
-        <input type="number" id="qtyMenu" value="1" min="1" style="width:80px;">
-        <button onclick="tambahPesanan()">+ Tambah</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr><th>Menu</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th>Aksi</th></tr>
-        </thead>
-        <tbody id="listPesanan"></tbody>
-        <tfoot>
-          <tr><th colspan="3">Total</th><th colspan="2">Rp ${total.toLocaleString('id-ID')}</th></tr>
-        </tfoot>
-      </table>
-
-      <div class="flex" style="margin-top:20px;">
-        <button class="btn-success" onclick="prosesBayar()">Proses Bayar & Check Out</button>
-      </div>
-      `}
-    </div>
-  `;
-
-  if(data.menu.length > 0) renderPesanan();
-}
-
-function setMejaAktif(id) {
-  mejaAktif = parseInt(id);
-  renderKasir();
-}
-
-function renderPesanan() {
-  const tbody = document.getElementById('listPesanan');
-  if(!tbody) return;
-
-  const pesanan = data.pesananAktif[mejaAktif] || [];
-
-  if(pesanan.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada pesanan</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = pesanan.map((p, i) => `
-    <tr>
-      <td>${p.nama}</td>
-      <td>${p.qty}</td>
-      <td>Rp ${p.harga.toLocaleString('id-ID')}</td>
-      <td>Rp ${(p.harga * p.qty).toLocaleString('id-ID')}</td>
-      <td><button class="btn-danger" onclick="hapusPesanan(${i})">Hapus</button></td>
-    </tr>
-  `).join('');
-}
-
-function tambahPesanan() {
-  const menuId = parseInt(document.getElementById('selectMenu').value);
-  const qty = parseInt(document.getElementById('qtyMenu').value);
-  const menu = data.menu.find(m => m.id === menuId);
-
-  if(!menu) return;
-
-  const pesanan = data.pesananAktif[mejaAktif] || [];
-  const existing = pesanan.find(p => p.id === menuId);
-
-  if(existing) {
-    existing.qty += qty;
-  } else {
-    pesanan.push({id: menuId, nama: menu.nama, harga: menu.harga, qty: qty});
-  }
-
-  data.pesananAktif[mejaAktif] = pesanan;
-  save();
-  renderPesanan();
-  renderKasir();
-}
-
-function hapusPesanan(index) {
-  data.pesananAktif[mejaAktif].splice(index, 1);
-  save();
-  renderPesanan();
-  renderKasir();
-}
-
-function tutupKasir() {
-  mejaAktif = null;
-  showTab('meja');
-}
-
-function prosesBayar() {
-  if(!mejaAktif) return;
-  checkOutMeja(mejaAktif);
-  mejaAktif = null;
-  showTab('kasir');
-}
-
-// ===== LAPORAN MODULE =====
-function renderLaporan() {
-  const total = data.transaksi.reduce((sum, t) => sum + t.total, 0);
-  const container = document.getElementById('laporan');
-  container.innerHTML = `
-    <div class="card">
-      <h2>📊 Laporan Penjualan</h2>
-      <h3>Total Pendapatan: Rp ${total.toLocaleString('id-ID')}</h3>
-      <table>
-        <thead>
-          <tr><th>No</th><th>Tanggal</th><th>Meja</th><th>Total</th></tr>
-        </thead>
-        <tbody id="listLaporan"></tbody>
-      </table>
-    </div>
-  `;
-  const tbody = document.getElementById('listLaporan');
-  if(data.transaksi.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada data</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.transaksi.map((t, i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${new Date(t.tanggal).toLocaleString('id-ID')}</td>
-      <td>${t.meja}</td>
-      <td>Rp ${t.total.toLocaleString('id-ID')}</td>
-    </tr>
-  `).join('');
-}
-
-// ===== BACKUP MODULE =====
-function renderBackup() {
-  const container = document.getElementById('backup');
-  container.innerHTML = `
-    <div class="card">
-      <h2>💾 Backup & Restore</h2>
-      <div class="flex">
-        <button class="btn-success" onclick="exportData()">Export Data</button>
-        <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-      </div>
-      <p style="margin-top:15px;">Data tersimpan otomatis di browser. Export untuk backup.</p>
-    </div>
-  `;
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'kasir-backup.json';
-  a.click();
-}
-
-function importData(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    data = JSON.parse(event.target.result);
-    save();
-    alert('Data berhasil diimport!');
-    location.reload();
-  };
-  reader.readAsText(file);
-}
-
-// Init
- renderMeja();
- // Pindah kolom dengan Enter di form tambah menu
-  document.getElementById('namaMeja').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('hargaMenu').focus();
-    }
-  });
-
-  document.getElementById('hargaMenu').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('tipeMenu').focus();
-    }
-  });
-
-  document.getElementById('tipeMenu').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('subKategoriMenu').focus();
-    }
-  });
-
- document.getElementById('subKategoriMenu').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      simpanEdit();
-   }
-  });
-  
-  renderMeja();
-
+// ====== INIT ======
+renderMenu();
 </script>
-  
+
 </body>
 </html>
