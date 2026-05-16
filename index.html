@@ -4,300 +4,113 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Naotajun</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
+:root {
+  --primary: #2196f3;
+  --bg: #f5f5f5;
+  --card: #fff;
+  --text: #333;
+}
+[data-theme="green"] { --primary: #4caf50; }
+[data-theme="red"] { --primary: #f44336; }
+[data-theme="blue"] { --primary: #2196f3; }
+[data-theme="dark"] { --primary: #607d8b; --bg: #1a1a1a; --card: #2d2d2d; --text: #fff; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f7fa;
-  color: #333;
-  transition: background 0.3s;
-}
-body.green { background: #e8f5e9; }
-body.pink { background: #fce4ec; }
-body.blue { background: #e3f2fd; }
-body.brown { background: #efebe9; }
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
+header { background: var(--primary); color: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 10px; }
+header h1 { font-size: 20px; }
+.theme-selector { display: flex; gap: 8px; margin: 15px 20px; }
+.theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.theme-dot.green { background: #4caf50; }
+.theme-dot.red { background: #f44336; }
+.theme-dot.blue { background: #2196f3; }
+.theme-dot.dark { background: #607d8b; }
 
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.header h1 { font-size: 24px; font-weight: 600; }
+nav { display: flex; gap: 5px; background: #fff; padding: 0 20px; border-bottom: 2px solid #eee; overflow-x: auto; }
+nav button { padding: 12px 20px; border: none; background: none; cursor: pointer; white-space: nowrap; color: var(--text); }
+nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); font-weight: bold; }
 
-.theme-bar {
-  padding: 15px 20px;
-  background: white;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.theme-btn {
-  width: 35px; height: 35px;
-  border-radius: 50%;
-  border: 3px solid white;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: transform 0.2s;
-}
-.theme-btn:hover { transform: scale(1.1); }
-.theme-btn[data-theme="green"] { background: #4caf50; }
-.theme-btn[data-theme="pink"] { background: #e91e63; }
-.theme-btn[data-theme="blue"] { background: #2196f3; }
-.theme-btn[data-theme="brown"] { background: #795548; }
-
-.nav {
-  display: flex;
-  background: white;
-  border-bottom: 2px solid #eee;
-  overflow-x: auto;
-}
-.nav-btn {
-  flex: 1;
-  padding: 15px 20px;
-  border: none;
-  background: white;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.nav-btn:hover { background: #f5f5f5; }
-.nav-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.container {
-  padding: 30px 20px;
-  max-width: 1300px;
-  margin: 0 auto;
-}
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s; }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  margin-bottom: 25px;
-}
-.card h2 { margin-bottom: 20px; color: #667eea; }
-
-input, select, button, textarea {
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #667eea;
-}
-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-.btn-danger { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.btn-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.btn-success { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-table th, table td {
-  border: 1px solid #e0e0e0;
-  padding: 15px;
-  text-align: left;
-}
-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #667eea;
-}
-table tr:hover { background: #f8f9fa; }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-.meja-card {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: all 0.3s;
-  border: 2px solid transparent;
-}
-.meja-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border-color: #667eea;
-}
-.meja-card.terisi {
-  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-}
-
-.flex { display: flex; gap: 15px; }
-.flex-1 { flex: 1; }
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
-.modal.active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-content {
-  background: white;
-  padding: 35px;
-  border-radius: 15px;
-  max-width: 700px;
-  width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-.close {
-  float: right;
-  font-size: 32px;
-  cursor: pointer;
-  color: #999;
-}
-.close:hover { color: #f5576c; }
-
-.badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.mt-10 { margin-top: 10px; }
-.mt-20 { margin-top: 20px; }
-.mb-10 { margin-bottom: 10px; }
-.mb-20 { margin-bottom: 20px; }
-.text-right { text-align: right; }
+.container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+.card { background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+input, select, button { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+button { background: var(--primary); color: #fff; border: none; cursor: pointer; }
+button:hover { opacity: 0.9; }
+.btn-danger { background: #f44336; }
+.btn-warning { background: #ff9800; }
+.btn-success { background: #4caf50; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+th { background: var(--primary); color: #fff; }
+tr:hover { background: rgba(0,0,0,0.05); }
 .text-center { text-align: center; }
-
-@media (max-width: 768px) {
- .nav { flex-direction: column; }
- .grid { grid-template-columns: 1fr; }
- .flex { flex-direction: column; }
- .container { padding: 20px 15px; }
-}
+.flex { display: flex; gap: 10px; flex-wrap: wrap; }
+.mb-20 { margin-bottom: 20px; }
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #fff; }
+.hidden { display: none; }
 </style>
 </head>
-<body>
-  <div class="header">
-    <h1>🍜 Kasir Naotajun</h1>
-  </div>
+<body data-theme="blue">
 
-  <div class="theme-bar">
-    <span><strong>Pilih Tema:</strong></span>
-    <div class="theme-btn" data-theme="green"></div>
-    <div class="theme-btn" data-theme="pink"></div>
-    <div class="theme-btn" data-theme="blue"></div>
-    <div class="theme-btn" data-theme="brown"></div>
-  </div>
+<header>
+  <h1>🍽️ Kasir Naotajun</h1>
+</header>
 
-  <div class="nav">
-    <button class="nav-btn active" data-tab="meja">🪑 Meja</button>
-    <button class="nav-btn" data-tab="menu">🍱 Menu</button>
-    <button class="nav-btn" data-tab="kasir">💰 Kasir</button>
-    <button class="nav-btn" data-tab="laporan">📊 Laporan</button>
-    <button class="nav-btn" data-tab="backup">💾 Backup</button>
-  </div>
+<div class="theme-selector">
+  <span>Pilih Tema:</span>
+  <div class="theme-dot green" onclick="setTheme('green')"></div>
+  <div class="theme-dot red" onclick="setTheme('red')"></div>
+  <div class="theme-dot blue" onclick="setTheme('blue')"></div>
+  <div class="theme-dot dark" onclick="setTheme('dark')"></div>
+</div>
 
-  <div class="container">
-    <div id="meja" class="tab-content active"></div>
-    <div id="menu" class="tab-content"></div>
-    <div id="kasir" class="tab-content"></div>
-    <div id="laporan" class="tab-content"></div>
-    <div id="backup" class="tab-content"></div>
-  </div>
+<nav>
+  <button class="nav-btn active" onclick="showTab('meja')">🪑 Meja</button>
+  <button class="nav-btn" onclick="showTab('menu')">📋 Menu</button>
+  <button class="nav-btn" onclick="showTab('kasir')">💰 Kasir</button>
+  <button class="nav-btn" onclick="showTab('laporan')">📊 Laporan</button>
+  <button class="nav-btn" onclick="showTab('backup')">💾 Backup</button>
+</nav>
 
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div id="modal-body"></div>
-    </div>
-  </div>
+<div class="container">
+  <div id="meja" class="tab-content"></div>
+  <div id="menu" class="tab-content hidden"></div>
+  <div id="kasir" class="tab-content hidden"></div>
+  <div id="laporan" class="tab-content hidden"></div>
+  <div id="backup" class="tab-content hidden"></div>
+</div>
 
 <script>
-// Data Storage
-let data = {
-  meja: JSON.parse(localStorage.getItem('meja') || '[]'),
-  menu: JSON.parse(localStorage.getItem('menu') || '[]'),
-  transaksi: JSON.parse(localStorage.getItem('transaksi') || '[]')
+let data = JSON.parse(localStorage.getItem('kasirData')) || {
+  meja: [],
+  menu: [],
+  transaksi: []
 };
 
-function saveData() {
-  localStorage.setItem('meja', JSON.stringify(data.meja));
-  localStorage.setItem('menu', JSON.stringify(data.menu));
-  localStorage.setItem('transaksi', JSON.stringify(data.transaksi));
+// Theme
+function setTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+}
+document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'blue');
+
+// Navigation
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(tab).classList.remove('hidden');
+  event.target.classList.add('active');
+
+  if(tab === 'meja') renderMeja();
+  if(tab === 'menu') renderMenu();
+  if(tab === 'kasir') renderKasir();
+  if(tab === 'laporan') renderLaporan();
+  if(tab === 'backup') renderBackup();
 }
 
-// Tab Switching
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-  });
-});
-
-// Theme
-document.querySelectorAll('.theme-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.body.className = btn.dataset.theme;
-    localStorage.setItem('theme', btn.dataset.theme);
-  });
-});
-document.body.className = localStorage.getItem('theme') || 'green';
-
-// Modal
-const modal = document.getElementById('modal');
-document.querySelector('.close').onclick = () => modal.classList.remove('active');
-window.onclick = (e) => { if(e.target == modal) modal.classList.remove('active'); };
-
-<script>
-// ... kode di atas tetap ...
+function save() {
+  localStorage.setItem('kasirData', JSON.stringify(data));
+}
 
 // ===== MEJA MODULE =====
 function renderMeja() {
@@ -311,62 +124,69 @@ function renderMeja() {
       </div>
       <table>
         <thead>
-          <tr>
-            <th>No</th>
-            <th>Nama Meja</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
+          <tr><th>No</th><th>Nama Meja</th><th>Status</th><th>Aksi</th></tr>
         </thead>
         <tbody id="listMeja"></tbody>
       </table>
     </div>
   `;
-
   const tbody = document.getElementById('listMeja');
   if(data.meja.length === 0) {
     tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada meja. Tambah dulu!</td></tr>`;
     return;
   }
-
   tbody.innerHTML = data.meja.map((m, i) => `
     <tr>
       <td>${i+1}</td>
       <td>${m.nama}</td>
       <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'Kosong'}</span></td>
       <td>
-        <button class="btn-warning" onclick="bukaMeja(${m.id})">Buka</button>
         <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
       </td>
     </tr>
   `).join('');
 }
 
-// ... kode di bawah tetap ...
-</script>
-  
+function tambahMeja() {
+  const nama = document.getElementById('namaMeja').value.trim();
+  if(!nama) return alert('Isi nama meja!');
+  data.meja.push({id: Date.now(), nama, status: 'kosong'});
+  save();
+  renderMeja();
+  document.getElementById('namaMeja').value = '';
+}
 
+function hapusMeja(id) {
+  if(!confirm('Hapus meja ini?')) return;
+  data.meja = data.meja.filter(m => m.id!== id);
+  save();
+  renderMeja();
+}
 
-  
 // ===== MENU MODULE =====
 function renderMenu() {
   const container = document.getElementById('menu');
   container.innerHTML = `
     <div class="card">
-      <h2>🍱 Kelola Menu</h2>
+      <h2>📋 Kelola Menu</h2>
       <div class="flex mb-20">
         <input type="text" id="namaMenu" placeholder="Nama Menu">
         <input type="number" id="hargaMenu" placeholder="Harga">
         <button onclick="tambahMenu()">+ Tambah Menu</button>
       </div>
       <table>
-        <thead><tr><th>No</th><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
+        <thead>
+          <tr><th>No</th><th>Nama Menu</th><th>Harga</th><th>Aksi</th></tr>
+        </thead>
         <tbody id="listMenu"></tbody>
       </table>
     </div>
   `;
-
   const tbody = document.getElementById('listMenu');
+  if(data.menu.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada menu</td></tr>`;
+    return;
+  }
   tbody.innerHTML = data.menu.map((m, i) => `
     <tr>
       <td>${i+1}</td>
@@ -377,23 +197,22 @@ function renderMenu() {
   `).join('');
 }
 
-window.tambahMenu = function() {
+function tambahMenu() {
   const nama = document.getElementById('namaMenu').value.trim();
   const harga = parseInt(document.getElementById('hargaMenu').value);
-  if(!nama ||!harga) return alert('Isi semua field!');
+  if(!nama ||!harga) return alert('Lengkapi data!');
   data.menu.push({id: Date.now(), nama, harga});
-  saveData();
+  save();
+  renderMenu();
   document.getElementById('namaMenu').value = '';
   document.getElementById('hargaMenu').value = '';
-  renderMenu();
 }
 
-window.hapusMenu = function(id) {
-  if(confirm('Hapus menu ini?')) {
-    data.menu = data.menu.filter(m => m.id!== id);
-    saveData();
-    renderMenu();
-  }
+function hapusMenu(id) {
+  if(!confirm('Hapus menu ini?')) return;
+  data.menu = data.menu.filter(m => m.id!== id);
+  save();
+  renderMenu();
 }
 
 // ===== KASIR MODULE =====
@@ -402,31 +221,58 @@ function renderKasir() {
   container.innerHTML = `
     <div class="card">
       <h2>💰 Kasir</h2>
-      <p>Pilih menu dan meja untuk membuat transaksi. Fitur lengkap ada di versi modular.</p>
-      <p class="mt-20">Total Menu: ${data.menu.length} | Total Meja: ${data.meja.length}</p>
+      <p>Fitur kasir akan menampilkan daftar transaksi aktif. Silakan tambah menu dan meja dulu.</p>
+      <table>
+        <thead>
+          <tr><th>No</th><th>Tanggal</th><th>Total</th><th>Status</th></tr>
+        </thead>
+        <tbody id="listTransaksi"></tbody>
+      </table>
     </div>
   `;
+  const tbody = document.getElementById('listTransaksi');
+  if(data.transaksi.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada transaksi</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.transaksi.map((t, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${new Date(t.tanggal).toLocaleString('id-ID')}</td>
+      <td>Rp ${t.total.toLocaleString('id-ID')}</td>
+      <td>${t.status}</td>
+    </tr>
+  `).join('');
 }
 
 // ===== LAPORAN MODULE =====
 function renderLaporan() {
+  const total = data.transaksi.reduce((sum, t) => sum + t.total, 0);
   const container = document.getElementById('laporan');
   container.innerHTML = `
     <div class="card">
-      <h2>📊 Laporan</h2>
-      <p>Total Transaksi: ${data.transaksi.length}</p>
-      <button class="btn-success mt-20" onclick="exportExcel()">Export Excel</button>
-      <button class="btn-warning mt-20" onclick="exportPDF()">Export PDF</button>
+      <h2>📊 Laporan Penjualan</h2>
+      <h3>Total Pendapatan: Rp ${total.toLocaleString('id-ID')}</h3>
+      <table>
+        <thead>
+          <tr><th>No</th><th>Tanggal</th><th>Total</th></tr>
+        </thead>
+        <tbody id="listLaporan"></tbody>
+      </table>
     </div>
   `;
-}
-
-window.exportExcel = function() {
-  alert('Fitur export Excel aktif!');
-}
-
-window.exportPDF = function() {
-  alert('Fitur export PDF aktif!');
+  const tbody = document.getElementById('listLaporan');
+  if(data.transaksi.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="text-center">Belum ada data</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.transaksi.map((t, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${new Date(t.tanggal).toLocaleString('id-ID')}</td>
+      <td>Rp ${t.total.toLocaleString('id-ID')}</td>
+    </tr>
+  `).join('');
 }
 
 // ===== BACKUP MODULE =====
@@ -435,41 +281,38 @@ function renderBackup() {
   container.innerHTML = `
     <div class="card">
       <h2>💾 Backup & Restore</h2>
-      <button class="btn-success" onclick="backupData()">Download Backup</button>
-      <input type="file" id="restoreFile" accept=".json" class="mt-20">
-      <button class="btn-warning mt-10" onclick="restoreData()">Restore Data</button>
+      <div class="flex">
+        <button class="btn-success" onclick="exportData()">Export Data</button>
+        <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+      </div>
+      <p style="margin-top:15px;">Data tersimpan otomatis di browser. Export untuk backup.</p>
     </div>
   `;
 }
 
-window.backupData = function() {
+function exportData() {
   const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'backup_kasir.json';
+  a.download = 'kasir-backup.json';
   a.click();
 }
 
-window.restoreData = function() {
-  const file = document.getElementById('restoreFile').files[0];
-  if(!file) return alert('Pilih file dulu!');
+function importData(e) {
+  const file = e.target.files[0];
   const reader = new FileReader();
-  reader.onload = e => {
-    data = JSON.parse(e.target.result);
-    saveData();
-    alert('Data berhasil direstore!');
+  reader.onload = function(event) {
+    data = JSON.parse(event.target.result);
+    save();
+    alert('Data berhasil diimport!');
     location.reload();
-  }
+  };
   reader.readAsText(file);
 }
 
 // Init
 renderMeja();
-renderMenu();
-renderKasir();
-renderLaporan();
-renderBackup();
 </script>
 </body>
 </html>
