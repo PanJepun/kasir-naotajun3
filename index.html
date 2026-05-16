@@ -400,19 +400,37 @@ function hitungTotal(id, subtotal) {
   `;
 }
 
-function cetakStruk(id) {
+  function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
+  if (meja.items.length === 0) {
+    alert("Meja masih kosong, belum ada item");
+    return;
+  }
+
   let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
   let diskonRp = subtotal * (meja.diskonPersen / 100);
   let setelahDiskon = subtotal - diskonRp;
   let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
   let total = setelahDiskon + ppnRp;
   let waktu = new Date().toLocaleString('id-ID');
+  let waktuISO = new Date().toISOString(); // simpan format ISO buat filter tanggal
 
-  let bill = {waktu, meja: meja.nama, kasir: meja.kasir, waitress: meja.waitress, items: [...meja.items], total};
+  // Simpan ke laporan
+  let bill = {
+    waktu: waktu, 
+    waktuISO: waktuISO, // buat filter periode
+    meja: meja.nama, 
+    kasir: meja.kasir || '-', 
+    waitress: meja.waitress || '-', 
+    items: JSON.parse(JSON.stringify(meja.items)), 
+    total: total
+  };
+  
   data.laporan.push(bill);
   saveData();
+  console.log("Berhasil simpan:", bill);
 
+  // Print struk
   let lebar = 32;
   let padRight = (str, len) => str + ' '.repeat(Math.max(0, len - str.length));
   let padLeft = (str, len) => ' '.repeat(Math.max(0, len - str.length)) + str;
@@ -431,27 +449,16 @@ function cetakStruk(id) {
   struk += line + '\n';
   struk += padRight('Waktu : ' + waktu, lebar) + '\n';
   struk += padRight('Meja : ' + meja.nama, lebar) + '\n';
-  struk += padRight('Kasir : ' + (meja.kasir || '-'), lebar) + '\n';
-  struk += padRight('Waitress : ' + (meja.waitress || '-'), lebar) + '\n';
+  struk += padRight('Kasir : ' + bill.kasir, lebar) + '\n';
+  struk += padRight('Waitress : ' + bill.waitress, lebar) + '\n';
   struk += lineDash + '\n';
 
   meja.items.forEach((item, i) => {
-    let nama = item.nama.length > 18? item.nama.substring(0, 18) : item.nama;
+    let nama = item.nama.length > 18 ? item.nama.substring(0, 18) : item.nama;
     let hargaTotal = 'Rp' + (item.harga * item.qty).toLocaleString('id-ID');
     struk += `${i+1}. ${nama}\n`;
     struk += padRight(' ' + item.qty + 'x Rp' + item.harga.toLocaleString('id-ID'), lebar - hargaTotal.length) + hargaTotal + '\n';
   });
-
-  struk += lineDash + '\n';
-  struk += padRight('Subtotal', lebar - 12) + padLeft('Rp' + subtotal.toLocaleString('id-ID'), 12) + '\n';
-
-  if(meja.diskonPersen > 0) {
-    struk += padRight('Diskon ' + meja.diskonPersen + '%', lebar - 12) + padLeft('-Rp' + diskonRp.toLocaleString('id-ID'), 12) + '\n';
-  }
-
-  if(meja.ppnPersen > 0) {
-    struk += padRight('PPN ' + meja.ppnPersen + '%', lebar - 12) + padLeft('Rp' + ppnRp.toLocaleString('id-ID'), 12) + '\n';
-  }
 
   struk += lineDash + '\n';
   struk += padRight('TOTAL', lebar - 15) + padLeft('Rp' + total.toLocaleString('id-ID'), 15) + '\n';
@@ -462,17 +469,10 @@ function cetakStruk(id) {
   printWindow.document.write('<pre style="font-family:monospace; font-size:12px; line-height:1.2; margin:0;">' + struk + '</pre>');
   printWindow.document.close();
   printWindow.print();
-}
 
-function resetMeja(id) {
-  if(confirm('Yakin reset meja ini?')) {
-    let meja = data.mejaList.find(m => m.id === id);
-    meja.items = [];
-    meja.kasir = '';
-    meja.waitress = '';
-    saveData();
-    renderMeja();
-  }
+  // Reset meja
+  meja.items = [];
+  renderItems(id);
 }
 
 // MEJA
