@@ -3,503 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kasir WARUNG MADE</title>
+<title>Kasir Warung</title>
 <style>
-  :root {
-    --primary: #4CAF50; --danger: #f44336; --warning: #ff9800; --dark: #333;
-    --bg: #f5f5f5; --card: #ffffff; --text: #333; --border: #ddd; --info-bg: #e8f5e9;
-    --occupied: #ff9800;
-  }
-  [data-theme="green"] { --primary: #2e7d32; --dark: #1b5e20; --bg: #e8f5e9; }
-
-    * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
-
- .navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
- .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
- .navbar button.active,.navbar button:hover { background: var(--primary); }
- .navbar.logout { margin-left: auto; background: var(--danger); }
-
- .container { max-width: 1100px; margin: 20px auto; background: var(--card); padding: 20px; border-radius: 10px; }
-  h2 { text-align: center; margin-top: 0; }
- .page { display: none; }
- .page.active { display: block; }
- .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
- .tab { padding: 10px 15px; background: var(--border); border-radius: 5px; cursor: pointer; }
- .tab.active { background: var(--primary); color: white; }
- .tab.occupied { background: var(--occupied); color: white; }
- .meja { display: none; }
- .meja.active { display: block; }
-
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: middle; }
-  th { background: var(--border); }
-  input, select, button { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid var(--border); }
-  button { background: var(--primary); color: white; border: none; cursor: pointer; }
- .btn-danger { background: var(--danger); }
- .btn-warning { background: var(--warning); }
-
- .menu-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
- .menu-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin-top: 5px; display: none; }
- .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
- .info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
- .summary { margin-top: 15px; padding: 10px; background: var(--info-bg); border-radius: 5px; }
- .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
- .badge.food { background: #2196F3; }
- .badge.beverage { background: #9C27B0; }
- .badge.snack { background: #ff9800; }
- .badge.supervisor { background: #9C27B0; }
- .badge.user { background: #2196F3; }
-
- .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
- .modal.active { display: flex; justify-content: center; align-items: center; }
- .modal-content { background: var(--card); padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
-
- .login-box { max-width: 350px; margin: 100px auto; padding: 30px; background: var(--card); border-radius: 10px; text-align: center; }
- .login-box input { width: 100%; }
+  body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+  header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { margin: 0; font-size: 18px; }
+ .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+ .btn-danger { background: #ef4444; color: white; }
+ .btn-primary { background: #2563eb; color: white; }
+ .container { padding: 20px; }
+ .card { background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  input, select, button { padding: 8px; margin: 4px 0; border: 1px solid #ccc; border-radius: 6px; }
 </style>
 </head>
-<body data-theme="green">
+<body>
 
-<div id="loginPage" class="login-box">
-  <h2>Login Kasir</h2>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p style="font-size:12px; color:#666; margin-top:15px;">
-    Default:<br>
-    Supervisor: admin / 1234<br>
-    User: kasir / 1234
-  </p>
-</div>
+<header>
+  <h1>Kasir Warung</h1>
+  <div>
+    <button id="restoreBtn" class="btn btn-danger" onclick="restoreFromAutoBackup()" style="display:none;">
+      🔄 Restore Backup Otomatis
+    </button>
+    <button class="btn btn-primary" onclick="backupNow()">Backup Manual</button>
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+</header>
 
-<div id="mainApp" style="display:none;">
-  <div class="navbar" id="navbar">
-    <button class="navbtn active" onclick="showPage('kasir', event)">Kasir</button>
-    <button class="navbtn nav-supervisor" onclick="showPage('meja', event)">Meja</button>
-    <button class="navbtn nav-supervisor" onclick="showPage('menu', event)">Menu</button>
-    <button class="navbtn nav-supervisor" onclick="showPage('user', event)">User</button>
-    <button class="navbtn" onclick="showPage('laporan', event)">Laporan</button>
-    <button class="navbtn nav-supervisor" onclick="backupData()">Backup</button>
-    <button class="navbtn nav-supervisor" onclick="restoreData()">Restore</button>
-    <span id="userInfo" style="color:white; padding:10px;"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+<div class="container">
+  <div class="card">
+    <h3>Tambah Menu</h3>
+    <input type="text" id="namaMenu" placeholder="Nama Menu">
+    <input type="number" id="hargaMenu" placeholder="Harga">
+    <button class="btn btn-primary" onclick="tambahMenu()">Tambah</button>
   </div>
 
-  <div class="container">
-    <div id="kasir" class="page active">
-      <h2>Kasir Warung Made</h2>
-      <div class="tabs" id="tabs"></div>
-      <div id="mejaContainer"></div>
-    </div>
-
-    <div id="meja" class="page">
-      <h2>Manajemen Meja</h2>
-      <div class="filter-bar">
-        <input type="text" id="namaMejaBaru" placeholder="Nama Meja Baru">
-        <button onclick="tambahMeja()">Tambah Meja</button>
-      </div>
-      <table>
-        <thead><tr><th>ID</th><th>Nama Meja</th><th>Kasir</th><th>Waitress</th><th>Aksi</th></tr></thead>
-        <tbody id="tbodyMeja"></tbody>
-      </table>
-    </div>
-
-    <div id="menu" class="page">
-      <h2>Manajemen Menu</h2>
-      <small style="color:#d32f2f;">⚠️ Maks 10 menu dengan foto</small>
-      <div class="filter-bar">
-        <input type="text" id="namaMenu" placeholder="Nama Menu">
-        <input type="number" id="hargaMenu" placeholder="Harga" min="0">
-        <select id="kategoriMenu">
-          <option value="Food">Food</option>
-          <option value="Beverage">Beverage</option>
-          <option value="Snack">Snack</option>
-        </select>
-        <input type="file" id="fotoMenu" accept="image/*" onchange="previewFoto(this, 'previewMenu')">
-        <button onclick="tambahMenu()">Tambah Menu</button>
-      </div>
-      <img id="previewMenu" class="menu-preview">
-      <table>
-        <thead><tr><th>Foto</th><th>Menu</th><th>Kategori</th><th>Harga</th><th>Aksi</th></tr></thead>
-        <tbody id="tbodyMenu"></tbody>
-      </table>
-    </div>
-
-    <div id="user" class="page">
-      <h2>Manajemen User</h2>
-      <div class="filter-bar">
-        <input type="text" id="newUsername" placeholder="Username">
-        <input type="password" id="newPassword" placeholder="Password">
-        <select id="newRole">
-          <option value="user">User</option>
-          <option value="supervisor">Supervisor</option>
-        </select>
-        <button onclick="tambahUser()">Tambah User</button>
-      </div>
-      <table>
-        <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
-        <tbody id="tbodyUser"></tbody>
-      </table>
-    </div>
-
-    <div id="laporan" class="page">
-      <h2>Laporan Penjualan</h2>
-      <div class="filter-bar">
-        <label>Dari:</label><input type="date" id="tglDari">
-        <label>Sampai:</label><input type="date" id="tglSampai">
-        <button onclick="filterLaporan()">Tampilkan</button>
-      </div>
-      <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
-      <table>
-        <thead><tr><th>Waktu</th><th>Meja</th><th>Kasir</th><th>Waitress</th><th>Item</th><th>Total</th><th>Aksi</th></tr></thead>
-        <tbody id="tbodyLaporan"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="modalEditMenu" class="modal">
-    <div class="modal-content">
-      <h3>Edit Menu</h3>
-      <input type="text" id="editNamaMenu" placeholder="Nama Menu">
-      <input type="number" id="editHargaMenu" placeholder="Harga">
-      <select id="editKategoriMenu">
-        <option value="Food">Food</option>
-        <option value="Beverage">Beverage</option>
-        <option value="Snack">Snack</option>
-      </select>
-      <input type="file" id="editFotoMenu" accept="image/*" onchange="previewFoto(this, 'previewEditMenu')">
-      <img id="previewEditMenu" class="menu-preview">
-      <div style="margin-top:10px;">
-        <button onclick="simpanEditMenu()">Simpan</button>
-        <button class="btn-danger" onclick="tutupModal('modalEditMenu')">Batal</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalEditMeja" class="modal">
-    <div class="modal-content">
-      <h3>Edit Meja</h3>
-      <input type="text" id="editNamaMeja" placeholder="Nama Meja">
-      <input type="text" id="editKasirMeja" placeholder="Nama Kasir">
-      <input type="text" id="editWaitressMeja" placeholder="Nama Waitress">
-      <div style="margin-top:10px;">
-        <button onclick="simpanEditMeja()">Simpan</button>
-        <button class="btn-danger" onclick="tutupModal('modalEditMeja')">Batal</button>
-      </div>
-    </div>
+  <div class="card">
+    <h3>Daftar Menu</h3>
+    <div id="listMenu"></div>
   </div>
 </div>
 
 <script>
 let data = {
-  mejaList: [{id: 1, nama: "Meja 1", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10}],
-  menuList: [{id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food", foto: ""}],
-  laporan: [],
-  users: [
-    {username: "admin", password: "1234", role: "supervisor"},
-    {username: "kasir", password: "1234", role: "user"}
-  ]
+  menuList: [],
+  mejaList: [],
+  userList: []
 };
-let currentUser = null;
-let editTarget = null;
-let fotoTemp = '';
 
+const STORAGE_KEY = 'kasirWarungMade';
+const BACKUP_KEY = 'kasirWarungMade_backup';
+const BACKUP_TIME_KEY = 'kasirWarungMade_backupTime';
+
+// Load data saat buka halaman
 function loadData() {
-  let saved = localStorage.getItem('kasirWarungMade');
-  if(saved) {
-    try {
-      data = JSON.parse(saved);
-      if(!data.users) {
-        data.users = [
-          {username: "admin", password: "1234", role: "supervisor"},
-          {username: "kasir", password: "1234", role: "user"}
-        ];
-      }
-    } catch(e) { localStorage.clear(); }
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    data = JSON.parse(saved);
   }
+  renderMenu();
+  checkBackupButton();
 }
 
+// Simpan data + auto backup
 function saveData() {
-  try {
-    localStorage.setItem('kasirWarungMade', JSON.stringify(data));
-  } catch(e) {
-    alert("Storage penuh!");
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  autoBackup();
+  renderMenu();
 }
 
-// 1. Fungsi backup otomatis
+// Auto backup tiap save
 function autoBackup() {
-    const data = localStorage.getItem('kasirWarungMade');
-    if (!data) return;
-
-    // Simpan ke backup slot di localStorage
-    localStorage.setItem('kasirWarungMade_backup', data);
-    localStorage.setItem('kasirWarungMade_backupTime', new Date().toISOString());
-
-    console.log('Auto backup selesai:', new Date().toLocaleTimeString());
+  const dataStr = localStorage.getItem(STORAGE_KEY);
+  if (!dataStr) return;
+  localStorage.setItem(BACKUP_KEY, dataStr);
+  localStorage.setItem(BACKUP_TIME_KEY, new Date().toISOString());
+  console.log('Auto backup:', new Date().toLocaleTimeString());
 }
 
-// 2. Auto download file.json tiap 7 hari
-function autoDownloadBackup() {
-    const lastDownload = localStorage.getItem('lastBackupDownload');
-    const now = Date.now();
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-
-    if (!lastDownload || (now - lastDownload) > sevenDays) {
-        const data = localStorage.getItem('kasirWarungMade');
-        if (!data) return;
-
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_kasir_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        localStorage.setItem('lastBackupDownload', now);
-        console.log('File backup otomatis di-download');
-    }
-}
-
-// 3. Panggil autoBackup setiap kali saveData jalan
-const oldSaveData = saveData;
-saveData = function() {
-    oldSaveData(); // jalanin saveData asli
-    autoBackup(); // langsung backup
-};
-
-// 4. Jalanin auto backup tiap 5 menit
+// Auto backup tiap 5 menit
 setInterval(autoBackup, 5 * 60 * 1000);
 
-// 5. Cek auto download saat halaman dibuka
-window.addEventListener('load', autoDownloadBackup);
-
-// 6. Fungsi restore dari backup otomatis
+// Restore dari backup otomatis
 function restoreFromAutoBackup() {
-    const backup = localStorage.getItem('kasirWarungMade_backup');
-    const backupTime = localStorage.getItem('kasirWarungMade_backupTime');
+  const backup = localStorage.getItem(BACKUP_KEY);
+  const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
 
-    if (!backup) {
-        alert('Tidak ada backup otomatis ditemukan');
-        return;
-    }
-
-    if (confirm(`Restore data backup dari ${new Date(backupTime).toLocaleString()}? Data sekarang akan tertimpa.`)) {
-        localStorage.setItem('kasirWarungMade', backup);
-        location.reload();
-    }
-}
-
-  
-function login() {
-  let u = document.getElementById('username').value.trim();
-  let p = document.getElementById('password').value.trim();
-  let user = data.users.find(x => x.username === u && x.password === p);
-
-  if(!user) return alert("Username/password salah");
-
-  currentUser = user;
-  sessionStorage.setItem('currentUser', JSON.stringify(user));
-
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-
-  document.getElementById('userInfo').innerHTML =
-    `${user.username} <span class="badge ${user.role}">${user.role}</span>`;
-
-  if(user.role === 'user') {
-    document.querySelectorAll('.nav-supervisor').forEach(el => el.style.display = 'none');
+  if (!backup) {
+    alert('Tidak ada backup otomatis ditemukan');
+    return;
   }
 
-  init();
+  if (confirm(`Restore data backup dari ${new Date(backupTime).toLocaleString()}? Data sekarang akan tertimpa.`)) {
+    localStorage.setItem(STORAGE_KEY, backup);
+    location.reload();
+  }
+}
+
+// Tampilkan tombol restore kalau ada backup
+function checkBackupButton() {
+  const backup = localStorage.getItem(BACKUP_KEY);
+  const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
+  const btn = document.getElementById('restoreBtn');
+
+  if (backup && btn) {
+    btn.style.display = 'inline-block';
+    btn.title = `Backup terakhir: ${new Date(backupTime).toLocaleString()}`;
+  }
+}
+
+// Backup manual + download file
+function backupNow() {
+  const dataStr = localStorage.getItem(STORAGE_KEY);
+  if (!dataStr) {
+    alert('Tidak ada data untuk di-backup');
+    return;
+  }
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup_kasir_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Contoh fungsi tambah menu
+function tambahMenu() {
+  const nama = document.getElementById('namaMenu').value.trim();
+  const harga = parseInt(document.getElementById('hargaMenu').value);
+  if (!nama ||!harga) return alert('Isi nama dan harga');
+
+  data.menuList.push({ id: Date.now(), nama, harga });
+  document.getElementById('namaMenu').value = '';
+  document.getElementById('hargaMenu').value = '';
+  saveData();
+}
+
+// Render daftar menu
+function renderMenu() {
+  const el = document.getElementById('listMenu');
+  if (!data.menuList.length) {
+    el.innerHTML = '<p>Belum ada menu</p>';
+    return;
+  }
+  el.innerHTML = data.menuList.map(m =>
+    `<div>${m.nama} - Rp ${m.harga.toLocaleString('id-ID')}</div>`
+  ).join('');
 }
 
 function logout() {
-  currentUser = null;
-  sessionStorage.removeItem('currentUser');
-  location.reload();
+  alert('Logout');
 }
 
-function checkLogin() {
-  let saved = sessionStorage.getItem('currentUser');
-  if(saved) {
-    currentUser = JSON.parse(saved);
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('userInfo').innerHTML =
-      `${currentUser.username} <span class="badge ${currentUser.role}">${currentUser.role}</span>`;
-    if(currentUser.role === 'user') {
-      document.querySelectorAll('.nav-supervisor').forEach(el => el.style.display = 'none');
-    }
-    init();
-  }
-}
-
-function isSupervisor() {
-  return currentUser && currentUser.role === 'supervisor';
-}
-
-function init() {
-  renderTabs();
-  renderMeja();
-  if(data.mejaList.length > 0) showTab(data.mejaList[0].id);
-}
-
-function showPage(pageId, event) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  if(pageId === 'meja') renderMejaTable();
-  if(pageId === 'menu') renderMenuTable();
-  if(pageId === 'user') renderUserTable();
-  if(pageId === 'laporan') renderLaporan();
-}
-
-function renderTabs() {
-  let html = '';
-  data.mejaList.forEach(m => {
-    html += `<div class="tab" id="tab${m.id}" onclick="showTab(${m.id})">${m.nama}</div>`;
-  });
-  document.getElementById('tabs').innerHTML = html;
-}
-
-function showTab(id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab'+id).classList.add('active');
-  document.querySelectorAll('.meja').forEach(m => m.classList.remove('active'));
-  let el = document.getElementById('meja'+id);
-  if(el) el.classList.add('active');
-}
-
-function renderMeja() {
-  let html = '';
-  data.mejaList.forEach(m => {
-    html += `
-    <div class="meja" id="meja${m.id}">
-      <div class="info-meja">
-        <input type="text" id="kasir${m.id}" placeholder="Nama Kasir" value="${m.kasir}">
-        <input type="text" id="waitress${m.id}" placeholder="Nama Waitress" value="${m.waitress}">
-        <button onclick="simpanInfoMeja(${m.id})">Simpan</button>
-      </div>
-      <div class="filter-bar">
-        <select id="selectMenu${m.id}">
-          <option value="">-- Pilih Menu --</option>
-          ${data.menuList.map(menu => `<option value="${menu.id}">${menu.nama} - Rp${menu.harga.toLocaleString()}</option>`).join('')}
-        </select>
-        <input type="number" id="qty${m.id}" value="1" min="1" style="width:80px;">
-        <button onclick="tambahItem(${m.id})">Tambah</button>
-      </div>
-      <table>
-        <thead><tr><th>Menu</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th>Aksi</th></tr></thead>
-        <tbody id="tbodyItems${m.id}"></tbody>
-      </table>
-      <div class="summary" id="summary${m.id}"></div>
-      <button onclick="cetakBill(${m.id})">Cetak Bill</button>
-    </div>`;
-  });
-  document.getElementById('mejaContainer').innerHTML = html;
-  data.mejaList.forEach(m => renderItems(m.id));
-}
-
-function tambahItem(mejaId) {
-  let menuId = document.getElementById('selectMenu'+mejaId).value;
-  let qty = parseInt(document.getElementById('qty'+mejaId).value);
-  if(!menuId) return alert('Pilih menu dulu');
-  let menu = data.menuList.find(m => m.id == menuId);
-  let meja = data.mejaList.find(m => m.id == mejaId);
-  let item = meja.items.find(i => i.menuId == menuId);
-  if(item) item.qty += qty;
-  else meja.items.push({menuId: menu.id, nama: menu.nama, harga: menu.harga, qty: qty});
-  renderItems(mejaId);
-  saveData();
-}
-
-function renderItems(mejaId) {
-  let meja = data.mejaList.find(m => m.id == mejaId);
-  let html = '';
-  let total = 0;
-  meja.items.forEach((item, idx) => {
-    let subtotal = item.harga * item.qty;
-    total += subtotal;
-    html += `<tr>
-      <td>${item.nama}</td>
-      <td><input type="number" value="${item.qty}" min="1" style="width:60px;" onchange="updateQty(${mejaId},${idx},this.value)"></td>
-      <td>Rp${item.harga.toLocaleString()}</td>
-      <td>Rp${subtotal.toLocaleString()}</td>
-      <td><button class="btn-danger" onclick="hapusItem(${mejaId},${idx})">Hapus</button></td>
-    </tr>`;
-  });
-  let diskon = total * (meja.diskonPersen/100);
-  let setelahDiskon = total - diskon;
-  let ppn = setelahDiskon * (meja.ppnPersen/100);
-  let grandTotal = setelahDiskon + ppn;
-  document.getElementById('tbodyItems'+mejaId).innerHTML = html;
-  document.getElementById('summary'+mejaId).innerHTML = `
-    Subtotal: Rp${total.toLocaleString()}<br>
-    Diskon ${meja.diskonPersen}%: -Rp${diskon.toLocaleString()}<br>
-    PPN ${meja.ppnPersen}%: Rp${ppn.toLocaleString()}<br>
-    <strong>Total: Rp${grandTotal.toLocaleString()}</strong>
-  `;
-}
-
-function updateQty(mejaId, idx, qty) {
-  data.mejaList.find(m => m.id == mejaId).items[idx].qty = parseInt(qty);
-  renderItems(mejaId);
-  saveData();
-}
-
-function hapusItem(mejaId, idx) {
-  data.mejaList.find(m => m.id == mejaId).items.splice(idx, 1);
-  renderItems(mejaId);
-  saveData();
-}
-
-function simpanInfoMeja(mejaId) {
-  let meja = data.mejaList.find(m => m.id == mejaId);
-  meja.kasir = document.getElementById('kasir'+mejaId).value;
-  meja.waitress = document.getElementById('waitress'+mejaId).value;
-  saveData();
-  alert('Info meja disimpan');
-}
-
-function tambahMeja() {
-  if(!isSupervisor()) return alert('Hanya supervisor');
-  let nama = document.getElementById('namaMejaBaru').value.trim();
-  if(!nama) return alert('Isi nama meja');
-  let id = Date.now();
-  data.mejaList.push({id:id, nama:nama, kasir:'', waitress:'', items:[], diskonPersen:0, ppnPersen:10});
-  saveData();
-  document.getElementById('namaMejaBaru').value = '';
-  renderTabs();
-  renderMeja();
-  showTab(id);
-}
-
-function renderMejaTable() {
-  let html = '';
-  data.mejaList.forEach(m => {
-    html += `<tr>
-      <td>${m.id}</td>
-      <td>${m.nama}</td>
-      <td>${m.kasir}</td>
-      <td>${m.waitress}</td>
-      <td>
-        <button onclick="alert('Edit belum dibuat')">Edit</button>
-        <button class="btn-danger" onclick="alert('Hapus belum dibuat')">Hapus</button>
-      </td>
-    </tr>`;
-  });
-  document.getElementById('tbodyMeja').innerHTML = html;
-}
-
-function renderMenuTable() { document.getElementById('tbodyMenu').innerHTML = ''; }
-function renderUserTable() { document.getElementById('tbodyUser').innerHTML = ''; }
-function renderLaporan() { document.getElementById('tbodyLaporan').innerHTML = ''; }
-function cetakBill(id) { alert('Cetak bill meja ' + id); }
-checkLogin();
+// Jalanin saat halaman load
+window.addEventListener('load', loadData);
 </script>
+
 </body>
 </html>
