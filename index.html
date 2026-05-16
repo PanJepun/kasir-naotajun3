@@ -545,6 +545,77 @@ function tambahKeMeja(nama, harga) {
   renderMeja();
 }
 
+**********************
+function renderOrder() {
+  const meja = mejaList[mejaAktif];
+  const list = document.getElementById('billList');
+  const ringkasan = document.getElementById('billRingkasan');
+
+  if(meja.items.length === 0) {
+    list.innerHTML = '<p style="text-align:center; color:#999;">Belum ada order</p>';
+    ringkasan.innerHTML = '';
+    return;
+  }
+
+  // Tabel Bill: No | Nama Menu | Harga | Jumlah | Total | Aksi
+  let tableHTML = `
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th style="width:30px;">No</th>
+          <th>Nama Menu</th>
+          <th style="width:90px;">Harga</th>
+          <th style="width:70px;">Jumlah</th>
+          <th style="width:100px;">Total</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  meja.items.forEach((item, i) => {
+    tableHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${item.nama}</td>
+        <td>Rp${parseInt(item.harga).toLocaleString('id-ID')}</td>
+        <td>
+          <input type="number" value="${item.qty}" min="1"
+                 onchange="ubahQty(${i}, this.value)">
+        </td>
+        <td>Rp${(item.harga * item.qty).toLocaleString('id-ID')}</td>
+        <td>
+          <button class="btn-x" onclick="hapusItem(${i})">X</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `</tbody></table>`;
+  list.innerHTML = tableHTML;
+
+  // Hitung ringkasan
+  const subtotal = hitungTotalMeja(meja);
+  const diskonRp = subtotal * (diskonPersen / 100);
+  const setelahDiskon = subtotal - diskonRp;
+  const ppnRp = setelahDiskon * (ppnPersen / 100);
+  const total = setelahDiskon + ppnRp;
+
+  ringkasan.innerHTML = `
+    <div class="bill-row"><span>Subtotal</span><span>Rp${subtotal.toLocaleString('id-ID')}</span></div>
+    <div class="bill-row"><span>Diskon ${diskonPersen}%</span><span>- Rp${diskonRp.toLocaleString('id-ID')}</span></div>
+    <div class="bill-row"><span>PPN ${ppnPersen}%</span><span>Rp${ppnRp.toLocaleString('id-ID')}</span></div>
+    <div class="bill-total">Total: Rp${total.toLocaleString('id-ID')}</div>
+  `;
+}
+
+  
+
+
+
+
+
+  ******************
 function renderOrder() {
   const meja = mejaList[mejaAktif];
   const list = document.getElementById('billList');
