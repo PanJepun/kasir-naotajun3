@@ -20,7 +20,7 @@
 body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
 header { background: var(--primary); color: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 10px; }
 header h1 { font-size: 20px; }
-.theme-selector { display: flex; gap: 8px; margin: 15px 20px; }
+.theme-selector { display: flex; gap: 8px; margin: 15px 20px; align-items: center; }
 .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .theme-dot.green { background: #4caf50; }
 .theme-dot.red { background: #f44336; }
@@ -87,14 +87,12 @@ let data = JSON.parse(localStorage.getItem('kasirData')) || {
   transaksi: []
 };
 
-// Theme
 function setTheme(theme) {
   document.body.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
 }
 document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'blue');
 
-// Navigation
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -140,9 +138,7 @@ function renderMeja() {
       <td>${i+1}</td>
       <td>${m.nama}</td>
       <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'Kosong'}</span></td>
-      <td>
-        <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
-      </td>
+      <td><button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td>
     </tr>
   `).join('');
 }
@@ -163,9 +159,6 @@ function hapusMeja(id) {
   renderMeja();
 }
 
-// ===== MENU MODULE =====
-function renderMenu() {
- <script>
 // ===== MENU MODULE =====
 function renderMenu() {
   const container = document.getElementById('menu');
@@ -203,7 +196,7 @@ let filterAktif = 'All';
 function filterMenu(kategori) {
   filterAktif = kategori;
   const tbody = document.getElementById('listMenu');
-  let dataFilter = kategori === 'All' ? data.menu : data.menu.filter(m => m.kategori === kategori);
+  let dataFilter = kategori === 'All'? data.menu : data.menu.filter(m => m.kategori === kategori);
   
   if(dataFilter.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada menu ${kategori}</td></tr>`;
@@ -224,7 +217,7 @@ function tambahMenu() {
   const nama = document.getElementById('namaMenu').value.trim();
   const harga = parseInt(document.getElementById('hargaMenu').value);
   const kategori = document.getElementById('kategoriMenu').value;
-  if(!nama || !harga) return alert('Lengkapi data!');
+  if(!nama ||!harga) return alert('Lengkapi data!');
   data.menu.push({id: Date.now(), nama, harga, kategori});
   save();
   filterMenu(filterAktif);
@@ -234,34 +227,9 @@ function tambahMenu() {
 
 function hapusMenu(id) {
   if(!confirm('Hapus menu ini?')) return;
-  data.menu = data.menu.filter(m => m.id !== id);
-  save();
-  filterMenu(filterAktif);
-}
-</script>
-  
-  
-
-
-  
-}
-
-function tambahMenu() {
-  const nama = document.getElementById('namaMenu').value.trim();
-  const harga = parseInt(document.getElementById('hargaMenu').value);
-  if(!nama ||!harga) return alert('Lengkapi data!');
-  data.menu.push({id: Date.now(), nama, harga});
-  save();
-  renderMenu();
-  document.getElementById('namaMenu').value = '';
-  document.getElementById('hargaMenu').value = '';
-}
-
-function hapusMenu(id) {
-  if(!confirm('Hapus menu ini?')) return;
   data.menu = data.menu.filter(m => m.id!== id);
   save();
-  renderMenu();
+  filterMenu(filterAktif);
 }
 
 // ===== KASIR MODULE =====
@@ -270,7 +238,7 @@ function renderKasir() {
   container.innerHTML = `
     <div class="card">
       <h2>💰 Kasir</h2>
-      <p>Fitur kasir akan menampilkan daftar transaksi aktif. Silakan tambah menu dan meja dulu.</p>
+      <p>Fitur kasir akan menampilkan daftar transaksi aktif.</p>
       <table>
         <thead>
           <tr><th>No</th><th>Tanggal</th><th>Total</th><th>Status</th></tr>
