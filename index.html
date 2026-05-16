@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasir Naotajun</title>
+
+<!-- Library Excel & PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* ===== COPY SEMUA CSS DARI FILE LAMA KE SINI ===== */
+body { 
+  font-family: Arial, sans-serif; 
+  margin: 0; 
+  padding: 0; 
+}
+body.green { background: #e8f5e9; }
+body.pink { background: #fce4ec; }
+body.blue { background: #e3f2fd; }
+body.brown { background: #efebe9; }
+
+.theme-bar { 
+  padding: 10px; 
+  background: #fff; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+.theme-btn { 
+  margin: 0 5px; 
+  padding: 8px 15px; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+}
+.theme-btn.active { outline: 2px solid #000; }
+
+.navbar { 
+  display: flex; 
+  background: #333; 
+  overflow-x: auto; 
+}
+.nav-btn { 
+  flex: 1; 
+  min-width: 120px; 
+  padding: 12px; 
+  border: none; 
+  background: #333; 
+  color: #fff; 
+  cursor: pointer; 
+  white-space: nowrap; 
+}
+.nav-btn.active { background: #555; }
+
+.tab-content { 
+  display: none; 
+  padding: 20px; 
+}
+.tab-content.active { display: block; }
+
+button { 
+  cursor: pointer; 
+  padding: 6px 12px; 
+  margin: 2px; 
+  border: none; 
+  border-radius: 5px; 
+}
+.btn-primary { background: #4caf50; color: white; }
+.btn-warning { background: #ff9800; color: white; }
+.btn-danger { background: #f44336; color: white; }
+.btn-secondary { background: #9e9e9e; color: white; }
+.btn-info { background: #2196f3; color: white; }
+
+.table-wrapper { 
+  width: 100%; 
+  overflow-x: auto; 
+  margin-top: 15px; 
+}
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  background: white; 
+}
+th, td { 
+  padding: 8px 10px; 
+  text-align: left; 
+  border-bottom: 1px solid #ddd; 
+}
+th { 
+  background: #333; 
+  color: white; 
+  cursor: pointer; 
+}
+/* ===== SAMPAI SINI COPY CSS LAMA ===== */
+</style>
+</head>
+<body>
+
+<!-- BAR TEMA -->
+<div class="theme-bar">
+  <span>Tema:</span>
+  <button class="theme-btn" onclick="setTheme('green', this)">Hijau</button>
+  <button class="theme-btn" onclick="setTheme('pink', this)">Pink</button>
+  <button class="theme-btn" onclick="setTheme('blue', this)">Biru</button>
+  <button class="theme-btn" onclick="setTheme('brown', this)">Brown</button>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <button class="nav-btn active" onclick="openTab('meja', this)">📋 Meja</button>
+  <button class="nav-btn" onclick="openTab('foodbeverage', this)">🍽️ Food & Beverage</button>
+  <button class="nav-btn" onclick="openTab('kasir', this)">💰 Kasir</button>
+  <button class="nav-btn" onclick="openTab('laporan', this)">📊 Laporan</button>
+  <button class="nav-btn" onclick="openTab('backup', this)">💾 Backup</button>
+</div>
+
+<!-- CONTAINER TAB - KOSONG, NANTI DIISI JS -->
+<div id="meja" class="tab-content active"></div>
+<div id="foodbeverage" class="tab-content"></div>
+<div id="kasir" class="tab-content"></div>
+<div id="laporan" class="tab-content"></div>
+<div id="backup" class="tab-content"></div>
+
+<!-- PANGGIL APP.JS SEBAGAI MODULE -->
+<script type="module" src="app.js"></script>
+</body>
+</html>
