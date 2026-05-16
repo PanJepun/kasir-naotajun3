@@ -296,6 +296,9 @@ const modal = document.getElementById('modal');
 document.querySelector('.close').onclick = () => modal.classList.remove('active');
 window.onclick = (e) => { if(e.target == modal) modal.classList.remove('active'); };
 
+<script>
+// ... kode di atas tetap ...
+
 // ===== MEJA MODULE =====
 function renderMeja() {
   const container = document.getElementById('meja');
@@ -306,46 +309,45 @@ function renderMeja() {
         <input type="text" id="namaMeja" placeholder="Nama Meja">
         <button onclick="tambahMeja()">+ Tambah Meja</button>
       </div>
-      <div class="grid" id="listMeja"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama Meja</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="listMeja"></tbody>
+      </table>
     </div>
   `;
 
-  const list = document.getElementById('listMeja');
+  const tbody = document.getElementById('listMeja');
   if(data.meja.length === 0) {
-    list.innerHTML = '<p class="text-center">Belum ada meja. Tambah dulu!</p>';
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada meja. Tambah dulu!</td></tr>`;
     return;
   }
 
-  list.innerHTML = data.meja.map(m => `
-    <div class="meja-card ${m.status === 'terisi'? 'terisi' : ''}" onclick="bukaMeja(${m.id})">
-      <h3>${m.nama}</h3>
-      <span class="badge">${m.status || 'Kosong'}</span>
-      <button class="btn-danger mt-10" onclick="event.stopPropagation(); hapusMeja(${m.id})">Hapus</button>
-    </div>
+  tbody.innerHTML = data.meja.map((m, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${m.nama}</td>
+      <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'Kosong'}</span></td>
+      <td>
+        <button class="btn-warning" onclick="bukaMeja(${m.id})">Buka</button>
+        <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
+      </td>
+    </tr>
   `).join('');
 }
 
-window.tambahMeja = function() {
-  const nama = document.getElementById('namaMeja').value.trim();
-  if(!nama) return alert('Isi nama meja!');
-  data.meja.push({id: Date.now(), nama, status: 'kosong'});
-  saveData();
-  document.getElementById('namaMeja').value = '';
-  renderMeja();
-}
+// ... kode di bawah tetap ...
+</script>
+  
 
-window.hapusMeja = function(id) {
-  if(confirm('Hapus meja ini?')) {
-    data.meja = data.meja.filter(m => m.id!== id);
-    saveData();
-    renderMeja();
-  }
-}
 
-window.bukaMeja = function(id) {
-  alert('Fitur detail meja aktif. Silakan lanjut ke tab Kasir.');
-}
-
+  
 // ===== MENU MODULE =====
 function renderMenu() {
   const container = document.getElementById('menu');
