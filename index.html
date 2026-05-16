@@ -82,6 +82,12 @@
   margin-right: 5px;
   vertical-align: middle;
 }
+@media (max-width: 768px) {
+ .container { margin: 10px; padding: 15px; }
+ .filter-bar { flex-direction: column; align-items: stretch; }
+  input, select, button { width: 100%; }
+ .theme-switcher { margin-left: 0; width: 100%; justify-content: center; }
+}
 </style>
 </head>
 <body data-theme="green">
@@ -326,6 +332,122 @@ function renderItems(id) {
   hitungTotal(id, subtotal);
 }
 
+function bukaEditItem(mejaId, itemIndex) {
+  editTarget = {type: 'item', mejaId, itemIndex};
+  let item = data.mejaList.find(m => m.id === mejaId).items[itemIndex];
+  document.getElementById('editNamaItem').value = item.nama;
+  document.getElementById('editHargaItem').value = item.harga;
+  document.getElementById('editQtyItem').value = item.qty;
+  document.getElementById('modalEditItem').classList.add('active');
+}
+
+function simpanEditItem() {
+  let item = data.mejaList.find(m => m.id === editTarget.mejaId).items[editTarget.itemIndex];
+  item.nama = document.getElementById('editNamaItem').value;
+  item.harga = parseFloat(document.getElementById('editHargaItem').value);
+  item.qty = parseInt(document.getElementById('editQtyItem').value);
+  if(item.qty <= 0) return alert('Qty harus > 0');
+  saveData(); renderItems(editTarget.mejaId); tutupModal('modalEditItem');
+}
+
+function hapusItem(id, index) {
+  if(confirm('Hapus item ini?')) {
+    data.mejaList.find(m => m.id === id).items.splice(index, 1);
+    saveData(); renderItems(id);
+  }
+}
+
+function updateDiskon(id) {
+  let val = parseFloat(document.getElementById('diskon' + id).value) || 0;
+  data.mejaList.find(m => m.id === id).diskonPersen = Math.min(100, Math.max(0, val));
+  saveData(); renderItems(id);
+}
+
+function updatePPN(id) {
+  let val = parseFloat(document.getElementById('ppn' + id).value) || 0;
+  data.mejaList.find(m => m.id === id).ppnPersen = Math.min(100, Math.max(0, val));
+  saveData(); renderItems(id);
+}
+
+function hitungTotal(id, subtotal) {
+  let meja = data.mejaList.find(m => m.id === id);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
+  document.getElementById('total' + id).innerHTML = `Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
+  Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
+  <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>`;
+}
+
+function cetakStruk(id) {
+  let meja = data.mejaList.find(m => m.id === id);
+  if (meja.items.length === 0) return alert("Meja masih kosong");
+  let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
+  let waktu = new Date().toLocaleString('id-ID');
+  let waktuISO = new Date().toISOString();
+  let bill = {waktu, waktuISO, meja: meja.nama, kasir: meja.kasir || '-', waitress: meja.waitress || '-', items: JSON.parse(JSON.stringify(meja.items)), total};
+  data.laporan.push(bill); saveData();
+  let printWindow = window.open('', '', 'height=600,width=300');
+  printWindow.document.write('<pre style="font-family:monospace;">' + JSON.stringify(bill, null, 2) + '</pre>');
+  printWindow.print();
+  meja.items = []; renderItems(id);
+}
+
+function resetMeja(id) {
+  if(confirm('Reset meja ini?')) {
+    data.mejaList.find(m => m.id === id).items = [];
+    saveData(); renderItems(id);
+  }
+}
+
+function tambahMeja() {
+  let nama = document.getElementById('namaMejaBaru').value.trim();
+  if(!nama) return alert('Isi nama meja');
+  let idBaru = data.mejaList.length? Math.max(...data.mejaList.map(m=>m.id)) + 1 : 1;
+  data.mejaList.push({id: idBaru, nama, kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10});
+  saveData(); document.getElementById('namaMejaBaru').value = '';
+  renderMejaTable(); renderTabs(); renderMeja();
+}
+
+function renderMejaTable() {
+  let tbody = document.getElementById('tbodyMeja');
+  tbody.innerHTML = '';
+  data.mejaList.forEach(m => {
+    tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nama}</td><td>${m.kasir || '-'}</td><td>${m.waitress || '-'}</td>
+    <td><button class="btn-warning" onclick="bukaEditMeja(${m.id})">Edit</button>
+    <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
+  });
+}
+
+function bukaEditMeja(id) {
+  editTarget = {type: 'meja', id};
+  let meja = data.mejaList.find(m => m.id === id);
+  document.getElementById('editNamaMeja').value = meja.nama;
+  document.getElementById('editKasirMeja').value = meja.kasir;
+  document.getElementById('editWaitressMeja').value = meja.waitress;
+  document.getElementById('modalEditMeja').classList.add('active');
+}
+
+function simpanEditMeja() {
+  let meja = data.mejaList.find(m => m.id === editTarget.id);
+  meja.nama = document.getElementById('editNamaMeja').value.trim();
+  meja.kasir = document.getElementById('editKasirMeja').value.trim();
+  meja.waitress = document.getElementById('editWaitressMeja').value.trim();
+  saveData(); renderMejaTable(); renderTabs(); renderMeja(); tutupModal('modalEditMeja');
+}
+
+function hapusMeja(id) {
+  if(confirm('Hapus meja ini?')) {
+    data.mejaList = data.mejaList.filter(m => m.id!== id);
+    saveData(); renderMejaTable(); renderTabs(); renderMeja();
+  }
+}
+
 function tambahMenu() {
   let nama = document.getElementById('namaMenu').value.trim();
   let harga = parseFloat(document.getElementById('hargaMenu').value);
@@ -402,120 +524,13 @@ function hapusMenu(id) {
   }
 }
 
-//...sisanya fungsi sama seperti sebelumnya: bukaEditItem, simpanEditItem, hapusItem,
-// updateDiskon, updatePPN, hitungTotal, cetakStruk, resetMeja, tambahMeja, renderMejaTable,
-// bukaEditMeja, simpanEditMeja, hapusMeja, renderLaporan, filterLaporan, hapusLaporan,
-// exportLaporanCSV, exportData, importData, tutupModal, printLaporan
-
-function bukaEditItem(mejaId, itemIndex) {
-  editTarget = {type: 'item', mejaId, itemIndex};
-  let item = data.mejaList.find(m => m.id === mejaId).items[itemIndex];
-  document.getElementById('editNamaItem').value = item.nama;
-  document.getElementById('editHargaItem').value = item.harga;
-  document.getElementById('editQtyItem').value = item.qty;
-  document.getElementById('modalEditItem').classList.add('active');
-}
-function simpanEditItem() {
-  let item = data.mejaList.find(m => m.id === editTarget.mejaId).items[editTarget.itemIndex];
-  item.nama = document.getElementById('editNamaItem').value;
-  item.harga = parseFloat(document.getElementById('editHargaItem').value);
-  item.qty = parseInt(document.getElementById('editQtyItem').value);
-  if(item.qty <= 0) return alert('Qty harus > 0');
-  saveData(); renderItems(editTarget.mejaId); tutupModal('modalEditItem');
-}
-function hapusItem(id, index) {
-  if(confirm('Hapus item ini?')) {
-    data.mejaList.find(m => m.id === id).items.splice(index, 1);
-    saveData(); renderItems(id);
-  }
-}
-function updateDiskon(id) {
-  let val = parseFloat(document.getElementById('diskon' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).diskonPersen = Math.min(100, Math.max(0, val));
-  saveData(); renderItems(id);
-}
-function updatePPN(id) {
-  let val = parseFloat(document.getElementById('ppn' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).ppnPersen = Math.min(100, Math.max(0, val));
-  saveData(); renderItems(id);
-}
-function hitungTotal(id, subtotal) {
-  let meja = data.mejaList.find(m => m.id === id);
-  let diskonRp = subtotal * (meja.diskonPersen / 100);
-  let setelahDiskon = subtotal - diskonRp;
-  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
-  let total = setelahDiskon + ppnRp;
-  document.getElementById('total' + id).innerHTML = `Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
-  Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
-  <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>`;
-}
-function cetakStruk(id) {
-  let meja = data.mejaList.find(m => m.id === id);
-  if (meja.items.length === 0) return alert("Meja masih kosong");
-  let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
-  let diskonRp = subtotal * (meja.diskonPersen / 100);
-  let setelahDiskon = subtotal - diskonRp;
-  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
-  let total = setelahDiskon + ppnRp;
-  let waktu = new Date().toLocaleString('id-ID');
-  let waktuISO = new Date().toISOString();
-  let bill = {waktu, waktuISO, meja: meja.nama, kasir: meja.kasir || '-', waitress: meja.waitress || '-', items: JSON.parse(JSON.stringify(meja.items)), total};
-  data.laporan.push(bill); saveData();
-  let printWindow = window.open('', '', 'height=600,width=300');
-  printWindow.document.write('<pre style="font-family:monospace;">' + JSON.stringify(bill, null, 2) + '</pre>');
-  printWindow.print();
-  meja.items = []; renderItems(id);
-}
-function resetMeja(id) {
-  if(confirm('Reset meja ini?')) {
-    data.mejaList.find(m => m.id === id).items = [];
-    saveData(); renderItems(id);
-  }
-}
-function tambahMeja() {
-  let nama = document.getElementById('namaMejaBaru').value.trim();
-  if(!nama) return alert('Isi nama meja');
-  let idBaru = data.mejaList.length? Math.max(...data.mejaList.map(m=>m.id)) + 1 : 1;
-  data.mejaList.push({id: idBaru, nama, kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10});
-  saveData(); document.getElementById('namaMejaBaru').value = '';
-  renderMejaTable(); renderTabs(); renderMeja();
-}
-function renderMejaTable() {
-  let tbody = document.getElementById('tbodyMeja');
-  tbody.innerHTML = '';
-  data.mejaList.forEach(m => {
-    tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nama}</td><td>${m.kasir || '-'}</td><td>${m.waitress || '-'}</td>
-    <td><button class="btn-warning" onclick="bukaEditMeja(${m.id})">Edit</button>
-    <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
-  });
-}
-function bukaEditMeja(id) {
-  editTarget = {type: 'meja', id};
-  let meja = data.mejaList.find(m => m.id === id);
-  document.getElementById('editNamaMeja').value = meja.nama;
-  document.getElementById('editKasirMeja').value = meja.kasir;
-  document.getElementById('editWaitressMeja').value = meja.waitress;
-  document.getElementById('modalEditMeja').classList.add('active');
-}
-function simpanEditMeja() {
-  let meja = data.mejaList.find(m => m.id === editTarget.id);
-  meja.nama = document.getElementById('editNamaMeja').value.trim();
-  meja.kasir = document.getElementById('editKasirMeja').value.trim();
-  meja.waitress = document.getElementById('editWaitressMeja').value.trim();
-  saveData(); renderMejaTable(); renderTabs(); renderMeja(); tutupModal('modalEditMeja');
-}
-function hapusMeja(id) {
-  if(confirm('Hapus meja ini?')) {
-    data.mejaList = data.mejaList.filter(m => m.id!== id);
-    saveData(); renderMejaTable(); renderTabs(); renderMeja();
-  }
-}
 function renderLaporan() {
   let today = new Date().toISOString().split('T')[0];
   document.getElementById('tglDari').value = today;
   document.getElementById('tglSampai').value = today;
   filterLaporan();
 }
+
 function filterLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -536,6 +551,7 @@ function filterLaporan() {
   });
   document.getElementById('ringkasanLaporan').innerHTML = `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
 }
+
 function hapusLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -549,6 +565,7 @@ function hapusLaporan() {
   });
   saveData(); filterLaporan(); alert('Data periode tersebut dihapus');
 }
+
 function exportLaporanCSV() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -559,3 +576,7 @@ function exportLaporanCSV() {
     let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
     return tglBill >= dariDate && tglBill <= sampaiDate;
   });
+  if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
+  let csv = 'Waktu,Meja,Kasir,Waitress,Items,Total\n';
+  dataFilter.forEach(b => {
+    let items = b.items.map(i => `${i.nama} x${i.qty
