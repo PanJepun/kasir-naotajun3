@@ -51,6 +51,10 @@ tr:hover { background: rgba(0,0,0,0.05); }
 .badge-beverage { background: #2196f3; }
 .hidden { display: none; }
 .edit-form { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ddd; }
+.meja-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+.meja-card { padding: 20px; border-radius: 8px; text-align: center; color: #fff; cursor: pointer; }
+.meja-kosong { background: #4caf50; }
+.meja-terisi { background: #ff9800; }
 </style>
 </head>
 <body data-theme="blue">
@@ -87,9 +91,11 @@ tr:hover { background: rgba(0,0,0,0.05); }
 let data = JSON.parse(localStorage.getItem('kasirData')) || {
   meja: [],
   menu: [],
-  transaksi: []
+  transaksi: [],
+  pesananAktif: {}
 };
 let editId = null;
+let mejaAktif = null;
 
 function setTheme(theme) {
   document.body.setAttribute('data-theme', theme);
@@ -124,6 +130,10 @@ function renderMeja() {
         <input type="text" id="namaMeja" placeholder="Nama Meja">
         <button onclick="tambahMeja()">+ Tambah Meja</button>
       </div>
+
+      <div class="meja-grid" id="gridMeja"></div>
+
+      <h3 style="margin-top:30px;">Tabel Meja</h3>
       <table>
         <thead>
           <tr><th>No</th><th>Nama Meja</th><th>Status</th><th>Aksi</th></tr>
@@ -132,17 +142,40 @@ function renderMeja() {
       </table>
     </div>
   `;
-  const tbody = document.getElementById('listMeja');
+
+  renderGridMeja();
+  renderTabelMeja();
+}
+
+function renderGridMeja() {
+  const grid = document.getElementById('gridMeja');
   if(data.meja.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada meja. Tambah dulu!</td></tr>`;
+    grid.innerHTML = '<p class="text-center">Belum ada meja. Tambah dulu!</p>';
     return;
   }
+
+  grid.innerHTML = data.meja.map(m => `
+    <div class="meja-card ${m.status==='terisi'?'meja-terisi':'meja-kosong'}" onclick="bukaKasirMeja(${m.id})">
+      <h3>${m.nama}</h3>
+      <p>${m.status==='terisi'?'TERISI':'KOSONG'}</p>
+    </div>
+  `).join('');
+}
+
+function renderTabelMeja() {
+  const tbody = document.getElementById('listMeja');
   tbody.innerHTML = data.meja.map((m, i) => `
     <tr>
       <td>${i+1}</td>
       <td>${m.nama}</td>
-      <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'Kosong'}</span></td>
-      <td><button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td>
+      <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'kosong'}</span></td>
+      <td>
+        ${m.status==='kosong'
+         ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
+          : `<button class="btn-warning" onclick="checkOutMeja(${m.id})">Check Out</button>`
+        }
+        <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
+      </td>
     </tr>
   `).join('');
 }
@@ -156,9 +189,47 @@ function tambahMeja() {
   document.getElementById('namaMeja').value = '';
 }
 
+function checkInMeja(id) {
+  const meja = data.meja.find(m => m.id === id);
+  if(!meja) return;
+
+  meja.status = 'terisi';
+  data.pesananAktif[id] = [];
+  save();
+  renderMeja();
+  alert(`${meja.nama} berhasil Check In!`);
+}
+
+function checkOutMeja(id) {
+  const meja = data.meja.find(m => m.id === id);
+  if(!meja) return;
+
+  if(!confirm(`Check Out ${meja.nama}? Pesanan akan diselesaikan.`)) return;
+
+  const pesanan = data.pesananAktif[id] || [];
+  if(pesanan.length > 0) {
+    const total = pesanan.reduce((sum, p) => sum + (p.harga * p.qty), 0);
+    data.transaksi.push({
+      id: Date.now(),
+      tanggal: new Date().toISOString(),
+      meja: meja.nama,
+      items: pesanan,
+      total: total,
+      status: 'Lunas'
+    });
+    data.pesananAktif[id] = [];
+  }
+
+  meja.status = 'kosong';
+  save();
+  renderMeja();
+  alert(`${meja.nama} berhasil Check Out!`);
+}
+
 function hapusMeja(id) {
   if(!confirm('Hapus meja ini?')) return;
   data.meja = data.meja.filter(m => m.id!== id);
+  delete data.pesananAktif[id];
   save();
   renderMeja();
 }
@@ -184,7 +255,6 @@ function renderMenu() {
             <option value="Camilan">Camilan</option>
             <option value="Minuman Ringan">Minuman Ringan</option>
             <option value="Minuman Keras">Minuman Keras</option>
-            <option value="Lain lainnya">yang lain2nya</option>
           </select>
         </div>
         <button class="btn-success" onclick="simpanEdit()">Simpan</button>
@@ -323,31 +393,122 @@ function hapusMenu(id) {
 // ===== KASIR MODULE =====
 function renderKasir() {
   const container = document.getElementById('kasir');
-  container.innerHTML = `
-    <div class="card">
-      <h2>💰 Kasir</h2>
-      <p>Fitur kasir akan menampilkan daftar transaksi aktif.</p>
-      <table>
-        <thead>
-          <tr><th>No</th><th>Tanggal</th><th>Total</th><th>Status</th></tr>
-        </thead>
-        <tbody id="listTransaksi"></tbody>
-      </table>
-    </div>
-  `;
-  const tbody = document.getElementById('listTransaksi');
-  if(data.transaksi.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada transaksi</td></tr>`;
+  if(!mejaAktif) {
+    container.innerHTML = `
+      <div class="card">
+        <h2>💰 Kasir</h2>
+        <p>Pilih meja di tab Meja untuk mulai input pesanan.</p>
+      </div>
+    `;
     return;
   }
-  tbody.innerHTML = data.transaksi.map((t, i) => `
+
+  const meja = data.meja.find(m => m.id === mejaAktif);
+  const pesanan = data.pesananAktif[mejaAktif] || [];
+  const total = pesanan.reduce((sum, p) => sum + (p.harga * p.qty), 0);
+
+  container.innerHTML = `
+    <div class="card">
+      <h2>💰 Kasir - ${meja.nama}</h2>
+      <button class="btn-warning" onclick="tutupKasir()">← Kembali</button>
+
+      <div class="flex mb-20" style="margin-top:20px;">
+        <select id="selectMenu">
+          ${data.menu.map(m => `<option value="${m.id}">${m.nama} - Rp ${m.harga.toLocaleString('id-ID')}</option>`).join('')}
+        </select>
+        <input type="number" id="qtyMenu" value="1" min="1" style="width:80px;">
+        <button onclick="tambahPesanan()">+ Tambah</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Menu</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="listPesanan"></tbody>
+        <tfoot>
+          <tr><th colspan="3">Total</th><th colspan="2">Rp ${total.toLocaleString('id-ID')}</th></tr>
+        </tfoot>
+      </table>
+
+      <div class="flex" style="margin-top:20px;">
+        <button class="btn-success" onclick="prosesBayar()">Proses Bayar & Check Out</button>
+      </div>
+    </div>
+  `;
+
+  renderPesanan();
+}
+
+function renderPesanan() {
+  const tbody = document.getElementById('listPesanan');
+  const pesanan = data.pesananAktif[mejaAktif] || [];
+
+  if(pesanan.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada pesanan</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = pesanan.map((p, i) => `
     <tr>
-      <td>${i+1}</td>
-      <td>${new Date(t.tanggal).toLocaleString('id-ID')}</td>
-      <td>Rp ${t.total.toLocaleString('id-ID')}</td>
-      <td>${t.status}</td>
+      <td>${p.nama}</td>
+      <td>${p.qty}</td>
+      <td>Rp ${p.harga.toLocaleString('id-ID')}</td>
+      <td>Rp ${(p.harga * p.qty).toLocaleString('id-ID')}</td>
+      <td><button class="btn-danger" onclick="hapusPesanan(${i})">Hapus</button></td>
     </tr>
   `).join('');
+}
+
+function tambahPesanan() {
+  const menuId = parseInt(document.getElementById('selectMenu').value);
+  const qty = parseInt(document.getElementById('qtyMenu').value);
+  const menu = data.menu.find(m => m.id === menuId);
+
+  if(!menu) return;
+
+  const pesanan = data.pesananAktif[mejaAktif] || [];
+  const existing = pesanan.find(p => p.id === menuId);
+
+  if(existing) {
+    existing.qty += qty;
+  } else {
+    pesanan.push({id: menuId, nama: menu.nama, harga: menu.harga, qty: qty});
+  }
+
+  data.pesananAktif[mejaAktif] = pesanan;
+  save();
+  renderPesanan();
+  renderKasir();
+}
+
+function hapusPesanan(index) {
+  data.pesananAktif[mejaAktif].splice(index, 1);
+  save();
+  renderPesanan();
+  renderKasir();
+}
+
+function bukaKasirMeja(id) {
+  if(data.meja.find(m => m.id === id).status!== 'terisi') {
+    alert('Meja belum Check In!');
+    return;
+  }
+  mejaAktif = id;
+  showTab('kasir');
+  document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  document.querySelectorAll('.nav-btn')[0].classList.remove('active');
+}
+
+function tutupKasir() {
+  mejaAktif = null;
+  showTab('meja');
+}
+
+function prosesBayar() {
+  if(!mejaAktif) return;
+  checkOutMeja(mejaAktif);
+  mejaAktif = null;
+  showTab('kasir');
 }
 
 // ===== LAPORAN MODULE =====
@@ -360,7 +521,7 @@ function renderLaporan() {
       <h3>Total Pendapatan: Rp ${total.toLocaleString('id-ID')}</h3>
       <table>
         <thead>
-          <tr><th>No</th><th>Tanggal</th><th>Total</th></tr>
+          <tr><th>No</th><th>Tanggal</th><th>Meja</th><th>Total</th></tr>
         </thead>
         <tbody id="listLaporan"></tbody>
       </table>
@@ -368,13 +529,14 @@ function renderLaporan() {
   `;
   const tbody = document.getElementById('listLaporan');
   if(data.transaksi.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="text-center">Belum ada data</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada data</td></tr>`;
     return;
   }
   tbody.innerHTML = data.transaksi.map((t, i) => `
     <tr>
       <td>${i+1}</td>
       <td>${new Date(t.tanggal).toLocaleString('id-ID')}</td>
+      <td>${t.meja}</td>
       <td>Rp ${t.total.toLocaleString('id-ID')}</td>
     </tr>
   `).join('');
