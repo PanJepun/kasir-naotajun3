@@ -215,9 +215,12 @@ function filterMenu(kategori) {
 
 function tambahMenu() {
   const nama = document.getElementById('namaMenu').value.trim();
-  const harga = parseInt(document.getElementById('hargaMenu').value);
+  let hargaStr = document.getElementById('hargaMenu').value.replace(/\./g, '');
+  const harga = parseInt(hargaStr);
   const kategori = document.getElementById('kategoriMenu').value;
-  if(!nama ||!harga) return alert('Lengkapi data!');
+  
+  if(!nama || isNaN(harga)) return alert('Lengkapi data!');
+  
   data.menu.push({id: Date.now(), nama, harga, kategori});
   save();
   filterMenu(filterAktif);
@@ -225,6 +228,14 @@ function tambahMenu() {
   document.getElementById('hargaMenu').value = '';
 }
 
+
+  
+
+
+
+
+
+  
 function hapusMenu(id) {
   if(!confirm('Hapus menu ini?')) return;
   data.menu = data.menu.filter(m => m.id!== id);
