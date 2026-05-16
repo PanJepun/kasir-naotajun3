@@ -43,6 +43,10 @@
 .badge.food { background: #2196F3; }
 .badge.beverage { background: #9C27B0; }
 .badge.snack { background: #ff9800; }
+
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+.modal.active { display: flex; justify-content: center; align-items: center; }
+.modal-content { background: var(--card); padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
 </style>
 </head>
 <body data-theme="green">
@@ -75,7 +79,7 @@
 
   <div id="menu" class="page">
     <h2>Manajemen Menu</h2>
-    <small style="color:#d32f2f;">⚠️ Maks 10 menu dengan foto. Foto otomatis dikompres biar nggak lemot.</small>
+    <small style="color:#d32f2f;">⚠️ Maks 10 menu dengan foto. Foto otomatis dikompres.</small>
     <div class="filter-bar">
       <input type="text" id="namaMenu" placeholder="Nama Menu">
       <input type="number" id="hargaMenu" placeholder="Harga" min="0">
@@ -110,12 +114,33 @@
   </div>
 </div>
 
+<div id="modalEditMenu" class="modal">
+  <div class="modal-content">
+    <h3>Edit Menu</h3>
+    <input type="text" id="editNamaMenu" placeholder="Nama Menu">
+    <input type="number" id="editHargaMenu" placeholder="Harga">
+    <select id="editKategoriMenu">
+      <option value="Food">Food</option>
+      <option value="Beverage">Beverage</option>
+      <option value="Snack">Snack</option>
+    </select>
+    <input type="file" id="editFotoMenu" accept="image/*" onchange="previewFoto(this, 'previewEditMenu')">
+    <img id="previewEditMenu" class="menu-preview">
+    <div style="margin-top:10px;">
+      <button onclick="simpanEditMenu()">Simpan</button>
+      <button class="btn-danger" onclick="tutupModal('modalEditMenu')">Batal</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let data = {
   mejaList: [{id: 1, nama: "Meja 1", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10}],
   menuList: [{id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food", foto: ""}],
   laporan: []
 };
+let editTarget = null;
+let fotoTemp = '';
 
 function loadData() {
   let saved = localStorage.getItem('kasirWarungMade');
@@ -155,7 +180,6 @@ function compressImage(file, callback) {
   reader.readAsDataURL(file);
 }
 
-let fotoTemp = '';
 function previewFoto(input, previewId) {
   let file = input.files[0];
   if (!file) return;
@@ -298,8 +322,41 @@ function renderMenuTable() {
     <td>${m.nama}</td>
     <td><span class="badge ${m.kategori.toLowerCase()}">${m.kategori}</span></td>
     <td>Rp${m.harga.toLocaleString('id-ID')}</td>
-    <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td></tr>`;
+    <td>
+      <button class="btn-warning" onclick="bukaEditMenu(${m.id})">Edit</button>
+      <button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button>
+    </td></tr>`;
   });
+}
+
+function bukaEditMenu(id) {
+  editTarget = id;
+  let menu = data.menuList.find(m => m.id === id);
+  document.getElementById('editNamaMenu').value = menu.nama;
+  document.getElementById('editHargaMenu').value = menu.harga;
+  document.getElementById('editKategoriMenu').value = menu.kategori;
+  if(menu.foto) {
+    document.getElementById('previewEditMenu').src = menu.foto;
+    document.getElementById('previewEditMenu').style.display = 'block';
+    fotoTemp = menu.foto;
+  } else {
+    document.getElementById('previewEditMenu').style.display = 'none';
+    fotoTemp = '';
+  }
+  document.getElementById('modalEditMenu').classList.add('active');
+}
+
+function simpanEditMenu() {
+  let menu = data.menuList.find(m => m.id === editTarget);
+  menu.nama = document.getElementById('editNamaMenu').value.trim();
+  menu.harga = parseFloat(document.getElementById('editHargaMenu').value);
+  menu.kategori = document.getElementById('editKategoriMenu').value;
+  if(fotoTemp) menu.foto = fotoTemp;
+  saveData();
+  renderMenuTable();
+  renderMeja();
+  tutupModal('modalEditMenu');
+  fotoTemp = '';
 }
 
 function hapusMenu(id) {
@@ -354,6 +411,11 @@ function renderMejaTable() {
 function hapusMeja(id) {
   data.mejaList = data.mejaList.filter(m => m.id!== id);
   saveData(); renderMejaTable(); renderTabs(); renderMeja();
+}
+
+function tutupModal(id) {
+  document.getElementById(id).classList.remove('active');
+  fotoTemp = '';
 }
 
 loadData();
