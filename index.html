@@ -167,18 +167,22 @@ function renderMenu() {
       <h2>📋 Kelola Menu</h2>
       <div class="flex mb-20">
         <input type="text" id="namaMenu" placeholder="Nama Menu">
-        <input type="number" id="hargaMenu" placeholder="Harga">
+        <input type="text" id="hargaMenu" placeholder="Harga contoh: 45000">
         <select id="kategoriMenu">
-          <option value="Food">Food</option>
-          <option value="Beverage">Beverage</option>
+          <option value="Makanan Berat">Makanan Berat</option>
+          <option value="Camilan">Camilan</option>
+          <option value="Minuman Ringan">Minuman Ringan</option>
+          <option value="Minuman Keras">Minuman Keras</option>
         </select>
         <button onclick="tambahMenu()">+ Tambah Menu</button>
       </div>
-      
+
       <div class="flex mb-20">
         <button onclick="filterMenu('All')" class="btn-success">All</button>
-        <button onclick="filterMenu('Food')">Food</button>
-        <button onclick="filterMenu('Beverage')">Beverage</button>
+        <button onclick="filterMenu('Makanan Berat')">Makanan Berat</button>
+        <button onclick="filterMenu('Camilan')">Camilan</button>
+        <button onclick="filterMenu('Minuman Ringan')">Minuman Ringan</button>
+        <button onclick="filterMenu('Minuman Keras')">Minuman Keras</button>
       </div>
 
       <table>
@@ -196,21 +200,33 @@ let filterAktif = 'All';
 function filterMenu(kategori) {
   filterAktif = kategori;
   const tbody = document.getElementById('listMenu');
-  let dataFilter = kategori === 'All'? data.menu : data.menu.filter(m => m.kategori === kategori);
-  
+  let dataFilter = kategori === 'All'
+  ? data.menu
+    : data.menu.filter(m => (m.kategori || 'Makanan Berat') === kategori);
+
   if(dataFilter.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada menu ${kategori}</td></tr>`;
     return;
   }
-  tbody.innerHTML = dataFilter.map((m, i) => `
+
+  const warna = {
+    'Makanan Berat': '#4caf50',
+    'Camilan': '#ff9800',
+    'Minuman Ringan': '#2196f3',
+    'Minuman Keras': '#9c27b0'
+  };
+
+  tbody.innerHTML = dataFilter.map((m, i) => {
+    let kat = m.kategori || 'Makanan Berat';
+    return `
     <tr>
       <td>${i+1}</td>
       <td>${m.nama}</td>
-      <td><span class="badge" style="background:${m.kategori==='Food'?'#4caf50':'#2196f3'}">${m.kategori}</span></td>
+      <td><span class="badge" style="background:${warna[kat]}">${kat}</span></td>
       <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
       <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
     </tr>
-  `).join('');
+  `}).join('');
 }
 
 function tambahMenu() {
@@ -218,9 +234,9 @@ function tambahMenu() {
   let hargaStr = document.getElementById('hargaMenu').value.replace(/\./g, '');
   const harga = parseInt(hargaStr);
   const kategori = document.getElementById('kategoriMenu').value;
-  
-  if(!nama || isNaN(harga)) return alert('Lengkapi data!');
-  
+
+  if(!nama || isNaN(harga)) return alert('Lengkapi data dengan benar!');
+
   data.menu.push({id: Date.now(), nama, harga, kategori});
   save();
   filterMenu(filterAktif);
@@ -228,14 +244,6 @@ function tambahMenu() {
   document.getElementById('hargaMenu').value = '';
 }
 
-
-  
-
-
-
-
-
-  
 function hapusMenu(id) {
   if(!confirm('Hapus menu ini?')) return;
   data.menu = data.menu.filter(m => m.id!== id);
