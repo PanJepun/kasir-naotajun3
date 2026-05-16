@@ -1,507 +1,229 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kasir Naotajun</title>
-  <style>
-    :root {
-      --primary: #4CAF50;
-      --primary-dark: #388E3C;
-      --accent: #ff9800;
-      --bg: #e8f5e9;
-    }
-    * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--bg); color: #333; }
-   .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 15px 20px; font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-   .theme-switcher { font-size: 14px; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; background: white; color: #333; }
-   .tabs { display: flex; background: white; border-bottom: 2px solid #ddd; overflow-x: auto; }
-   .tabs button { flex: 1; min-width: 100px; padding: 15px; background: none; border: none; font-size: 15px; cursor: pointer; color: #666; white-space: nowrap; }
-   .tabs button.active { color: var(--accent); border-bottom: 3px solid var(--accent); font-weight: bold; }
-   .tab-content { padding: 20px; }
-   .card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-   .meja-card { padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.2s; }
-   .meja-kosong { background: #e8f5e9; border: 2px solid #4CAF50; }
-   .meja-isi { background: #fff3e0; border: 2px solid #ff9800; }
-   .meja-card:hover { transform: scale(1.05); }
-   .flex { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: center; }
-    input, select, button, textarea { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
-    button:hover { background: var(--primary-dark); }
-   .btn-delete { background: #f44336; }
-   .btn-warning { background: #ff9800; }
-   .btn-success { background: #4CAF50; }
-   .btn-info { background: #2196F3; }
-   .hidden { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: var(--bg); font-weight: bold; }
-   .bill-box { background: #fafafa; border: 2px dashed #ccc; padding: 15px; border-radius: 8px; }
-   .bill-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-   .bill-table th,.bill-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
-   .bill-table th { background: #f5f5f5; font-weight: 600; }
-   .bill-table input[type="number"] { width: 50px; padding: 4px; }
-   .btn-x { padding: 2px 6px; font-size: 12px; background: #f44336; color: white; border: none; border-radius: 4px; }
-   .bill-row { display: flex; justify-content: space-between; padding: 6px 0; }
-   .bill-total { font-size: 18px; font-weight: bold; color: var(--primary-dark); text-align: right; margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasir Naotajun3</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+ .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  h2 { text-align: center; }
+ .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+ .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
+ .tab.active { background: #4CAF50; color: white; }
+ .meja { display: none; }
+ .meja.active { display: block; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  th { background: #f0f0f0; }
+  input, select, button { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+  button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+  button:hover { background: #45a049; }
+ .btn-danger { background: #f44336; }
+ .btn-danger:hover { background: #d32f2f; }
+ .summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+</style>
 </head>
 <body>
-  <div class="header">
-    🍽️ Kasir Naotajun
-    <select class="theme-switcher" onchange="gantiTema(this.value)">
-      <option value="green">Green</option>
-      <option value="blue">Blue</option>
-      <option value="pink">Pink</option>
-      <option value="brown">Coklat</option>
-    </select>
-  </div>
+<div class="container">
+  <h2>Kasir Naotajun3</h2>
 
-  
-  <div class="tabs">
-    <button onclick="showTab('menu')" class="active">📋 Menu</button>
-    <button onclick="showTab('meja')">🪑 Meja</button>
-    <button onclick="showTab('kasir')">💰 Kasir</button>
-    <button onclick="showTab('laporan')">📊 Laporan</button>
-    <button onclick="showTab('backup')">💾 Backup</button>
-  </div>
+  <div class="tabs" id="tabs"></div>
 
-  <div id="menu" class="tab-content">
-    <div id="menuForm"></div>
-    <div id="daftarMenuArea"></div>
-  </div>
-
-  <div id="meja" class="tab-content hidden"></div>
-  <div id="kasir" class="tab-content hidden"></div>
-  <div id="laporan" class="tab-content hidden"></div>
-  <div id="backup" class="tab-content hidden"></div>
+  <div id="mejaContainer"></div>
+</div>
 
 <script>
-let menu = JSON.parse(localStorage.getItem('menu')) || [];
-let mejaList = JSON.parse(localStorage.getItem('mejaList')) || [];
-let mejaAktif = null;
-let namaKasir = localStorage.getItem('namaKasir') || '';
-let namaWaitress = localStorage.getItem('namaWaitress') || '';
-let diskonPersen = 0;
-let ppnPersen = 11;
+let mejaList = [
+  {id: 1, nama: "Meja 1", items: [], diskonPersen: 0, ppnPersen: 10},
+  {id: 2, nama: "Meja 2", items: [], diskonPersen: 0, ppnPersen: 10},
+  {id: 3, nama: "Meja 3", items: [], diskonPersen: 0, ppnPersen: 10}
+];
 
-const tema = {
-  green: { primary: '#4CAF50', primaryDark: '#388E3C', accent: '#8BC34A', bg: '#e8f5e9' },
-  blue: { primary: '#2196F3', primaryDark: '#1976D2', accent: '#ff9800', bg: '#f5f5f5' },
-  pink: { primary: '#e91e63', primaryDark: '#c2185b', accent: '#ff5722', bg: '#fce4ec' },
-  brown: { primary: '#795548', primaryDark: '#5D4037', accent: '#FF5722', bg: '#efebe9' }
-};
-
-function gantiTema(namaTema) {
-  const t = tema[namaTema];
-  document.documentElement.style.setProperty('--primary', t.primary);
-  document.documentElement.style.setProperty('--primary-dark', t.primaryDark);
-  document.documentElement.style.setProperty('--accent', t.accent);
-  document.documentElement.style.setProperty('--bg', t.bg);
-  localStorage.setItem('tema', namaTema);
+function init() {
+  renderTabs();
+  showTab(1);
 }
 
-function loadTema() {
-  const temaTersimpan = localStorage.getItem('tema') || 'green';
-  gantiTema(temaTersimpan);
-  document.querySelector('.theme-switcher').value = temaTersimpan;
+function renderTabs() {
+  let tabsDiv = document.getElementById('tabs');
+  tabsDiv.innerHTML = '';
+  mejaList.forEach(meja => {
+    let btn = document.createElement('div');
+    btn.className = 'tab';
+    btn.innerText = meja.nama;
+    btn.onclick = () => showTab(meja.id);
+    tabsDiv.appendChild(btn);
+  });
 }
 
-function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.getElementById(tab).classList.remove('hidden');
-  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-
-  if(tab === 'menu') renderMenu();
-  if(tab === 'meja') renderMeja();
-  if(tab === 'kasir') renderKasir();
-  if(tab === 'laporan') renderLaporan();
-  if(tab === 'backup') renderBackup();
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', mejaList[i].id === id);
+  });
+  document.querySelectorAll('.meja').forEach(el => el.classList.remove('active'));
+  document.getElementById('meja' + id).classList.add('active');
 }
 
 function renderMeja() {
-  document.getElementById('meja').innerHTML = `
-    <div class="card">
-      <h2>🪑 Kelola Meja</h2>
-      <div class="flex">
-        <input type="text" id="namaMeja" placeholder="Nama/No Meja">
-        <button onclick="tambahMeja()">+ Tambah Meja</button>
-      </div>
-      <div id="daftarMeja" class="grid"></div>
-    </div>
-  `;
-  const daftar = document.getElementById('daftarMeja');
-  if(mejaList.length === 0) {
-    daftar.innerHTML = '<p>Belum ada meja. Tambah meja di atas.</p>';
-  } else {
-    daftar.innerHTML = mejaList.map((m, i) => `
-      <div class="meja-card ${m.items.length > 0? 'meja-isi' : 'meja-kosong'}" onclick="bukaMeja(${i})">
-        <div style="font-size:18px;">${m.nama}</div>
-        <div style="font-size:14px; margin-top:5px;">
-          ${m.items.length > 0? `Rp${hitungTotalMeja(m).toLocaleString('id-ID')}` : 'Kosong'}
-        </div>
-        <div style="margin-top:10px; display:flex; gap:5px; justify-content:center;">
-          <button onclick="event.stopPropagation(); editMeja(${i})" style="padding:5px 10px; font-size:12px;">Edit</button>
-          <button onclick="event.stopPropagation(); hapusMeja(${i})" class="btn-delete" style="padding:5px 10px; font-size:12px;">Hapus</button>
-        </div>
-      </div>
-    `).join('');
-  }
-}
+  let container = document.getElementById('mejaContainer');
+  container.innerHTML = '';
+  mejaList.forEach(meja => {
+    let div = document.createElement('div');
+    div.id = 'meja' + meja.id;
+    div.className = 'meja';
+    div.innerHTML = `
+      <h3>${meja.nama}</h3>
+      <input type="text" id="nama${meja.id}" placeholder="Nama Menu">
+      <input type="number" id="harga${meja.id}" placeholder="Harga">
+      <input type="number" id="qty${meja.id}" placeholder="Qty" value="1">
+      <button onclick="tambahItem(${meja.id})">Tambah</button>
 
-function tambahMeja() {
-  const nama = document.getElementById('namaMeja').value.trim();
-  if(!nama) return alert('Isi nama meja!');
-  mejaList.push({nama, items: []});
-  localStorage.setItem('mejaList', JSON.stringify(mejaList));
-  document.getElementById('namaMeja').value = '';
-  renderMeja();
-}
+      <table>
+        <thead>
+          <tr><th>Menu</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="tbody${meja.id}"></tbody>
+      </table>
 
-function editMeja(index) {
-  const namaBaru = prompt('Ubah nama meja:', mejaList[index].nama);
-  if(namaBaru && namaBaru.trim()) {
-    mejaList[index].nama = namaBaru.trim();
-    localStorage.setItem('mejaList', JSON.stringify(mejaList));
-    renderMeja();
-  }
-}
-
-function hapusMeja(index) {
-  if(confirm(`Hapus meja ${mejaList[index].nama}?`)) {
-    mejaList.splice(index, 1);
-    localStorage.setItem('mejaList', JSON.stringify(mejaList));
-    renderMeja();
-  }
-}
-
-function bukaMeja(index) {
-  mejaAktif = index;
-  showTab('kasir');
-}
-
-function hitungTotalMeja(meja) {
-  return meja.items.reduce((sum, item) => sum + parseInt(item.harga) * item.qty, 0);
-}
-
-function renderMenu() {
-  document.getElementById('menuForm').innerHTML = `
-    <div class="card">
-      <h2>📋 Kelola Menu</h2>
-      <div class="flex">
-        <input type="text" id="editNama" placeholder="Nama Menu" style="flex:2">
-        <input type="number" id="editHarga" placeholder="Harga" style="flex:1">
-        <button onclick="simpanMenu()">💾 Simpan</button>
-      </div>
-    </div>
-  `;
-  const daftarArea = document.getElementById('daftarMenuArea');
-  if(menu.length === 0) {
-    daftarArea.innerHTML = '<div class="card"><p>Belum ada menu.</p></div>';
-  } else {
-    daftarArea.innerHTML = `
-      <div class="card">
-        <h3>Daftar Menu</h3>
-        <table>
-          <thead><tr><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
-          <tbody>
-            ${menu.map((m, i) => `
-              <tr>
-                <td>${m.nama}</td>
-                <td>Rp${parseInt(m.harga).toLocaleString('id-ID')}</td>
-                <td><button onclick="hapusMenu(${i})" class="btn-delete">Hapus</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+      <div class="summary">
+        Diskon %: <input type="number" id="diskon${meja.id}" value="${meja.diskonPersen}" onchange="updateDiskon(${meja.id})">
+        PPN %: <input type="number" id="ppn${meja.id}" value="${meja.ppnPersen}" onchange="updatePPN(${meja.id})">
+        <div id="total${meja.id}"></div>
+        <button onclick="cetakStruk(${meja.id})">Cetak Struk</button>
+        <button class="btn-danger" onclick="resetMeja(${meja.id})">Reset Meja</button>
       </div>
     `;
-  }
+    container.appendChild(div);
+    renderItems(meja.id);
+  });
 }
 
-function simpanMenu() {
-  const nama = document.getElementById('editNama').value.trim();
-  const harga = document.getElementById('editHarga').value;
-  if(!nama ||!harga) return alert('Isi nama dan harga!');
-  menu.push({nama, harga, qty: 1});
-  localStorage.setItem('menu', JSON.stringify(menu));
-  document.getElementById('editNama').value = '';
-  document.getElementById('editHarga').value = '';
-  renderMenu();
+function tambahItem(id) {
+  let meja = mejaList.find(m => m.id === id);
+  let nama = document.getElementById('nama' + id).value;
+  let harga = parseFloat(document.getElementById('harga' + id).value);
+  let qty = parseInt(document.getElementById('qty' + id).value);
+
+  if(!nama || isNaN(harga) || isNaN(qty)) return alert('Isi semua field');
+
+  meja.items.push({nama, harga, qty});
+  renderItems(id);
+
+  document.getElementById('nama' + id).value = '';
+  document.getElementById('harga' + id).value = '';
+  document.getElementById('qty' + id).value = '1';
 }
 
-function hapusMenu(index) {
-  menu.splice(index, 1);
-  localStorage.setItem('menu', JSON.stringify(menu));
-  renderMenu();
+function renderItems(id) {
+  let meja = mejaList.find(m => m.id === id);
+  let tbody = document.getElementById('tbody' + id);
+  tbody.innerHTML = '';
+  let subtotal = 0;
+
+  meja.items.forEach((item, i) => {
+    let sub = item.harga * item.qty;
+    subtotal += sub;
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.nama}</td>
+        <td>Rp${item.harga.toLocaleString('id-ID')}</td>
+        <td>${item.qty}</td>
+        <td>Rp${sub.toLocaleString('id-ID')}</td>
+        <td><button class="btn-danger" onclick="hapusItem(${id}, ${i})">Hapus</button></td>
+      </tr>
+    `;
+  });
+
+  hitungTotal(id, subtotal);
 }
 
-function renderKasir() {
-  const container = document.getElementById('kasir');
-  if(mejaAktif === null) {
-    container.innerHTML = `<div class="card"><h2>💰 Kasir</h2><p>Pilih meja dulu di tab Meja.</p></div>`;
-    return;
-  }
+function hapusItem(id, index) {
+  let meja = mejaList.find(m => m.id === id);
+  meja.items.splice(index, 1);
+  renderItems(id);
+}
 
-  const meja = mejaList[mejaAktif];
-  container.innerHTML = `
-    <div class="card">
-      <h2>💰 Kasir - Meja ${meja.nama}</h2>
-      <button onclick="kembaliKeMeja()" class="btn-warning">← Kembali</button>
+function updateDiskon(id) {
+  let meja = mejaList.find(m => m.id === id);
+  meja.diskonPersen = parseFloat(document.getElementById('diskon' + id).value) || 0;
+  renderItems(id);
+}
 
-      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-top:20px;">
-        <div>
-          <h3>Menu:</h3>
-          <div style="display:flex; flex-wrap:wrap; gap:10px;">
-            ${menu.map(m => `
-              <button onclick="tambahKeMeja('${m.nama}', ${m.harga})">
-                ${m.nama}<br><small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
-              </button>
-            `).join('')}
-          </div>
-        </div>
+function updatePPN(id) {
+  let meja = mejaList.find(m => m.id === id);
+  meja.ppnPersen = parseFloat(document.getElementById('ppn' + id).value) || 0;
+  renderItems(id);
+}
 
-        <div class="bill-box">
-          <h3>📄 Bill Meja ${meja.nama}</h3>
+function hitungTotal(id, subtotal) {
+  let meja = mejaList.find(m => m.id === id);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
 
-          <div class="flex" style="margin-bottom:10px;">
-            <input type="text" id="inputKasir" placeholder="Nama Kasir" value="${namaKasir}" style="flex:1;">
-            <input type="text" id="inputWaitress" placeholder="Nama Waitress" value="${namaWaitress}" style="flex:1;">
-          </div>
-
-          <div id="billList"></div>
-
-          <div class="flex" style="margin-top:10px;">
-            <input type="number" id="inputDiskon" placeholder="Diskon %" value="${diskonPersen}" style="flex:1;" min="0" max="100">
-            <input type="number" id="inputPPN" placeholder="PPN %" value="${ppnPersen}" style="flex:1;" min="0" max="100">
-          </div>
-
-          <div id="billRingkasan"></div>
-          
-          <button onclick="cetakBill()" class="btn-info" style="width:100%; margin-top:5px;">🖨️ Cetak Bill</button>
-          <button onclick="bayarMeja()" class="btn-success" style="width:100%; margin-top:10px;">💵 Bayar</button>
-        </div>
-      </div>
-    </div>
+  document.getElementById('total' + id).innerHTML = `
+    Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
+    Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>
+    PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
+    <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>
   `;
+}
 
-  document.getElementById('inputKasir').addEventListener('input', (e) => {
-    namaKasir = e.target.value;
-    localStorage.setItem('namaKasir', namaKasir);
-  });
-  document.getElementById('inputWaitress').addEventListener('input', (e) => {
-    namaWaitress = e.target.value;
-    localStorage.setItem('namaWaitress', namaWaitress);
-  });
-  document.getElementById('inputDiskon').addEventListener('input', (e) => {
-    diskonPersen = parseFloat(e.target.value) || 0;
-    renderOrder();
-  });
-  document.getElementById('inputPPN').addEventListener('input', (e) => {
-    ppnPersen = parseFloat(e.target.value) || 0;
-    renderOrder();
-  });
-
-  renderOrder();
-}  
-
-function cetakBill() {
-  const meja = mejaList[mejaAktif];
-  if(meja.items.length === 0) return alert('Belum ada order untuk dicetak!');
-
-  const subtotal = hitungTotalMeja(meja);
-  const diskonRp = subtotal * (diskonPersen / 100);
-  const setelahDiskon = subtotal - diskonRp;
-  const ppnRp = setelahDiskon * (ppnPersen / 100);
-  const total = setelahDiskon + ppnRp;
-  const waktu = new Date().toLocaleString('id-ID');
+function cetakStruk(id) {
+  let meja = mejaList.find(m => m.id === id);
+  let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
+  let waktu = new Date().toLocaleString('id-ID');
 
   let struk = `
-================================
-      KASIR NAOTAJUN
-================================
-Meja : ${meja.nama}
-Kasir : ${namaKasir || '-'}
-Waitress: ${namaWaitress || '-'}
+
+        KASIR NAOTAJUN3
+
 Waktu : ${waktu}
---------------------------------
+
 No Menu Qty Total
---------------------------------
+
 `;
 
   meja.items.forEach((item, i) => {
     let nama = item.nama.length > 12? item.nama.substring(0, 12) : item.nama;
-    nama = nama.padEnd(12, ');
-    let qty = String(item.qty).padStart(3, ');
-    let totalItem = String((item.harga * item.qty).toLocaleString('id-ID')).padStart(8, ');
-    struk += `${i+1}. ${nama} ${qty} Rp${totalItem}\n`;
-  });
-
-  
-  struk += `--------------------------------
-Subtotal : Rp${subtotal.toLocaleString('id-ID')}
-Diskon ${diskonPersen}% : -Rp${diskonRp.toLocaleString('id-ID')}
-PPN ${ppnPersen}% : Rp${ppnRp.toLocaleString('id-ID')}
---------------------------------
-TOTAL : Rp${total.toLocaleString('id-ID')}
-================================
-   Terima Kasih :)
-`;
-
-  const printWindow = window.open('', '', 'width=400,height=700');
-  printWindow.document.write(`<pre style="font-family:monospace; font-size:13px;">${struk}</pre>`);
-  printWindow.document.close();
-  printWindow.print();
-}
-  
-  function tambahKeMeja(nama, harga) {
-  const meja = mejaList[mejaAktif];
-  const existing = meja.items.find(i => i.nama === nama);
-  if(existing) {
-    existing.qty += 1;
-  } else {
-    meja.items.push({nama, harga, qty: 1});
-  }
-  localStorage.setItem('mejaList', JSON.stringify(mejaList));
-  renderOrder();
-  renderMeja();
-}
-
-function renderOrder() {
-  function renderOrder() {
-  const meja = mejaList[mejaAktif];
-  const list = document.getElementById('billList');
-  const ringkasan = document.getElementById('billRingkasan');
-
-  if(meja.items.length === 0) {
-    list.innerHTML = '<p>Belum ada order</p>';
-    ringkasan.innerHTML = '';
-    return;
-  }
-
-  let tableHTML = `<table class="bill-table"><thead><tr><th>No</th><th>Menu</th><th>Harga</th><th>Qty</th><th>Total</th><th></th></tr></thead><tbody>`;
-  meja.items.forEach((item, i) => {
-    tableHTML += `<tr><td>${i+1}</td><td>${item.nama}</td><td>Rp${parseInt(item.harga).toLocaleString('id-ID')}</td><td><input type="number" value="${item.qty}" min="1" onchange="ubahQty(${i}, this.value)"></td><td>Rp${(item.harga * item.qty).toLocaleString('id-ID')}</td><td><button class="btn-x" onclick="hapusItem(${i})">X</button></td></tr>`;
-  });
-  tableHTML += `</tbody></table>`;
-  list.innerHTML = tableHTML;
-
-  const subtotal = hitungTotalMeja(meja);
-  const diskonRp = subtotal * (diskonPersen / 100);
-  const setelahDiskon = subtotal - diskonRp;
-  const ppnRp = setelahDiskon * (ppnPersen / 100);
-  const total = setelahDiskon + ppnRp;
-
-  ringkasan.innerHTML = `
-    <div class="bill-row"><span>Subtotal</span><span>Rp${subtotal.toLocaleString('id-ID')}</span></div>
-    <div class="bill-row"><span>Diskon ${diskonPersen}%</span><span>- Rp${diskonRp.toLocaleString('id-ID')}</span></div>
-    <div class="bill-row"><span>PPN ${ppnPersen}%</span><span>Rp${ppnRp.toLocaleString('id-ID')}</span></div>
-    <div class="bill-total">Total: Rp${total.toLocaleString('id-ID')}</div>
-  `;
-}
-  `;
-}
-
-function ubahQty(index, qty) {
-  mejaList[mejaAktif].items[index].qty = parseInt(qty);
-  localStorage.setItem('mejaList', JSON.stringify(mejaList));
-  renderOrder();
-  renderMeja();
-}
-
-function hapusItem(index) {
-  mejaList[mejaAktif].items.splice(index, 1);
-  localStorage.setItem('mejaList', JSON.stringify(mejaList));
-  renderOrder();
-  renderMeja();
-}
-
-function bayarMeja() {
-  if(confirm('Selesaikan pembayaran?')) {
-    mejaList[mejaAktif].items = [];
-    localStorage.setItem('mejaList', JSON.stringify(mejaList));
-    alert('Pembayaran berhasil!');
-    renderOrder();
-    renderMeja();
-  }
-}
-
-function kembaliKeMeja() {
-  mejaAktif = null;
-  showTab('meja');
-}
-
-function renderLaporan() {
-  let totalSemua = 0;
-  mejaList.forEach(m => totalSemua += hitungTotalMeja(m));
-  document.getElementById('laporan').innerHTML = `<div class="card"><h2>📊 Laporan</h2><p>Total order aktif: <strong>Rp${totalSemua.toLocaleString('id-ID')}</strong></p></div>`;
-}
-
-function renderBackup() {
-  document.getElementById('backup').innerHTML = `<div class="card"><h2>💾 Backup</h2><button onclick="exportData()">📥 Download Backup</button></div>`;
-}
-
-function exportData() {
-  const data = {menu, mejaList};
-  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'backup_kasir.json';
-  a.click();
-}
-function cetakBill() {
-  const meja = mejaList[mejaAktif];
-  if(meja.items.length === 0) return alert('Belum ada order untuk dicetak!');
-
-  const subtotal = hitungTotalMeja(meja);
-  const diskonRp = subtotal * (diskonPersen / 100);
-  const setelahDiskon = subtotal - diskonRp;
-  const ppnRp = setelahDiskon * (ppnPersen / 100);
-  const total = setelahDiskon + ppnRp;
-  const waktu = new Date().toLocaleString('id-ID');
-
-  let struk = `
-================================
-      KASIR NAOTAJUN
-================================
-Meja : ${meja.nama}
-Kasir : ${namaKasir || '-'}
-Waitress: ${namaWaitress || '-'}
-Waktu : ${waktu}
---------------------------------
-No Menu Qty Total
---------------------------------
-`;
-
-  meja.items.forEach((item, i) => {
-    let nama = item.nama.length > 12? item.nama.substring(0, 12) : item.nama;
-    nama = nama.padEnd(12, ');
-    let qty = String(item.qty).padStart(3, ');
-    let totalItem = String((item.harga * item.qty).toLocaleString('id-ID')).padStart(8, ');
+    nama = nama.padEnd(12, ' ');
+    let qty = String(item.qty).padStart(3, ' ');
+    let totalItem = String((item.harga * item.qty).toLocaleString('id-ID')).padStart(8, ' ');
     struk += `${i+1}. ${nama} ${qty} Rp${totalItem}\n`;
   });
 
   struk += `--------------------------------
 Subtotal : Rp${subtotal.toLocaleString('id-ID')}
-Diskon ${diskonPersen}% : -Rp${diskonRp.toLocaleString('id-ID')}
-PPN ${ppnPersen}% : Rp${ppnRp.toLocaleString('id-ID')}
---------------------------------
+Diskon ${meja.diskonPersen}% : -Rp${diskonRp.toLocaleString('id-ID')}
+PPN ${meja.ppnPersen}% : Rp${ppnRp.toLocaleString('id-ID')}
+
 TOTAL : Rp${total.toLocaleString('id-ID')}
-================================
-   Terima Kasih :)
+
+     Terima Kasih :)
 `;
 
-  const printWindow = window.open('', '', 'width=400,height=700');
-  printWindow.document.write(`<pre style="font-family:monospace; font-size:13px;">${struk}</pre>`);
+  let printWindow = window.open('', '', 'height=600,width=400');
+  printWindow.document.write('<pre style="font-family:monospace; font-size:12px;">' + struk + '</pre>');
   printWindow.document.close();
   printWindow.print();
 }
-  
-loadTema();
-renderMenu();
+
+function resetMeja(id) {
+  if(confirm('Yakin reset meja ini?')) {
+    let meja = mejaList.find(m => m.id === id);
+    meja.items = [];
+    renderItems(id);
+  }
+}
+
+init();
+renderMeja();
 </script>
 </body>
 </html>
