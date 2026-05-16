@@ -50,6 +50,7 @@ tr:hover { background: rgba(0,0,0,0.05); }
 .badge-food { background: #4caf50; }
 .badge-beverage { background: #2196f3; }
 .hidden { display: none; }
+.edit-form { background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ddd; }
 </style>
 </head>
 <body data-theme="blue">
@@ -88,6 +89,7 @@ let data = JSON.parse(localStorage.getItem('kasirData')) || {
   menu: [],
   transaksi: []
 };
+let editId = null;
 
 function setTheme(theme) {
   document.body.setAttribute('data-theme', theme);
@@ -167,6 +169,27 @@ function renderMenu() {
   container.innerHTML = `
     <div class="card">
       <h2>📋 Kelola Menu</h2>
+
+      <div id="editForm" class="edit-form hidden">
+        <h3>Edit Menu</h3>
+        <div class="flex mb-20">
+          <input type="text" id="editNama" placeholder="Nama Menu">
+          <input type="text" id="editHarga" placeholder="Harga">
+          <select id="editTipe">
+            <option value="Food">Food</option>
+            <option value="Beverage">Beverage</option>
+          </select>
+          <select id="editSubKategori">
+            <option value="Makanan Berat">Makanan Berat</option>
+            <option value="Camilan">Camilan</option>
+            <option value="Minuman Ringan">Minuman Ringan</option>
+            <option value="Minuman Keras">Minuman Keras</option>
+          </select>
+        </div>
+        <button class="btn-success" onclick="simpanEdit()">Simpan</button>
+        <button class="btn-warning" onclick="batalEdit()">Batal</button>
+      </div>
+
       <div class="flex mb-20">
         <input type="text" id="namaMenu" placeholder="Nama Menu">
         <input type="text" id="hargaMenu" placeholder="Harga contoh: 45000">
@@ -223,7 +246,10 @@ function filterMenu(tipe) {
       <td><span class="badge ${tipeMenu==='Food'?'badge-food':'badge-beverage'}">${tipeMenu}</span></td>
       <td>${subKat}</td>
       <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
-      <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
+      <td>
+        <button class="btn-warning" onclick="editMenu(${m.id})">Edit</button>
+        <button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button>
+      </td>
     </tr>
   `}).join('');
 }
@@ -242,6 +268,48 @@ function tambahMenu() {
   filterMenu(filterAktif);
   document.getElementById('namaMenu').value = '';
   document.getElementById('hargaMenu').value = '';
+}
+
+function editMenu(id) {
+  editId = id;
+  const item = data.menu.find(m => m.id === id);
+  if(!item) return;
+
+  document.getElementById('editForm').classList.remove('hidden');
+  document.getElementById('editNama').value = item.nama;
+  document.getElementById('editHarga').value = item.harga;
+  document.getElementById('editTipe').value = item.tipe || 'Food';
+  document.getElementById('editSubKategori').value = item.subKategori || 'Makanan Berat';
+
+  window.scrollTo(0, 0);
+}
+
+function simpanEdit() {
+  if(editId === null) return;
+
+  const nama = document.getElementById('editNama').value.trim();
+  let hargaStr = document.getElementById('editHarga').value.replace(/\./g, '');
+  const harga = parseInt(hargaStr);
+  const tipe = document.getElementById('editTipe').value;
+  const subKategori = document.getElementById('editSubKategori').value;
+
+  if(!nama || isNaN(harga)) return alert('Lengkapi data dengan benar!');
+
+  const index = data.menu.findIndex(m => m.id === editId);
+  if(index!== -1) {
+    data.menu[index] = {id: editId, nama, harga, tipe, subKategori};
+    save();
+    filterMenu(filterAktif);
+    batalEdit();
+    alert('Data berhasil diupdate!');
+  }
+}
+
+function batalEdit() {
+  editId = null;
+  document.getElementById('editForm').classList.add('hidden');
+  document.getElementById('editNama').value = '';
+  document.getElementById('editHarga').value = '';
 }
 
 function hapusMenu(id) {
