@@ -6,186 +6,127 @@
 <title>Kasir Sederhana</title>
 <style>
 * { box-sizing: border-box; }
-body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-.navbar { background: #333; overflow: hidden; position: sticky; top: 0; }
-.navbar button {
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 20px;
-  background: #333;
-  color: white;
-  font-size: 16px;
-  transition: 0.3s;
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: #f4f7f9;
+  color: #333;
 }
-.navbar button:hover { background: #575757; }
-.navbar button.active { background: #4CAF50; }
-.container { padding: 20px; max-width: 1200px; margin: auto; }
-.tabcontent { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-input, button, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
-button { cursor: pointer; border: none; border-radius: 5px; background: #4CAF50; color: white; }
-button:hover { background: #45a049; }
-button.danger { background: #f44336; }
-button.danger:hover { background: #da190b; }
-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-th { background: #f2f2f2; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
-.card { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; }
-.card:hover { background: #f0f0f0; }
-.card.active { background: #4CAF50; color: white; }
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+h2, h3 { text-align: center; color: #2c3e50; margin-top: 0; }
+.input-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+input, button {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+input { flex: 1; min-width: 120px; }
+button {
+  cursor: pointer;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  font-weight: 600;
+  transition: 0.2s;
+}
+button:hover { background: #43a047; }
+button.danger { background: #e74c3c; }
+button.danger:hover { background: #c0392b; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  overflow-x: auto;
+}
+th, td {
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  text-align: left;
+}
+th { background: #f8f9fa; font-weight: 600; }
+.total-box {
+  text-align: right;
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 15px;
+  color: #2c3e50;
+}
+.section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+@media (max-width: 600px) {
+ .input-group { flex-direction: column; }
+  input { min-width: 100%; }
+}
 </style>
 </head>
 <body>
 
-<div class="navbar">
-  <button class="tablink active" onclick="openTab(event, 'Meja')">Meja</button>
-  <button class="tablink" onclick="openTab(event, 'Menu')">Menu</button>
-  <button class="tablink" onclick="openTab(event, 'Kasir')">Kasir</button>
-  <button class="tablink" onclick="openTab(event, 'Laporan')">Laporan</button>
-  <button class="tablink" onclick="openTab(event, 'Backup')">Backup</button>
-</div>
-
 <div class="container">
-  <!-- Meja -->
-  <div id="Meja" class="tabcontent" style="display:block;">
-    <h2>Manajemen Meja</h2>
-    <input type="text" id="namaMeja" placeholder="Nama Meja">
-    <button onclick="tambahMeja()">Tambah Meja</button>
-    <div class="grid" id="listMeja"></div>
-  </div>
+  <h2>Kasir Sederhana</h2>
 
-  <!-- Menu -->
-  <div id="Menu" class="tabcontent">
-    <h2>Manajemen Menu</h2>
-    <input type="text" id="namaMenu" placeholder="Nama Menu">
-    <input type="number" id="hargaMenu" placeholder="Harga" min="0">
-    <button onclick="tambahMenu()">Tambah Menu</button>
-    <table id="tabelMenu">
-      <thead><tr><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- Kasir -->
-  <div id="Kasir" class="tabcontent">
-    <h2>Kasir</h2>
-    <div>
-      <label>Meja: </label>
-      <select id="selectMeja"></select>
-    </div>
-    <div style="margin-top:10px;">
-      <input type="text" id="namaItem" placeholder="Nama Item">
+  <div class="section">
+    <h3>Input Penjualan</h3>
+    <div class="input-group">
+      <input type="text" id="namaItem" placeholder="Nama Barang">
       <input type="number" id="hargaItem" placeholder="Harga" min="0">
       <input type="number" id="qtyItem" placeholder="Qty" min="1" value="1">
-      <button onclick="tambahItem()">Tambah Item</button>
-      <button onclick="simpanPenjualan()">Simpan Penjualan</button>
+      <button onclick="tambahItem()">Tambah</button>
     </div>
+    <button onclick="simpanPenjualan()">Simpan Transaksi</button>
+    <button onclick="resetKeranjang()" class="danger">Reset</button>
 
     <table id="tabelKeranjang">
-      <thead><tr><th>Nama</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead>
+      <thead>
+        <tr><th>Nama</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr>
+      </thead>
       <tbody></tbody>
     </table>
-    <h3>Total: Rp<span id="totalKeranjang">0</span></h3>
+    <div class="total-box">Total: Rp<span id="totalKeranjang">0</span></div>
   </div>
 
-  <!-- Laporan -->
-  <div id="Laporan" class="tabcontent">
-    <h2>Laporan Penjualan</h2>
-    Dari: <input type="date" id="tglDari">
-    Sampai: <input type="date" id="tglSampai">
-    <button onclick="printLaporan()">Print Laporan</button>
-    <button onclick="hapusSemuaData()" class="danger">Hapus Semua Data</button>
+  <div class="section">
+    <h3>Laporan Penjualan</h3>
+    <div class="input-group">
+      <input type="date" id="tglDari">
+      <input type="date" id="tglSampai">
+      <button onclick="printLaporan()">Print Laporan</button>
+      <button onclick="hapusData()" class="danger">Hapus Semua Data</button>
+    </div>
 
     <table id="tabelLaporan">
-      <thead><tr><th>Tanggal</th><th>Meja</th><th>Items</th><th>Total</th></tr></thead>
+      <thead>
+        <tr><th>Tanggal</th><th>Items</th><th>Total</th></tr>
+      </thead>
       <tbody></tbody>
     </table>
-  </div>
-
-  <!-- Backup -->
-  <div id="Backup" class="tabcontent">
-    <h2>Backup & Restore</h2>
-    <button onclick="exportData()">Export Data JSON</button>
-    <input type="file" id="importFile" accept=".json">
-    <button onclick="importData()">Import Data</button>
-    <p style="margin-top:15px;">Data disimpan otomatis di browser kamu pakai localStorage. Export untuk backup ke file.</p>
   </div>
 </div>
 
 <script>
-// Data
-let meja = JSON.parse(localStorage.getItem('meja') || '[]');
-let menu = JSON.parse(localStorage.getItem('menu') || '[]');
 let keranjang = [];
 let penjualan = JSON.parse(localStorage.getItem('penjualan') || '[]');
-let mejaAktif = null;
 
-// Tab switcher
-function openTab(evt, tabName) {
-  document.querySelectorAll(".tabcontent").forEach(el => el.style.display = "none");
-  document.querySelectorAll(".tablink").forEach(el => el.className = el.className.replace(" active", ""));
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.className += " active";
+function formatRupiah(angka) {
+  return angka.toLocaleString('id-ID');
 }
 
-// Meja
-function renderMeja() {
-  let div = document.getElementById('listMeja');
-  let select = document.getElementById('selectMeja');
-  div.innerHTML = '';
-  select.innerHTML = '<option value="">Pilih Meja</option>';
-  meja.forEach((m, i) => {
-    div.innerHTML += `<div class="card ${mejaAktif==i?'active':''}" onclick="pilihMeja(${i})">${m}</div>`;
-    select.innerHTML += `<option value="${i}">${m}</option>`;
-  });
-  localStorage.setItem('meja', JSON.stringify(meja));
-}
-
-function tambahMeja() {
-  let nama = document.getElementById('namaMeja').value.trim();
-  if(!nama) return alert('Isi nama meja!');
-  meja.push(nama);
-  document.getElementById('namaMeja').value = '';
-  renderMeja();
-}
-
-function pilihMeja(i) {
-  mejaAktif = i;
-  renderMeja();
-}
-
-// Menu
-function renderMenu() {
-  let tbody = document.querySelector('#tabelMenu tbody');
-  tbody.innerHTML = '';
-  menu.forEach((m, i) => {
-    tbody.innerHTML += `<tr>
-      <td>${m.nama}</td>
-      <td>Rp${m.harga.toLocaleString('id-ID')}</td>
-      <td><button class="danger" onclick="hapusMenu(${i})">Hapus</button></td>
-    </tr>`;
-  });
-  localStorage.setItem('menu', JSON.stringify(menu));
-}
-
-function tambahMenu() {
-  let nama = document.getElementById('namaMenu').value.trim();
-  let harga = parseInt(document.getElementById('hargaMenu').value);
-  if(!nama ||!harga) return alert('Isi nama dan harga!');
-  menu.push({nama, harga});
-  document.getElementById('namaMenu').value = '';
-  document.getElementById('hargaMenu').value = '';
-  renderMenu();
-}
-
-function hapusMenu(i) {
-  menu.splice(i, 1);
-  renderMenu();
-}
-
-// Kasir
 function renderKeranjang() {
   let tbody = document.querySelector('#tabelKeranjang tbody');
   tbody.innerHTML = '';
@@ -193,22 +134,29 @@ function renderKeranjang() {
   keranjang.forEach((item, i) => {
     let subtotal = item.harga * item.qty;
     total += subtotal;
-    tbody.innerHTML += `<tr>
-      <td>${item.nama}</td>
-      <td>Rp${item.harga.toLocaleString('id-ID')}</td>
-      <td>${item.qty}</td>
-      <td>Rp${subtotal.toLocaleString('id-ID')}</td>
-      <td><button class="danger" onclick="hapusItem(${i})">Hapus</button></td>
-    </tr>`;
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.nama}</td>
+        <td>Rp${formatRupiah(item.harga)}</td>
+        <td>${item.qty}</td>
+        <td>Rp${formatRupiah(subtotal)}</td>
+        <td><button class="danger" onclick="hapusItem(${i})">Hapus</button></td>
+      </tr>
+    `;
   });
-  document.getElementById('totalKeranjang').innerText = total.toLocaleString('id-ID');
+  document.getElementById('totalKeranjang').innerText = formatRupiah(total);
 }
 
 function tambahItem() {
   let nama = document.getElementById('namaItem').value.trim();
   let harga = parseInt(document.getElementById('hargaItem').value);
   let qty = parseInt(document.getElementById('qtyItem').value);
-  if (!nama ||!harga ||!qty) return alert('Isi semua field!');
+
+  if (!nama || isNaN(harga) || isNaN(qty) || harga <= 0 || qty <= 0) {
+    alert('Isi nama, harga, dan qty dengan benar!');
+    return;
+  }
+
   keranjang.push({nama, harga, qty});
   document.getElementById('namaItem').value = '';
   document.getElementById('hargaItem').value = '';
@@ -221,36 +169,48 @@ function hapusItem(i) {
   renderKeranjang();
 }
 
+function resetKeranjang() {
+  if(keranjang.length > 0 && confirm('Kosongkan keranjang?')) {
+    keranjang = [];
+    renderKeranjang();
+  }
+}
+
 function simpanPenjualan() {
   if (keranjang.length === 0) return alert('Keranjang kosong!');
-  if (mejaAktif === null) return alert('Pilih meja dulu!');
 
   let total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
   let data = {
     tanggal: new Date().toLocaleString('id-ID'),
-    meja: meja[mejaAktif],
     items: keranjang,
     total: total
   };
+
   penjualan.push(data);
   localStorage.setItem('penjualan', JSON.stringify(penjualan));
   keranjang = [];
   renderKeranjang();
   renderLaporan();
-  alert('Penjualan disimpan!');
+  alert('Transaksi berhasil disimpan!');
 }
 
-// Laporan
 function renderLaporan() {
   let tbody = document.querySelector('#tabelLaporan tbody');
   tbody.innerHTML = '';
+
+  if(penjualan.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Belum ada data</td></tr>';
+    return;
+  }
+
   penjualan.forEach(p => {
-    tbody.innerHTML += `<tr>
-      <td>${p.tanggal}</td>
-      <td>${p.meja || '-'}</td>
-      <td>${p.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
-      <td>Rp${p.total.toLocaleString('id-ID')}</td>
-    </tr>`;
+    tbody.innerHTML += `
+      <tr>
+        <td>${p.tanggal}</td>
+        <td>${p.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
+        <td>Rp${formatRupiah(p.total)}</td>
+      </tr>
+    `;
   });
 }
 
@@ -273,70 +233,61 @@ function printLaporan() {
   let totalOmzet = dataFilter.reduce((sum, b) => sum + b.total, 0);
 
   let html = `
-  <html><head><title>Laporan</title>
-  <style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:6px}th{background:#f2f2f2}h2{text-align:center}</style>
-  </head><body>
-  <h2>LAPORAN PENJUALAN</h2>
-  <p>Periode: ${dari} s/d ${sampai}</p>
-  <p>Total Omzet: Rp${totalOmzet.toLocaleString('id-ID')}</p>
-  <table><tr><th>No</th><th>Tanggal</th><th>Meja</th><th>Items</th><th>Total</th></tr>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Laporan Penjualan</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 30px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+      th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+      th { background: #f2f2f2; }
+      h2, p { text-align: center; }
+     .print-btn { margin-top: 20px; padding: 10px 20px; }
+    </style>
+  </head>
+  <body>
+    <h2>LAPORAN PENJUALAN</h2>
+    <p>Periode: ${dari} s/d ${sampai}</p>
+    <p><strong>Total Omzet: Rp${formatRupiah(totalOmzet)}</strong></p>
+    <table>
+      <tr><th>No</th><th>Tanggal</th><th>Items</th><th>Total</th></tr>
   `;
 
   dataFilter.forEach((b, i) => {
-    html += `<tr><td>${i+1}</td><td>${b.tanggal}</td><td>${b.meja}</td><td>${b.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td><td>Rp${b.total.toLocaleString('id-ID')}</td></tr>`;
+    html += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${b.tanggal}</td>
+        <td>${b.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
+        <td>Rp${formatRupiah(b.total)}</td>
+      </tr>
+    `;
   });
 
-  html += `</table><button onclick="window.print()">Print</button>
-  <script>window.onload = function() { window.print(); }<\/script></body></html>`;
+  html += `
+    </table>
+    <button class="print-btn" onclick="window.print()">Print</button>
+    <script>window.onload = function() { window.print(); }<\/script>
+  </body>
+  </html>
+  `;
 
   let win = window.open('', '_blank');
   win.document.write(html);
   win.document.close();
 }
 
-function hapusSemuaData() {
-  if(confirm('Yakin hapus semua data penjualan?')) {
+function hapusData() {
+  if(confirm('Yakin hapus semua data penjualan? Data tidak bisa dikembalikan!')) {
     penjualan = [];
     localStorage.setItem('penjualan', '[]');
     renderLaporan();
-    alert('Data dihapus!');
+    alert('Semua data dihapus!');
   }
 }
 
-// Backup
-function exportData() {
-  let data = { meja, menu, penjualan };
-  let dataStr = JSON.stringify(data);
-  let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-  let linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dataUri);
-  linkElement.setAttribute('download', 'backup_kasir_' + new Date().getTime() + '.json');
-  linkElement.click();
-}
-
-function importData() {
-  let file = document.getElementById('importFile').files[0];
-  if (!file) return alert('Pilih file dulu');
-  let reader = new FileReader();
-  reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
-    meja = data.meja || [];
-    menu = data.menu || [];
-    penjualan = data.penjualan || [];
-    localStorage.setItem('meja', JSON.stringify(meja));
-    localStorage.setItem('menu', JSON.stringify(menu));
-    localStorage.setItem('penjualan', JSON.stringify(penjualan));
-    renderMeja();
-    renderMenu();
-    renderLaporan();
-    alert('Data berhasil diimport!');
-  };
-  reader.readAsText(file);
-}
-
-// Init
-renderMeja();
-renderMenu();
+// Load awal
 renderLaporan();
 </script>
 </body>
