@@ -429,8 +429,7 @@ function resetMeja(id) {
     saveData(); renderItems(id); renderTabs();
   }
 }
-
-  function cetakStruk(id) {
+function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
   if (meja.items.length === 0) return alert("Meja kosong");
 
@@ -441,12 +440,9 @@ function resetMeja(id) {
   let total = setelahDiskon + ppnRp;
 
   let waktu = new Date().toLocaleString('id-ID');
-  let waktuISO = new Date().toISOString();
-
   let bill = {
-    waktu, waktuISO, meja: meja.nama,
-    kasir: meja.kasir || '-',
-    waitress: meja.waitress || '-',
+    waktu, waktuISO: new Date().toISOString(), meja: meja.nama,
+    kasir: meja.kasir || '-', waitress: meja.waitress || '-',
     items: JSON.parse(JSON.stringify(meja.items)),
     subtotal, diskonRp, ppnRp, total
   };
@@ -454,49 +450,60 @@ function resetMeja(id) {
   data.laporan.push(bill);
   saveData();
 
-  // Buat struk tabel
-  let garis = "--------------------------------------------------";
+  // Format 58mm thermal - max 32 karakter per baris
+  let garis = "--------------------------------";
   let struk = `
+      WARUNG MADE
 ${garis}
-        WARUNG MADE
+${waktu}
+Meja:${meja.nama} Kasir:${meja.kasir || '-'}
 ${garis}
-Waktu : ${waktu}
-Meja : ${meja.nama}
-Kasir : ${meja.kasir || '-'}
-Waitress: ${meja.waitress || '-'}
-${garis}
-No Nama Harga Qty Subtotal
-${garis}
-${meja.items.map((i, idx) => {
-  let nama = i.nama.padEnd(14).substring(0,14);
-  let harga = 'Rp' + i.harga.toLocaleString('id-ID').padStart(7);
-  let qty = String(i.qty).padStart(3);
-  let sub = 'Rp' + (i.harga * i.qty).toLocaleString('id-ID').padStart(8);
-  return `${String(idx+1).padStart(2)} ${nama} ${harga} ${qty} ${sub}`;
+${meja.items.map(i => {
+  let nama = i.nama.length > 20 ? i.nama.substring(0,17) + '...' : i.nama;
+  let line1 = `${nama}`;
+  let line2 = `${i.qty}x${i.harga.toLocaleString('id-ID')} =${(i.harga*i.qty).toLocaleString('id-ID')}`;
+  return line1 + '\n' + line2.padStart(32);
 }).join('\n')}
 ${garis}
-Subtotal: Rp${subtotal.toLocaleString('id-ID')}
-Diskon : -Rp${diskonRp.toLocaleString('id-ID')}
-PPN : Rp${ppnRp.toLocaleString('id-ID')}
+Subtotal:${subtotal.toLocaleString('id-ID').padStart(20)}
+Diskon  :${'-' + diskonRp.toLocaleString('id-ID').padStart(20)}
+PPN     :${ppnRp.toLocaleString('id-ID').padStart(20)}
 ${garis}
-TOTAL : Rp${total.toLocaleString('id-ID')}
+TOTAL   :${total.toLocaleString('id-ID').padStart(20)}
 ${garis}
-      Terima Kasih!
+   Terima Kasih
+   Silakan Datang Lagi
 ${garis}
   `;
 
-  // Coba buka window print
-  let printWindow = window.open('', '', 'height=600,width=400');
-
+  // Buka window print khusus 58mm
+  let printWindow = window.open('', '', 'height=800,width=250');
+  
   if (printWindow) {
-    printWindow.document.write('<pre style="font-family:monospace; font-size:12px;">' + struk + '</pre>');
+    printWindow.document.write(`
+      <html>
+      <head>
+        <style>
+          @page { size: 58mm auto; margin: 0; }
+          body { 
+            font-family: 'Courier New', monospace; 
+            font-size: 11px; 
+            margin: 0; 
+            padding: 2mm;
+            width: 54mm;
+          }
+          pre { margin: 0; white-space: pre-wrap; }
+        </style>
+      </head>
+      <body><pre>${struk}</pre></body>
+      </html>
+    `);
     printWindow.document.close();
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 200);
+    }, 300);
   } else {
-    // Kalau popup ke-block, kasih opsi download
     if(confirm("Popup diblokir. Download struk.txt?")) {
       downloadStruk(struk, meja.nama);
     } else {
@@ -508,6 +515,7 @@ ${garis}
   renderItems(id);
   renderTabs();
 }
+  
 
 function downloadStruk(text, namaMeja) {
   let blob = new Blob([text], {type: 'text/plain'});
