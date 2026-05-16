@@ -9,12 +9,13 @@
   body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
   header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
   header h1 { margin: 0; font-size: 18px; }
-.btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
 .btn-danger { background: #ef4444; color: white; }
 .btn-secondary { background: #6b7280; color: white; }
 .btn-primary { background: #2563eb; color: white; }
 .btn-success { background: #16a34a; color: white; }
 .btn-warning { background: #f59e0b; color: white; }
+.btn-sm { padding: 4px 8px; font-size: 12px; }
 .container { padding: 20px; max-width: 900px; margin: auto; }
 .card { background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   input, select, button { padding: 8px; margin: 4px 4px 4px 0; border: 1px solid #ccc; border-radius: 6px; }
@@ -25,8 +26,11 @@
 .hidden { display: none!important; }
 .user-info { font-size: 13px; opacity: 0.9; }
  table { width: 100%; border-collapse: collapse; }
- th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
- th { background: #f9fafb; }
+ th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+ th { background: #f9fafb; font-weight: 600; }
+ tr:hover { background: #f9fafb; }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
 </style>
 </head>
 <body>
@@ -80,7 +84,17 @@
 
       <div class="card">
         <h3>Daftar Menu</h3>
-        <div id="listMenu" class="menu-grid">Belum ada menu</div>
+        <table id="menuTable">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Menu</th>
+              <th>Harga</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
@@ -110,7 +124,7 @@
       </div>
     </div>
 
-    <!-- Section Kelola User - Hanya Supervisor -->
+    <!-- Section Kelola User -->
     <div id="section-user" class="hidden">
       <div class="card">
         <h3>Tambah User Baru</h3>
@@ -142,6 +156,20 @@
   </div>
 </div>
 
+<!-- Modal Edit Menu -->
+<div id="editModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Edit Menu</h3>
+    <input type="hidden" id="editId">
+    <input type="text" id="editNama" placeholder="Nama Menu" style="width:100%; margin-bottom:10px;">
+    <input type="number" id="editHarga" placeholder="Harga" style="width:100%; margin-bottom:10px;">
+    <div style="text-align:right;">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEditMenu()">Simpan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const STORAGE_KEY = 'kasirWarungMade';
 const BACKUP_KEY = 'kasirWarungMade_backup';
@@ -152,7 +180,6 @@ const SESSION_KEY = 'kasirWarungMade_session';
 let data = { menuList: [], mejaList: [], transaksi: [] };
 let currentUser = null;
 
-// Init default users
 function initUsers() {
   if (!localStorage.getItem(USER_KEY)) {
     const defaultUsers = [
@@ -163,7 +190,6 @@ function initUsers() {
   }
 }
 
-// Cek session saat load
 function checkSession() {
   initUsers();
   const session = localStorage.getItem(SESSION_KEY);
@@ -183,7 +209,6 @@ function showLogin() {
 function showDashboard() {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('dashboardPage').classList.remove('hidden');
-
   document.getElementById('userInfo').innerText = `${currentUser.nama} - ${currentUser.role}`;
   renderMenuButtons();
   loadData();
@@ -192,15 +217,10 @@ function showDashboard() {
 function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
-
   const users = JSON.parse(localStorage.getItem(USER_KEY));
   const user = users.find(u => u.username === username && u.password === password);
 
-  if (!user) {
-    alert('Username atau password salah');
-    return;
-  }
-
+  if (!user) return alert('Username atau password salah');
   currentUser = user;
   localStorage.setItem(SESSION_KEY, JSON.stringify(user));
   showDashboard();
@@ -212,7 +232,6 @@ function logout() {
   location.reload();
 }
 
-// Render tombol menu sesuai role
 function renderMenuButtons() {
   const menuDiv = document.getElementById('menuButtons');
   let html = '';
@@ -236,17 +255,13 @@ function renderMenuButtons() {
   showSection(currentUser.role === 'supervisor'? 'menu' : 'kasir');
 }
 
-// Load data kasir
 function loadData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
-    try {
-      data = JSON.parse(saved);
-    } catch(e) {
-      data = { menuList: [], mejaList: [], transaksi: [] };
-    }
+    try { data = JSON.parse(saved); }
+    catch(e) { data = { menuList: [], mejaList: [], transaksi: [] }; }
   }
-  renderMenu();
+  renderMenuTable();
   renderMeja();
   renderKasirMenu();
   renderUserTable();
@@ -256,7 +271,7 @@ function loadData() {
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   autoBackup();
-  renderMenu();
+  renderMenuTable();
   renderMeja();
   renderKasirMenu();
 }
@@ -274,12 +289,7 @@ setInterval(autoBackup, 5 * 60 * 1000);
 function restoreFromAutoBackup() {
   const backup = localStorage.getItem(BACKUP_KEY);
   const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
-
-  if (!backup) {
-    alert('Tidak ada backup otomatis ditemukan');
-    return;
-  }
-
+  if (!backup) return alert('Tidak ada backup otomatis ditemukan');
   if (confirm(`Restore data backup dari ${new Date(backupTime).toLocaleString('id-ID')}?\nData sekarang akan tertimpa.`)) {
     localStorage.setItem(STORAGE_KEY, backup);
     location.reload();
@@ -290,7 +300,6 @@ function checkBackupButton() {
   const backup = localStorage.getItem(BACKUP_KEY);
   const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
   const btn = document.getElementById('restoreBtn');
-
   if (backup && btn && currentUser.role === 'supervisor') {
     btn.style.display = 'inline-block';
     btn.title = `Backup terakhir: ${new Date(backupTime).toLocaleString('id-ID')}`;
@@ -299,10 +308,7 @@ function checkBackupButton() {
 
 function backupNow() {
   const dataStr = localStorage.getItem(STORAGE_KEY);
-  if (!dataStr) {
-    alert('Tidak ada data untuk di-backup');
-    return;
-  }
+  if (!dataStr) return alert('Tidak ada data untuk di-backup');
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -319,10 +325,9 @@ function showSection(section) {
   document.getElementById('section-' + section).classList.remove('hidden');
 }
 
-// Tambah menu
+// ========== MENU ==========
 function tambahMenu() {
   if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa tambah menu');
-
   const nama = document.getElementById('namaMenu').value.trim();
   const harga = parseInt(document.getElementById('hargaMenu').value);
   if (!nama ||!harga) return alert('Isi nama dan harga');
@@ -333,15 +338,63 @@ function tambahMenu() {
   saveData();
 }
 
-function renderMenu() {
-  const el = document.getElementById('listMenu');
+function renderMenuTable() {
+  const tbody = document.querySelector('#menuTable tbody');
+  if (!tbody) return;
+
   if (!data.menuList.length) {
-    el.innerHTML = 'Belum ada menu';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada menu</td></tr>';
     return;
   }
-  el.innerHTML = data.menuList.map(m =>
-    `<div class="menu-item"><b>${m.nama}</b><br>Rp ${m.harga.toLocaleString('id-ID')}</div>`
-  ).join('');
+
+  tbody.innerHTML = data.menuList.map((m, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${m.nama}</td>
+      <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
+      <td>
+        ${currentUser.role === 'supervisor'?
+          `<button class="btn btn-warning btn-sm" onclick="openEditModal(${m.id})">Edit</button>
+           <button class="btn btn-danger btn-sm" onclick="hapusMenu(${m.id})">Hapus</button>` :
+          '-'
+        }
+      </td>
+    </tr>
+  `).join('');
+}
+
+function hapusMenu(id) {
+  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
+  if (!confirm('Hapus menu ini?')) return;
+  data.menuList = data.menuList.filter(m => m.id!== id);
+  saveData();
+}
+
+function openEditModal(id) {
+  const menu = data.menuList.find(m => m.id === id);
+  if (!menu) return;
+  document.getElementById('editId').value = menu.id;
+  document.getElementById('editNama').value = menu.nama;
+  document.getElementById('editHarga').value = menu.harga;
+  document.getElementById('editModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.add('hidden');
+}
+
+function saveEditMenu() {
+  const id = parseInt(document.getElementById('editId').value);
+  const nama = document.getElementById('editNama').value.trim();
+  const harga = parseInt(document.getElementById('editHarga').value);
+  if (!nama ||!harga) return alert('Isi nama dan harga');
+
+  const index = data.menuList.findIndex(m => m.id === id);
+  if (index>-1) {
+    data.menuList[index] = { id, nama, harga };
+    saveData();
+    closeEditModal();
+  }
 }
 
 function renderKasirMenu() {
@@ -355,13 +408,11 @@ function renderKasirMenu() {
   ).join('');
 }
 
-// Tambah meja
+// ========== MEJA ==========
 function tambahMeja() {
   if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa kelola meja');
-
   const nama = document.getElementById('namaMeja').value.trim();
   if (!nama) return alert('Isi nama meja');
-
   data.mejaList.push({ id: Date.now(), nama });
   document.getElementById('namaMeja').value = '';
   saveData();
@@ -378,25 +429,19 @@ function renderMeja() {
   ).join('');
 }
 
-// Kelola User
+// ========== USER ==========
 function tambahUser() {
   if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
-
   const username = document.getElementById('newUsername').value.trim();
   const nama = document.getElementById('newNama').value.trim();
   const password = document.getElementById('newPassword').value.trim();
   const role = document.getElementById('newRole').value;
-
   if (!username ||!nama ||!password) return alert('Lengkapi semua field');
 
   const users = JSON.parse(localStorage.getItem(USER_KEY));
-  if (users.find(u => u.username === username)) {
-    return alert('Username sudah dipakai');
-  }
-
+  if (users.find(u => u.username === username)) return alert('Username sudah dipakai');
   users.push({ username, nama, password, role });
   localStorage.setItem(USER_KEY, JSON.stringify(users));
-
   document.getElementById('newUsername').value = '';
   document.getElementById('newNama').value = '';
   document.getElementById('newPassword').value = '';
@@ -407,7 +452,6 @@ function tambahUser() {
 function renderUserTable() {
   const tbody = document.querySelector('#userTable tbody');
   if (!tbody) return;
-
   const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
   tbody.innerHTML = users.map(u => `
     <tr>
@@ -416,7 +460,7 @@ function renderUserTable() {
       <td>${u.role}</td>
       <td>
         ${u.username!== currentUser.username?
-          `<button class="btn btn-danger" onclick="hapusUser('${u.username}')">Hapus</button>` :
+          `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` :
           '<span>-</span>'
         }
       </td>
@@ -427,7 +471,6 @@ function renderUserTable() {
 function hapusUser(username) {
   if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
   if (!confirm(`Hapus user ${username}?`)) return;
-
   let users = JSON.parse(localStorage.getItem(USER_KEY));
   users = users.filter(u => u.username!== username);
   localStorage.setItem(USER_KEY, JSON.stringify(users));
