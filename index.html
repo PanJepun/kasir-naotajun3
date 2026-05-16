@@ -236,18 +236,19 @@ function hapusMenu(index) {
   localStorage.setItem('menu', JSON.stringify(menu));
   renderMenu();
 }
-
 function renderKasir() {
   const container = document.getElementById('kasir');
   if(mejaAktif === null) {
     container.innerHTML = `<div class="card"><h2>💰 Kasir</h2><p>Pilih meja dulu di tab Meja.</p></div>`;
     return;
   }
+
   const meja = mejaList[mejaAktif];
   container.innerHTML = `
     <div class="card">
       <h2>💰 Kasir - Meja ${meja.nama}</h2>
       <button onclick="kembaliKeMeja()" class="btn-warning">← Kembali</button>
+
       <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-top:20px;">
         <div>
           <h3>Menu:</h3>
@@ -259,23 +260,29 @@ function renderKasir() {
             `).join('')}
           </div>
         </div>
+
         <div class="bill-box">
           <h3>📄 Bill Meja ${meja.nama}</h3>
+
           <div class="flex" style="margin-bottom:10px;">
             <input type="text" id="inputKasir" placeholder="Nama Kasir" value="${namaKasir}" style="flex:1;">
             <input type="text" id="inputWaitress" placeholder="Nama Waitress" value="${namaWaitress}" style="flex:1;">
           </div>
+
           <div id="billList"></div>
+
           <div class="flex" style="margin-top:10px;">
             <input type="number" id="inputDiskon" placeholder="Diskon %" value="${diskonPersen}" style="flex:1;" min="0" max="100">
             <input type="number" id="inputPPN" placeholder="PPN %" value="${ppnPersen}" style="flex:1;" min="0" max="100">
           </div>
+
           <div id="billRingkasan"></div>
           <button onclick="bayarMeja()" class="btn-success" style="width:100%; margin-top:10px;">💵 Bayar</button>
         </div>
       </div>
     </div>
   `;
+
   document.getElementById('inputKasir').addEventListener('input', (e) => {
     namaKasir = e.target.value;
     localStorage.setItem('namaKasir', namaKasir);
@@ -292,8 +299,10 @@ function renderKasir() {
     ppnPersen = parseFloat(e.target.value) || 0;
     renderOrder();
   });
+
   renderOrder();
 }
+  
 
 function tambahKeMeja(nama, harga) {
   const meja = mejaList[mejaAktif];
@@ -309,30 +318,37 @@ function tambahKeMeja(nama, harga) {
 }
 
 function renderOrder() {
+  function renderOrder() {
   const meja = mejaList[mejaAktif];
   const list = document.getElementById('billList');
   const ringkasan = document.getElementById('billRingkasan');
+
   if(meja.items.length === 0) {
     list.innerHTML = '<p>Belum ada order</p>';
     ringkasan.innerHTML = '';
     return;
   }
+
   let tableHTML = `<table class="bill-table"><thead><tr><th>No</th><th>Menu</th><th>Harga</th><th>Qty</th><th>Total</th><th></th></tr></thead><tbody>`;
   meja.items.forEach((item, i) => {
     tableHTML += `<tr><td>${i+1}</td><td>${item.nama}</td><td>Rp${parseInt(item.harga).toLocaleString('id-ID')}</td><td><input type="number" value="${item.qty}" min="1" onchange="ubahQty(${i}, this.value)"></td><td>Rp${(item.harga * item.qty).toLocaleString('id-ID')}</td><td><button class="btn-x" onclick="hapusItem(${i})">X</button></td></tr>`;
   });
   tableHTML += `</tbody></table>`;
   list.innerHTML = tableHTML;
+
   const subtotal = hitungTotalMeja(meja);
   const diskonRp = subtotal * (diskonPersen / 100);
   const setelahDiskon = subtotal - diskonRp;
   const ppnRp = setelahDiskon * (ppnPersen / 100);
   const total = setelahDiskon + ppnRp;
+
   ringkasan.innerHTML = `
     <div class="bill-row"><span>Subtotal</span><span>Rp${subtotal.toLocaleString('id-ID')}</span></div>
     <div class="bill-row"><span>Diskon ${diskonPersen}%</span><span>- Rp${diskonRp.toLocaleString('id-ID')}</span></div>
     <div class="bill-row"><span>PPN ${ppnPersen}%</span><span>Rp${ppnRp.toLocaleString('id-ID')}</span></div>
     <div class="bill-total">Total: Rp${total.toLocaleString('id-ID')}</div>
+  `;
+}
   `;
 }
 
