@@ -18,7 +18,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-header { background: var(--primary); color: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 10px; }
+header { background: var(--primary); color: #fff; padding: 15px 20px; }
 header h1 { font-size: 20px; }
 .theme-selector { display: flex; gap: 8px; margin: 15px 20px; align-items: center; }
 .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -107,7 +107,11 @@ function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById(tab).classList.remove('hidden');
-  event.target.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    if(btn.textContent.includes(tab==='meja'?'Meja':tab==='menu'?'Menu':tab==='kasir'?'Kasir':tab==='laporan'?'Laporan':'Backup')) {
+      btn.classList.add('active');
+    }
+  });
 
   if(tab === 'meja') renderMeja();
   if(tab === 'menu') renderMenu();
@@ -171,8 +175,9 @@ function renderTabelMeja() {
       <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'kosong'}</span></td>
       <td>
         ${m.status==='kosong'
-         ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
-          : `<button class="btn-warning" onclick="checkOutMeja(${m.id})">Check Out</button>`
+        ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
+          : `<button class="btn-warning" onclick="bukaKasirMeja(${m.id})">Buka Kasir</button>
+             <button class="btn-danger" onclick="checkOutMeja(${m.id})">Check Out</button>`
         }
         <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
       </td>
@@ -194,7 +199,7 @@ function checkInMeja(id) {
   if(!meja) return;
 
   meja.status = 'terisi';
-  data.pesananAktif[id] = [];
+  data.pesananAktif[id] = data.pesananAktif[id] || [];
   save();
   renderMeja();
   alert(`${meja.nama} berhasil Check In!`);
@@ -232,6 +237,17 @@ function hapusMeja(id) {
   delete data.pesananAktif[id];
   save();
   renderMeja();
+}
+
+function bukaKasirMeja(id) {
+  const meja = data.meja.find(m => m.id === id);
+  if(!meja) return;
+  if(meja.status!== 'terisi') {
+    alert('Meja belum Check In!');
+    return;
+  }
+  mejaAktif = id;
+  showTab('kasir');
 }
 
 // ===== MENU MODULE =====
@@ -393,11 +409,17 @@ function hapusMenu(id) {
 // ===== KASIR MODULE =====
 function renderKasir() {
   const container = document.getElementById('kasir');
+
   if(!mejaAktif) {
     container.innerHTML = `
       <div class="card">
         <h2>💰 Kasir</h2>
-        <p>Pilih meja di tab Meja untuk mulai input pesanan.</p>
+        <p>Pilih meja yang sudah Check In untuk input pesanan.</p>
+        <div class="flex" style="margin-top:15px;">
+          ${data.meja.filter(m => m.status==='terisi').map(m =>
+            `<button class="btn-success" onclick="setMejaAktif(${m.id})">${m.nama}</button>`
+          ).join('')}
+        </div>
       </div>
     `;
     return;
@@ -412,6 +434,9 @@ function renderKasir() {
       <h2>💰 Kasir - ${meja.nama}</h2>
       <button class="btn-warning" onclick="tutupKasir()">← Kembali</button>
 
+      ${data.menu.length === 0
+       ? '<p style="margin-top:15px;">Belum ada menu. Tambah menu dulu di tab Menu.</p>'
+        : `
       <div class="flex mb-20" style="margin-top:20px;">
         <select id="selectMenu">
           ${data.menu.map(m => `<option value="${m.id}">${m.nama} - Rp ${m.harga.toLocaleString('id-ID')}</option>`).join('')}
@@ -433,14 +458,22 @@ function renderKasir() {
       <div class="flex" style="margin-top:20px;">
         <button class="btn-success" onclick="prosesBayar()">Proses Bayar & Check Out</button>
       </div>
+      `}
     </div>
   `;
 
-  renderPesanan();
+  if(data.menu.length > 0) renderPesanan();
+}
+
+function setMejaAktif(id) {
+  mejaAktif = id;
+  renderKasir();
 }
 
 function renderPesanan() {
   const tbody = document.getElementById('listPesanan');
+  if(!tbody) return;
+
   const pesanan = data.pesananAktif[mejaAktif] || [];
 
   if(pesanan.length === 0) {
@@ -486,17 +519,6 @@ function hapusPesanan(index) {
   save();
   renderPesanan();
   renderKasir();
-}
-
-function bukaKasirMeja(id) {
-  if(data.meja.find(m => m.id === id).status!== 'terisi') {
-    alert('Meja belum Check In!');
-    return;
-  }
-  mejaAktif = id;
-  showTab('kasir');
-  document.querySelectorAll('.nav-btn')[2].classList.add('active');
-  document.querySelectorAll('.nav-btn')[0].classList.remove('active');
 }
 
 function tutupKasir() {
