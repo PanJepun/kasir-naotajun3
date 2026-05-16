@@ -731,10 +731,58 @@ function renderUserTable() {
       <td>${u.nama}</td>
       <td>${u.role}</td>
       <td>
-        ${u.username !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` : '-'}
+        ${u.username !== 'admin' ? `
+          <button class="btn btn-warning btn-sm" onclick="openEditUser('${u.username}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>
+        ` : '-'}
       </td>
     </tr>
   `).join('');
+}
+
+function openEditUser(username) {
+  const users = JSON.parse(localStorage.getItem(USER_KEY));
+  const u = users.find(x => x.username === username);
+  if (!u) return;
+  
+  document.getElementById('editUserOldUsername').value = u.username;
+  document.getElementById('editUserUsername').value = u.username;
+  document.getElementById('editUserNama').value = u.nama;
+  document.getElementById('editUserPassword').value = u.password;
+  document.getElementById('editUserRole').value = u.role;
+  document.getElementById('editUserModal').classList.remove('hidden');
+}
+
+function closeEditUser() {
+  document.getElementById('editUserModal').classList.add('hidden');
+}
+
+function saveEditUser() {
+  const oldUsername = document.getElementById('editUserOldUsername').value;
+  const username = document.getElementById('editUserUsername').value.trim();
+  const nama = document.getElementById('editUserNama').value.trim();
+  const password = document.getElementById('editUserPassword').value.trim();
+  const role = document.getElementById('editUserRole').value;
+  
+  if (!username || !nama || !password) return alert('Lengkapi semua data');
+
+  let users = JSON.parse(localStorage.getItem(USER_KEY));
+  
+  if (users.some(u => u.username === username && u.username !== oldUsername)) {
+    return alert('Username sudah dipakai');
+  }
+
+  users = users.map(u => {
+    if (u.username === oldUsername) {
+      return { username, nama, password, role };
+    }
+    return u;
+  });
+
+  localStorage.setItem(USER_KEY, JSON.stringify(users));
+  renderUserTable();
+  closeEditUser();
+  alert('User berhasil diupdate');
 }
 
 function hapusUser(username) {
@@ -745,7 +793,7 @@ function hapusUser(username) {
   localStorage.setItem(USER_KEY, JSON.stringify(users));
   renderUserTable();
 }
-
+   
 // Jalankan saat halaman load
 window.onload = checkSession;
 </script>
