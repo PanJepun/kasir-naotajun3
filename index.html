@@ -450,33 +450,38 @@ function cetakStruk(id) {
   data.laporan.push(bill);
   saveData();
 
-  // Format 58mm thermal - max 32 karakter per baris
+  // Format angka tanpa koma biar rata
+  const fmt = n => Math.round(n).toString();
+  
+  // Format 58mm thermal - 32 karakter per baris
   let garis = "--------------------------------";
   let struk = `
       WARUNG MADE
 ${garis}
 ${waktu}
-Meja:${meja.nama} Kasir:${meja.kasir || '-'}
+Meja:${meja.nama}
+Kasir:${meja.kasir || '-'}
 ${garis}
 ${meja.items.map(i => {
   let nama = i.nama.length > 20 ? i.nama.substring(0,17) + '...' : i.nama;
-  let line1 = `${nama}`;
-  let line2 = `${i.qty}x${i.harga.toLocaleString('id-ID')} =${(i.harga*i.qty).toLocaleString('id-ID')}`;
-  return line1 + '\n' + line2.padStart(32);
+  let qtyHarga = `${i.qty}x${fmt(i.harga)}`;
+  let sub = fmt(i.harga * i.qty);
+  let line1 = nama;
+  let line2 = qtyHarga.padEnd(20) + sub.padStart(12);
+  return line1 + '\n' + line2;
 }).join('\n')}
 ${garis}
-Subtotal:${subtotal.toLocaleString('id-ID').padStart(20)}
-Diskon  :${'-' + diskonRp.toLocaleString('id-ID').padStart(20)}
-PPN     :${ppnRp.toLocaleString('id-ID').padStart(20)}
+Subtotal:${fmt(subtotal).padStart(23)}
+Diskon  :${'-' + fmt(diskonRp).padStart(22)}
+PPN     :${fmt(ppnRp).padStart(23)}
 ${garis}
-TOTAL   :${total.toLocaleString('id-ID').padStart(20)}
+TOTAL   :${fmt(total).padStart(23)}
 ${garis}
    Terima Kasih
    Silakan Datang Lagi
 ${garis}
   `;
 
-  // Buka window print khusus 58mm
   let printWindow = window.open('', '', 'height=800,width=250');
   
   if (printWindow) {
@@ -491,8 +496,9 @@ ${garis}
             margin: 0; 
             padding: 2mm;
             width: 54mm;
+            line-height: 1.2;
           }
-          pre { margin: 0; white-space: pre-wrap; }
+          pre { margin: 0; white-space: pre; }
         </style>
       </head>
       <body><pre>${struk}</pre></body>
