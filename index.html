@@ -759,4 +759,41 @@ function tambahUser() {
   localStorage.setItem(USER_KEY, JSON.stringify(users));
 
   document.getElementById('newUsername').value = '';
-  document.getElementById
+  document.getElementById('newNama').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('newRole').value = 'kasir';
+
+  renderUserTable();
+  alert('User berhasil ditambahkan');
+}
+
+function renderUserTable() {
+  const tbody = document.querySelector('#userTable tbody');
+  if (!tbody) return;
+  const users = JSON.parse(localStorage.getItem(USER_KEY));
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>${u.username}</td>
+      <td>${u.nama}</td>
+      <td>${u.role}</td>
+      <td>
+        ${u.username !== 'admin'? `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` : '-'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function hapusUser(username) {
+  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
+  if (!confirm('Hapus user ' + username + '?')) return;
+  let users = JSON.parse(localStorage.getItem(USER_KEY));
+  users = users.filter(u => u.username!== username);
+  localStorage.setItem(USER_KEY, JSON.stringify(users));
+  renderUserTable();
+}
+
+// Jalankan saat halaman load
+window.onload = checkSession;
+</script>
+</body>
+</html>
