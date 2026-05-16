@@ -354,7 +354,8 @@ TOTAL : Rp${total.toLocaleString('id-ID')}
   printWindow.document.close();
   printWindow.print();
 }
-function tambahKeMeja(nama, harga) {
+  
+  function tambahKeMeja(nama, harga) {
   const meja = mejaList[mejaAktif];
   const existing = meja.items.find(i => i.nama === nama);
   if(existing) {
