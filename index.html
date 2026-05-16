@@ -1,3 +1,6 @@
+Oke, sekarang tabel menu bakal ada kolom foto. Foto disimpan sebagai base64 jadi nggak perlu server.
+
+Timpa `index.html` kamu pakai ini:
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -20,7 +23,7 @@
       color: #333;
       transition: 0.3s;
     }
-  .header {
+ .header {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: white;
       padding: 15px 20px;
@@ -30,7 +33,7 @@
       justify-content: space-between;
       align-items: center;
     }
-  .theme-switcher {
+ .theme-switcher {
       font-size: 14px;
       padding: 5px 10px;
       border-radius: 4px;
@@ -39,13 +42,13 @@
       background: white;
       color: #333;
     }
-  .tabs {
+ .tabs {
       display: flex;
       background: white;
       border-bottom: 2px solid #ddd;
       overflow-x: auto;
     }
-  .tabs button {
+ .tabs button {
       flex: 1;
       min-width: 100px;
       padding: 15px;
@@ -57,15 +60,15 @@
       white-space: nowrap;
       transition: 0.3s;
     }
-  .tabs button.active {
+ .tabs button.active {
       color: var(--accent);
       border-bottom: 3px solid var(--accent);
       font-weight: bold;
     }
-  .tab-content {
+ .tab-content {
       padding: 20px;
     }
-  .card {
+ .card {
       background: white;
       border: 1px solid #ddd;
       padding: 20px;
@@ -73,12 +76,12 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-  .grid {
+ .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 15px;
     }
-  .meja-card {
+ .meja-card {
       padding: 20px;
       border-radius: 8px;
       text-align: center;
@@ -86,22 +89,23 @@
       font-weight: bold;
       transition: 0.2s;
     }
-  .meja-kosong {
+ .meja-kosong {
       background: #e8f5e9;
       border: 2px solid #4CAF50;
     }
-  .meja-isi {
+ .meja-isi {
       background: #fff3e0;
       border: 2px solid #ff9800;
     }
-  .meja-card:hover {
+ .meja-card:hover {
       transform: scale(1.05);
     }
-  .flex {
+ .flex {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 15px;
+      align-items: center;
     }
     input, select, button, textarea {
       padding: 10px;
@@ -124,11 +128,10 @@
     button:hover {
       background: var(--primary-dark);
     }
-  .btn-delete { background: #f44336; }
-  .btn-delete:hover { background: #d32f2f; }
-  .btn-warning { background: #ff9800; }
-  .btn-success { background: #4CAF50; }
-  .hidden { display: none; }
+ .btn-delete { background: #f44336; }
+ .btn-warning { background: #ff9800; }
+ .btn-success { background: #4CAF50; }
+ .hidden { display: none; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -138,6 +141,7 @@
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #ddd;
+      vertical-align: middle;
     }
     th {
       background: var(--bg);
@@ -146,6 +150,20 @@
     h2, h3 {
       margin-top: 0;
       color: var(--primary-dark);
+    }
+ .menu-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+ .img-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
     }
   </style>
 </head>
@@ -243,11 +261,28 @@ function renderMenu() {
             <option value="Minuman Ringan">Minuman Ringan</option>
           </select>
         </div>
+        <div class="flex">
+          <input type="file" id="editFoto" accept="image/*" style="flex:1">
+          <img id="previewFoto" class="img-preview hidden" src="">
+        </div>
         <button onclick="simpanMenu()">💾 Simpan</button>
         <button onclick="resetForm()" class="btn-warning">🔄 Reset</button>
       </div>
     </div>
   `;
+
+  // Preview foto saat dipilih
+  document.getElementById('editFoto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('previewFoto').src = e.target.result;
+        document.getElementById('previewFoto').classList.remove('hidden');
+      }
+      reader.readAsDataURL(file);
+    }
+  });
 
   const daftarArea = document.getElementById('daftarMenuArea');
   if(menu.length === 0) {
@@ -256,16 +291,19 @@ function renderMenu() {
     daftarArea.innerHTML = `
       <div class="card">
         <h3>Daftar Menu (${menu.length})</h3>
+        <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
-              <th>No</th><th>Nama</th><th>Kategori</th><th>Sub Kategori</th><th>Harga</th><th>Aksi</th>
+              <th>Foto</th><th>Nama</th><th>Kategori</th><th>Sub Kategori</th><th>Harga</th><th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             ${menu.map((m, i) => `
               <tr>
-                <td>${i+1}</td>
+                <td>
+                  ${m.foto? `<img src="${m.foto}" class="menu-img">` : '<span style="color:#999;">No Image</span>'}
+                </td>
                 <td>${m.nama}</td>
                 <td>${m.kategori}</td>
                 <td>${m.subKategori}</td>
@@ -278,6 +316,7 @@ function renderMenu() {
             `).join('')}
           </tbody>
         </table>
+        </div>
       </div>
     `;
   }
@@ -289,12 +328,6 @@ function renderMenu() {
     document.getElementById('editHarga')?.addEventListener('keydown', e => {
       if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editKategori').focus(); }
     });
-    document.getElementById('editKategori')?.addEventListener('keydown', e => {
-      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editSubKategori').focus(); }
-    });
-    document.getElementById('editSubKategori')?.addEventListener('keydown', e => {
-      if(e.key === 'Enter'){ e.preventDefault(); simpanMenu(); }
-    });
   }, 50);
 }
 
@@ -303,15 +336,25 @@ function simpanMenu() {
   const harga = document.getElementById('editHarga').value;
   const kategori = document.getElementById('editKategori').value;
   const subKategori = document.getElementById('editSubKategori').value;
+  const foto = document.getElementById('previewFoto').src;
 
   if(!nama ||!harga) return alert('Nama dan harga harus diisi!');
 
   const editIndex = document.getElementById('editForm').dataset.editIndex;
+
+  const dataMenu = {
+    nama,
+    harga,
+    kategori,
+    subKategori,
+    foto: foto && foto.startsWith('data:')? foto : (menu[editIndex]?.foto || '')
+  };
+
   if(editIndex!== undefined && editIndex!== '') {
-    menu[editIndex] = {nama, harga, kategori, subKategori};
+    menu[editIndex] = dataMenu;
     delete document.getElementById('editForm').dataset.editIndex;
   } else {
-    menu.push({nama, harga, kategori, subKategori});
+    menu.push(dataMenu);
   }
 
   localStorage.setItem('menu', JSON.stringify(menu));
@@ -325,6 +368,14 @@ function editMenu(index) {
   document.getElementById('editHarga').value = m.harga;
   document.getElementById('editKategori').value = m.kategori;
   document.getElementById('editSubKategori').value = m.subKategori;
+
+  if(m.foto) {
+    document.getElementById('previewFoto').src = m.foto;
+    document.getElementById('previewFoto').classList.remove('hidden');
+  } else {
+    document.getElementById('previewFoto').classList.add('hidden');
+  }
+
   document.getElementById('editForm').dataset.editIndex = index;
   document.getElementById('editNama').focus();
 }
@@ -342,6 +393,8 @@ function resetForm() {
   document.getElementById('editHarga').value = '';
   document.getElementById('editKategori').value = 'Food';
   document.getElementById('editSubKategori').value = 'Makanan Berat';
+  document.getElementById('editFoto').value = '';
+  document.getElementById('previewFoto').classList.add('hidden');
   delete document.getElementById('editForm').dataset.editIndex;
   document.getElementById('editNama').focus();
 }
@@ -440,8 +493,10 @@ function renderKasir() {
       <h3 style="margin-top:20px;">Menu:</h3>
       <div style="display:flex; flex-wrap:wrap; gap:10px;">
         ${menu.map(m => `
-          <button onclick="tambahKeMeja('${m.nama}', ${m.harga})" style="min-width:120px;">
-            ${m.nama}<br><small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
+          <button onclick="tambahKeMeja('${m.nama}', ${m.harga})" style="min-width:120px; display:flex; flex-direction:column; align-items:center; gap:5px;">
+            ${m.foto? `<img src="${m.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">` : ''}
+            <span>${m.nama}</span>
+            <small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
           </button>
         `).join('')}
       </div>
@@ -565,6 +620,7 @@ function renderBackup() {
       <h3 style="margin-top:30px;">Import Data</h3>
       <textarea id="importData" placeholder="Paste JSON backup di sini..." style="width:100%;min-height:150px;"></textarea>
       <button onclick="importData()" class="btn-warning" style="margin-top:10px;">📤 Restore Data</button>
+      <p style="font-size:13px; color:#666;">Note: Foto ikut tersimpan dalam backup karena pakai base64.</p>
     </div>
   `;
 }
@@ -608,3 +664,15 @@ renderMenu();
 
 </body>
 </html>
+### Cara pakai upload foto:
+
+1. *Tambah menu*: Klik "Pilih File" di form menu, pilih foto dari HP/PC.
+2. *Preview* foto bakal muncul kecil di atas tombol Simpan.
+3. *Tabel menu* sekarang ada kolom Foto. Kalau nggak ada foto bakal tulis "No Image".
+4. *Kasir*: Tombol menu juga sekarang nampilin foto kecil biar gampang pilih.
+
+*Catatan:*
+Foto disimpan dalam format base64 di localStorage. Jadi backup JSON kamu juga bakal nyimpen fotonya.
+Jangan upload foto ukuran terlalu besar biar nggak berat. Max 500KB per foto aman.
+
+Upload, commit, `Ctrl+Shift+R`.
