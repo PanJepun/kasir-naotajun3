@@ -176,6 +176,18 @@
 </div>
 
 <div id="editModal" class="modal hidden">
+   <!-- Modal Edit Meja -->
+<div id="editMejaModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Edit Meja</h3>
+    <input type="hidden" id="editMejaId">
+    <input type="text" id="editMejaNama" placeholder="Nama Meja" style="width:100%; margin-bottom:10px;">
+    <div style="text-align:right;">
+      <button class="btn btn-secondary" onclick="closeEditMeja()">Batal</button>
+      <button class="btn btn-primary" onclick="saveEditMeja()">Simpan</button>
+    </div>
+  </div>
+</div>
   <div class="modal-content">
     <h3>Edit Menu</h3>
     <input type="hidden" id="editId">
@@ -426,7 +438,6 @@ function tambahMeja() {
   document.getElementById('namaMeja').value = '';
   saveData();
 }
-
 function renderMeja() {
   const el = document.getElementById('listMeja');
   if (!el) return;
@@ -441,15 +452,20 @@ function renderMeja() {
                   padding:10px; margin-bottom:8px; border-radius:6px;
                   background:${warna}; color:white; font-weight:500;">
         <span>${m.nama} - ${m.status}</span>
-        ${['supervisor','kasir'].includes(currentUser.role) && m.status==='isi'?
-          `<button class="btn btn-sm" style="background:white; color:#333;" onclick="kosongkanMeja(${m.id})">
-             Kosongkan
-           </button>`
-          : ''
-        }
+        <div>
+          ${['supervisor','kasir'].includes(currentUser.role)? `
+            <button class="btn btn-sm" style="background:white; color:#333;" onclick="openEditMeja(${m.id})">Edit</button>
+            <button class="btn btn-sm" style="background:#dc2626; color:white;" onclick="hapusMeja(${m.id})">Hapus</button>
+          ` : ''}
+          ${m.status === 'isi' && ['supervisor','kasir'].includes(currentUser.role)?
+            `<button class="btn btn-sm" style="background:white; color:#333;" onclick="kosongkanMeja(${m.id})">Kosongkan</button>`
+            : ''
+          }
+        </div>
       </div>
     `;
   }).join('');
+}
 }
 
 function kosongkanMeja(id) {
