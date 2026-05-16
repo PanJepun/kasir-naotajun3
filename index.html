@@ -14,21 +14,21 @@
   }
     * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; }
- .navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
- .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
- .navbar button.active,.navbar button:hover { background: var(--primary); }
+.navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+.navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+.navbar button.active,.navbar button:hover { background: var(--primary); }
 
- .container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   h2 { text-align: center; margin-top: 0; }
 
- .page { display: none; }
- .page.active { display: block; }
+.page { display: none; }
+.page.active { display: block; }
 
- .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
- .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
- .tab.active { background: var(--primary); color: white; }
- .meja { display: none; }
- .meja.active { display: block; }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
+.tab.active { background: var(--primary); color: white; }
+.meja { display: none; }
+.meja.active { display: block; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -37,19 +37,20 @@
   select { min-width: 150px; }
   button { background: var(--primary); color: white; border: none; cursor: pointer; }
   button:hover { opacity: 0.9; }
- .btn-danger { background: var(--danger); }
- .btn-warning { background: var(--warning); }
- .summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+.btn-danger { background: var(--danger); }
+.btn-warning { background: var(--warning); }
+.summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
 
- .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
- .modal.active { display: flex; justify-content: center; align-items: center; }
- .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+.modal.active { display: flex; justify-content: center; align-items: center; }
+.modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
 
- .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
- .badge.food { background: #2196F3; }
- .badge.beverage { background: #9C27B0; }
- .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
- .action-btn { padding: 5px 8px; margin: 0 2px; font-size: 13px; }
+.badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
+.badge.food { background: #2196F3; }
+.badge.beverage { background: #9C27B0; }
+.filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.action-btn { padding: 5px 8px; margin: 0 2px; font-size: 13px; }
+.info-meja { background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -76,7 +77,7 @@
       <button onclick="tambahMeja()">Tambah Meja</button>
     </div>
     <table>
-      <thead><tr><th>ID</th><th>Nama Meja</th><th>Aksi</th></tr></thead>
+      <thead><tr><th>ID</th><th>Nama Meja</th><th>Kasir</th><th>Waitress</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyMeja"></tbody>
     </table>
   </div>
@@ -121,7 +122,6 @@
   </div>
 </div>
 
-<!-- Modal Edit Item Kasir -->
 <div id="modalEditItem" class="modal">
   <div class="modal-content">
     <h3>Edit Item</h3>
@@ -133,17 +133,17 @@
   </div>
 </div>
 
-<!-- Modal Edit Meja -->
 <div id="modalEditMeja" class="modal">
   <div class="modal-content">
-    <h3>Edit Nama Meja</h3>
-    <input type="text" id="editNamaMeja">
+    <h3>Edit Meja</h3>
+    <input type="text" id="editNamaMeja" placeholder="Nama Meja">
+    <input type="text" id="editKasirMeja" placeholder="Nama Kasir">
+    <input type="text" id="editWaitressMeja" placeholder="Nama Waitress">
     <button onclick="simpanEditMeja()">Simpan</button>
     <button class="btn-danger" onclick="tutupModal('modalEditMeja')">Batal</button>
   </div>
 </div>
 
-<!-- Modal Edit Menu -->
 <div id="modalEditMenu" class="modal">
   <div class="modal-content">
     <h3>Edit Menu</h3>
@@ -162,9 +162,9 @@
 <script>
 let data = {
   mejaList: [
-    {id: 1, nama: "Meja 1", items: [], diskonPersen: 0, ppnPersen: 10},
-    {id: 2, nama: "Meja 2", items: [], diskonPersen: 0, ppnPersen: 10},
-    {id: 3, nama: "Meja 3", items: [], diskonPersen: 0, ppnPersen: 10}
+    {id: 1, nama: "Meja 1", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10},
+    {id: 2, nama: "Meja 2", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10},
+    {id: 3, nama: "Meja 3", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10}
   ],
   menuList: [
     {id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food"},
@@ -238,7 +238,13 @@ function renderMeja() {
     });
 
     div.innerHTML = `
-      <h3>${meja.nama}</h3>
+      <div class="info-meja">
+        <b>${meja.nama}</b> |
+        Kasir: ${meja.kasir || '-'} |
+        Waitress: ${meja.waitress || '-'}
+        <button class="btn-warning action-btn" onclick="bukaEditMeja(${meja.id})">Edit</button>
+      </div>
+
       <select id="selectMenu${meja.id}" onchange="pilihMenu(${meja.id})">${optionMenu}</select>
       <input type="text" id="nama${meja.id}" placeholder="Nama Menu" readonly>
       <input type="number" id="harga${meja.id}" placeholder="Harga" readonly>
@@ -378,13 +384,11 @@ function cetakStruk(id) {
   let total = setelahDiskon + ppnRp;
   let waktu = new Date().toLocaleString('id-ID');
 
-  let bill = {waktu, meja: meja.nama, items: [...meja.items], total};
+  let bill = {waktu, meja: meja.nama, kasir: meja.kasir, waitress: meja.waitress, items: [...meja.items], total};
   data.laporan.push(bill);
   saveData();
 
-  // Lebar struk 32 karakter biar pas kertas thermal 58mm
   let lebar = 32;
-  
   let padRight = (str, len) => str + ' '.repeat(Math.max(0, len - str.length));
   let padLeft = (str, len) => ' '.repeat(Math.max(0, len - str.length)) + str;
   let center = (str, len) => {
@@ -402,30 +406,28 @@ function cetakStruk(id) {
   struk += line + '\n';
   struk += padRight('Waktu : ' + waktu, lebar) + '\n';
   struk += padRight('Meja : ' + meja.nama, lebar) + '\n';
+  struk += padRight('Kasir : ' + (meja.kasir || '-'), lebar) + '\n';
+  struk += padRight('Waitress : ' + (meja.waitress || '-'), lebar) + '\n';
   struk += lineDash + '\n';
 
   meja.items.forEach((item, i) => {
-    let nama = item.nama.length > 18 ? item.nama.substring(0, 18) : item.nama;
-    let qty = String(item.qty);
+    let nama = item.nama.length > 18? item.nama.substring(0, 18) : item.nama;
     let hargaTotal = 'Rp' + (item.harga * item.qty).toLocaleString('id-ID');
-    
-    // Baris 1: No. Nama
     struk += `${i+1}. ${nama}\n`;
-    // Baris 2: Qty dan harga rata kanan
-    struk += padRight('   ' + qty + 'x Rp' + item.harga.toLocaleString('id-ID'), lebar - hargaTotal.length) + hargaTotal + '\n';
+    struk += padRight(' ' + item.qty + 'x Rp' + item.harga.toLocaleString('id-ID'), lebar - hargaTotal.length) + hargaTotal + '\n';
   });
 
   struk += lineDash + '\n';
   struk += padRight('Subtotal', lebar - 12) + padLeft('Rp' + subtotal.toLocaleString('id-ID'), 12) + '\n';
-  
+
   if(meja.diskonPersen > 0) {
     struk += padRight('Diskon ' + meja.diskonPersen + '%', lebar - 12) + padLeft('-Rp' + diskonRp.toLocaleString('id-ID'), 12) + '\n';
   }
-  
+
   if(meja.ppnPersen > 0) {
     struk += padRight('PPN ' + meja.ppnPersen + '%', lebar - 12) + padLeft('Rp' + ppnRp.toLocaleString('id-ID'), 12) + '\n';
   }
-  
+
   struk += lineDash + '\n';
   struk += padRight('TOTAL', lebar - 15) + padLeft('Rp' + total.toLocaleString('id-ID'), 15) + '\n';
   struk += line + '\n';
@@ -439,9 +441,12 @@ function cetakStruk(id) {
 
 function resetMeja(id) {
   if(confirm('Yakin reset meja ini?')) {
-    data.mejaList.find(m => m.id === id).items = [];
+    let meja = data.mejaList.find(m => m.id === id);
+    meja.items = [];
+    meja.kasir = '';
+    meja.waitress = '';
     saveData();
-    renderItems(id);
+    renderMeja();
   }
 }
 
@@ -450,7 +455,7 @@ function tambahMeja() {
   let nama = document.getElementById('namaMejaBaru').value.trim();
   if(!nama) return alert('Isi nama meja');
   let idBaru = data.mejaList.length? Math.max(...data.mejaList.map(m=>m.id)) + 1 : 1;
-  data.mejaList.push({id: idBaru, nama, items: [], diskonPersen: 0, ppnPersen: 10});
+  data.mejaList.push({id: idBaru, nama, kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10});
   saveData();
   document.getElementById('namaMejaBaru').value = '';
   renderMejaTable();
@@ -465,6 +470,8 @@ function renderMejaTable() {
     tbody.innerHTML += `<tr>
       <td>${m.id}</td>
       <td>${m.nama}</td>
+      <td>${m.kasir || '-'}</td>
+      <td>${m.waitress || '-'}</td>
       <td>
         <button class="btn-warning action-btn" onclick="bukaEditMeja(${m.id})">Edit</button>
         <button class="btn-danger action-btn" onclick="hapusMeja(${m.id})">Hapus</button>
@@ -477,12 +484,16 @@ function bukaEditMeja(id) {
   editTarget = {type: 'meja', id};
   let meja = data.mejaList.find(m => m.id === id);
   document.getElementById('editNamaMeja').value = meja.nama;
+  document.getElementById('editKasirMeja').value = meja.kasir;
+  document.getElementById('editWaitressMeja').value = meja.waitress;
   document.getElementById('modalEditMeja').classList.add('active');
 }
 
 function simpanEditMeja() {
   let meja = data.mejaList.find(m => m.id === editTarget.id);
   meja.nama = document.getElementById('editNamaMeja').value.trim();
+  meja.kasir = document.getElementById('editKasirMeja').value.trim();
+  meja.waitress = document.getElementById('editWaitressMeja').value.trim();
   saveData();
   renderMejaTable();
   renderTabs();
@@ -579,6 +590,7 @@ function renderLaporan() {
   div.innerHTML = data.laporan.map(b =>
     `<div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:5px;">
       <b>${b.meja}</b> - ${b.waktu}<br>
+      Kasir: ${b.kasir || '-'} | Waitress: ${b.waitress || '-'}<br>
       Total: Rp${b.total.toLocaleString('id-ID')}
     </div>`
   ).join('');
@@ -613,7 +625,6 @@ function tutupModal(id) {
   editTarget = null;
 }
 
-// INIT
 loadData();
 renderMeja();
 init();
