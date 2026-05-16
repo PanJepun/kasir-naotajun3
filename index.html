@@ -612,7 +612,6 @@ function renderLaporan() {
   document.getElementById('tglSampai').value = today;
   filterLaporan();
 }
-
 function filterLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -622,7 +621,20 @@ function filterLaporan() {
   let sampaiDate = new Date(sampai + 'T23:59:59');
 
   let dataFilter = data.laporan.filter(b => {
-    let tglBill = new Date(b.waktuISO);
+    // Coba pakai waktuISO dulu, kalau nggak ada pakai waktu
+    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
+
+    // Cek kalau Invalid Date
+    if (isNaN(tglBill)) {
+      // Coba parse format Indonesia "16/05/2026, 14:53:12"
+      let parts = b.waktu.split(', ');
+      if (parts.length === 2) {
+        let tgl = parts[0].split('/');
+        let jam = parts[1].split(':');
+        tglBill = new Date(tgl[2], tgl[1]-1, tgl[0], jam[0], jam[1], jam[2]);
+      }
+    }
+
     return tglBill >= dariDate && tglBill <= sampaiDate;
   });
 
@@ -647,7 +659,10 @@ function filterLaporan() {
 
   document.getElementById('ringkasanLaporan').innerHTML =
     `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
+
+  console.log(`Filter ketemu ${dataFilter.length} data`);
 }
+  
 
 function hapusLaporan() {
   let dari = document.getElementById('tglDari').value;
