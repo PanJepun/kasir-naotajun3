@@ -228,6 +228,71 @@ function saveData() {
   }
 }
 
+// 1. Fungsi backup otomatis
+function autoBackup() {
+    const data = localStorage.getItem('kasirWarungMade');
+    if (!data) return;
+
+    // Simpan ke backup slot di localStorage
+    localStorage.setItem('kasirWarungMade_backup', data);
+    localStorage.setItem('kasirWarungMade_backupTime', new Date().toISOString());
+
+    console.log('Auto backup selesai:', new Date().toLocaleTimeString());
+}
+
+// 2. Auto download file.json tiap 7 hari
+function autoDownloadBackup() {
+    const lastDownload = localStorage.getItem('lastBackupDownload');
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    if (!lastDownload || (now - lastDownload) > sevenDays) {
+        const data = localStorage.getItem('kasirWarungMade');
+        if (!data) return;
+
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_kasir_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        localStorage.setItem('lastBackupDownload', now);
+        console.log('File backup otomatis di-download');
+    }
+}
+
+// 3. Panggil autoBackup setiap kali saveData jalan
+const oldSaveData = saveData;
+saveData = function() {
+    oldSaveData(); // jalanin saveData asli
+    autoBackup(); // langsung backup
+};
+
+// 4. Jalanin auto backup tiap 5 menit
+setInterval(autoBackup, 5 * 60 * 1000);
+
+// 5. Cek auto download saat halaman dibuka
+window.addEventListener('load', autoDownloadBackup);
+
+// 6. Fungsi restore dari backup otomatis
+function restoreFromAutoBackup() {
+    const backup = localStorage.getItem('kasirWarungMade_backup');
+    const backupTime = localStorage.getItem('kasirWarungMade_backupTime');
+
+    if (!backup) {
+        alert('Tidak ada backup otomatis ditemukan');
+        return;
+    }
+
+    if (confirm(`Restore data backup dari ${new Date(backupTime).toLocaleString()}? Data sekarang akan tertimpa.`)) {
+        localStorage.setItem('kasirWarungMade', backup);
+        location.reload();
+    }
+}
+
+  
 function login() {
   let u = document.getElementById('username').value.trim();
   let p = document.getElementById('password').value.trim();
