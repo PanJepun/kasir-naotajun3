@@ -108,10 +108,35 @@
     </table>
   </div>
 
-  <div id="laporan" class="page">
-    <h2>Laporan Penjualan</h2>
-    <div id="laporanContent">Belum ada transaksi</div>
+   <div id="laporan" class="page">
+  <h2>Laporan Penjualan</h2>
+
+  <div class="filter-bar">
+    <label>Dari:</label>
+    <input type="date" id="tglDari">
+    <label>Sampai:</label>
+    <input type="date" id="tglSampai">
+    <button onclick="filterLaporan()">Tampilkan</button>
+    <button class="btn-danger" onclick="hapusLaporan()">Hapus Data Periode</button>
+    <button onclick="exportLaporanCSV()">Export CSV</button>
   </div>
+
+  <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Waktu</th>
+        <th>Meja</th>
+        <th>Kasir</th>
+        <th>Waitress</th>
+        <th>Item</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="tbodyLaporan"></tbody>
+  </table>
+</div>
 
   <div id="backup" class="page">
     <h2>Backup & Restore</h2>
