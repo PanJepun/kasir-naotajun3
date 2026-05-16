@@ -2,119 +2,120 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Kasir Naotajun</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Kasir</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-    .header { background: #2196F3; color: white; padding: 15px; font-size: 20px; }
-    .card { background: white; padding: 20px; margin: 20px; border-radius: 8px; }
-    .flex { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-    input, select, button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { cursor: pointer; background: #4CAF50; color: white; border: none; }
-    .tabs { display: flex; background: white; border-bottom: 2px solid #ddd; }
-    .tabs button { flex: 1; padding: 15px; background: none; color: #333; border: none; }
-    .tabs button.active { border-bottom: 3px solid #ff9800; color: #ff9800; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .flex { display: flex; gap: 10px; }
+    .mb-20 { margin-bottom: 20px; }
+    input, select, button { padding: 8px; font-size: 14px; }
+    button { cursor: pointer; }
     .hidden { display: none; }
+    .meja-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   </style>
 </head>
 <body>
 
-<div class="header">🍽️ Kasir Naotajun</div>
-
-<div class="tabs">
-  <button onclick="showTab('meja')">🪑 Meja</button>
-  <button onclick="showTab('menu')" class="active">📋 Menu</button>
-  <button onclick="showTab('kasir')">💰 Kasir</button>
-</div>
-
-<div id="menu" class="tab-content">
-  <div class="card">
-    <h2>📋 Kelola Menu</h2>
-    <div class="flex">
-      <input type="text" id="editNama" placeholder="Nama Menu">
-      <input type="number" id="editHarga" placeholder="Harga">
-      <select id="editTipe">
-        <option value="Food">Food</option>
-        <option value="Beverage">Beverage</option>
-      </select>
-    </div>
-    <button onclick="simpanMenu()">Simpan</button>
-    <div id="daftarMenu" style="margin-top:20px;"></div>
+  <div class="tabs">
+    <button onclick="showTab('menu')">Menu</button>
+    <button onclick="showTab('meja')">Meja</button>
   </div>
-</div>
 
-<div id="kasir" class="tab-content hidden">
-  <div class="card">
-    <h2>💰 Kasir - Black Rose</h2>
-    <div id="daftarKasir"></div>
-  </div>
-</div>
-
-<div id="meja" class="tab-content hidden">
-  <div class="card"><h2>🪑 Kelola Meja</h2></div>
-</div>
+  <div id="menu" class="tab-content"></div>
+  <div id="meja" class="tab-content hidden"></div>
 
 <script>
-let menu = JSON.parse(localStorage.getItem('menu')) || [];
-
+// ====== TAB FUNCTION ======
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById(tab).classList.remove('hidden');
-  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
   
   if(tab === 'menu') renderMenu();
-  if(tab === 'kasir') renderKasir();
+  if(tab === 'meja') renderMeja();
 }
 
+// ====== MENU MODULE ======
 function renderMenu() {
-  const daftar = document.getElementById('daftarMenu');
-  if(menu.length === 0) {
-    daftar.innerHTML = '<p>Belum ada menu</p>';
-  } else {
-    daftar.innerHTML = menu.map((m, i) => 
-      `<p>${i+1}. ${m.nama} - Rp${m.harga}</p>`
-    ).join('');
-  }
+  const container = document.getElementById('menu');
+  container.innerHTML = `
+    <div class="card">
+      <h2>📋 Kelola Menu</h2>
+      
+      <div id="editForm">
+        <h3>Edit Menu</h3>
+        <div class="flex mb-20">
+          <input type="text" id="editNama" placeholder="Nama Menu">
+          <input type="number" id="editHarga" placeholder="Harga">
+          <select id="editTipe">
+            <option value="Food">Food</option>
+            <option value="Beverage">Beverage</option>
+          </select>
+          <select id="editSubKategori">
+            <option value="Minuman Ringan">Minuman Ringan</option>
+            <option value="Kopi">Kopi</option>
+            <option value="Makanan Berat">Makanan Berat</option>
+          </select>
+        </div>
+        <button onclick="simpanEdit()">Simpan</button>
+      </div>
+    </div>
+  `;
 
-  // Enter pindah kolom
-  setTimeout(() => {
-    document.getElementById('editNama')?.addEventListener('keydown', e => {
-      if(e.key==='Enter'){ e.preventDefault(); document.getElementById('editHarga').focus(); }
-    });
-    document.getElementById('editHarga')?.addEventListener('keydown', e => {
-      if(e.key==='Enter'){ e.preventDefault(); document.getElementById('editTipe').focus(); }
-    });
-  }, 50);
+  // Event listener Enter untuk pindah kolom
+  document.getElementById('editNama').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editHarga').focus();
+    }
+  });
+
+  document.getElementById('editHarga').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editTipe').focus();
+    }
+  });
+
+  document.getElementById('editTipe').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('editSubKategori').focus();
+    }
+  });
+
+  document.getElementById('editSubKategori').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      simpanEdit();
+    }
+  });
 }
 
-function simpanMenu() {
-  const nama = document.getElementById('editNama').value;
-  const harga = document.getElementById('editHarga').value;
-  const tipe = document.getElementById('editTipe').value;
-  
-  if(!nama || !harga) return alert('Isi nama dan harga!');
-  
-  menu.push({nama, harga, tipe});
-  localStorage.setItem('menu', JSON.stringify(menu));
-  
-  document.getElementById('editNama').value = '';
-  document.getElementById('editHarga').value = '';
-  document.getElementById('editNama').focus();
-  renderMenu();
+function simpanEdit() {
+  alert('Data disimpan!');
 }
 
-function renderKasir() {
-  const daftar = document.getElementById('daftarKasir');
-  if(menu.length === 0) {
-    daftar.innerHTML = '<p>Belum ada menu. Tambah menu dulu di tab Menu.</p>';
-  } else {
-    daftar.innerHTML = menu.map(m => 
-      `<button style="margin:5px; padding:10px;">${m.nama}<br>Rp${m.harga}</button>`
-    ).join('');
-  }
+// ====== MEJA MODULE ======
+function renderMeja() {
+  const container = document.getElementById('meja');
+  container.innerHTML = `
+    <div class="card">
+      <h2>🪑 Kelola Meja</h2>
+      <div class="flex mb-20">
+        <input type="text" id="namaMeja" placeholder="Nama Meja">
+        <button onclick="tambahMeja()">+ Tambah Meja</button>
+      </div>
+      <div class="meja-grid" id="gridMeja"></div>
+    </div>
+  `;
 }
 
-// Load awal
+function tambahMeja() {
+  alert('Meja ditambah!');
+}
+
+// ====== INIT ======
 renderMenu();
 </script>
 
