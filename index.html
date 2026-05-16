@@ -1,3 +1,9 @@
+Oke, 2 hal itu emang kehapus waktu versi diringkas:
+
+1. *Tombol Edit Meja* ilang → bakal kubalikin
+2. *Tab meja berubah warna kalau ada item* → biar gampang lihat meja yang lagi dipakai
+
+Ini file lengkapnya. Timpa aja `index.html` lama:
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -8,6 +14,7 @@
   :root {
     --primary: #4CAF50; --danger: #f44336; --warning: #ff9800; --dark: #333;
     --bg: #f5f5f5; --card: #ffffff; --text: #333; --border: #ddd; --info-bg: #e8f5e9;
+    --occupied: #ff9800;
   }
   [data-theme="green"] { --primary: #2e7d32; --dark: #1b5e20; --bg: #e8f5e9; --card: #ffffff; --text: #1b5e20; --border: #a5d6a7; }
 
@@ -24,6 +31,7 @@
 .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .tab { padding: 10px 15px; background: var(--border); border-radius: 5px; cursor: pointer; }
 .tab.active { background: var(--primary); color: white; }
+.tab.occupied { background: var(--occupied); color: white; }
 .meja { display: none; }
 .meja.active { display: block; }
 
@@ -39,6 +47,7 @@
 .menu-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin-top: 5px; display: none; }
 .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.summary { margin-top: 15px; padding: 10px; background: var(--info-bg); border-radius: 5px; }
 .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
 .badge.food { background: #2196F3; }
 .badge.beverage { background: #9C27B0; }
@@ -230,6 +239,7 @@ function renderTabs() {
   data.mejaList.forEach(meja => {
     let btn = document.createElement('div');
     btn.className = 'tab';
+    if(meja.items.length > 0) btn.classList.add('occupied');
     btn.innerText = meja.nama;
     btn.onclick = () => showTab(meja.id);
     tabsDiv.appendChild(btn);
@@ -269,8 +279,13 @@ function renderMeja() {
       <button onclick="tambahItem(${meja.id})">Tambah</button>
       <table><thead><tr><th>Menu</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead>
       <tbody id="tbody${meja.id}"></tbody></table>
-      <div id="total${meja.id}"></div>
-      <button onclick="cetakStruk(${meja.id})">Cetak Bill</button>`;
+      <div class="summary">
+        Diskon %: <input type="number" id="diskon${meja.id}" value="${meja.diskonPersen}" onchange="updateDiskon(${meja.id})" min="0" max="100">
+        PPN %: <input type="number" id="ppn${meja.id}" value="${meja.ppnPersen}" onchange="updatePPN(${meja.id})" min="0" max="100">
+        <div id="total${meja.id}"></div>
+      </div>
+      <button onclick="cetakStruk(${meja.id})">Cetak Bill</button>
+      <button class="btn-danger" onclick="resetMeja(${meja.id})">Reset Meja</button>`;
     container.appendChild(div);
     renderItems(meja.id);
   });
@@ -292,7 +307,7 @@ function tambahItem(id) {
   if(!nama) return;
   let existing = meja.items.find(i => i.nama === nama);
   if(existing) existing.qty += qty; else meja.items.push({nama, harga, qty});
-  saveData(); renderItems(id);
+  saveData(); renderItems(id); renderTabs();
 }
 
 function renderItems(id) {
@@ -306,7 +321,32 @@ function renderItems(id) {
     tbody.innerHTML += `<tr><td>${item.nama}</td><td>Rp${item.harga.toLocaleString('id-ID')}</td><td>${item.qty}</td><td>Rp${sub.toLocaleString('id-ID')}</td>
     <td><button class="btn-danger" onclick="hapusItem(${id}, ${i})">Hapus</button></td></tr>`;
   });
-  document.getElementById('total' + id).innerHTML = `<b>TOTAL: Rp${subtotal.toLocaleString('id-ID')}</b>`;
+  hitungTotal(id, subtotal);
+}
+
+function updateDiskon(id) {
+  let val = parseFloat(document.getElementById('diskon' + id).value) || 0;
+  data.mejaList.find(m => m.id === id).diskonPersen = Math.min(100, Math.max(0, val));
+  saveData(); renderItems(id);
+}
+
+function updatePPN(id) {
+  let val = parseFloat(document.getElementById('ppn' + id).value) || 0;
+  data.mejaList.find(m => m.id === id).ppnPersen = Math.min(100, Math.max(0, val));
+  saveData(); renderItems(id);
+}
+
+function hitungTotal(id, subtotal) {
+  let meja = data.mejaList.find(m => m.id === id);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
+  document.getElementById('total' + id).innerHTML = `
+    Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
+    Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>
+    PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
+    <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>`;
 }
 
 function tambahMenu() {
@@ -386,13 +426,25 @@ function hapusMenu(id) {
 
 function hapusItem(id, index) {
   data.mejaList.find(m => m.id === id).items.splice(index, 1);
-  saveData(); renderItems(id);
+  saveData(); renderItems(id); renderTabs();
+}
+
+function resetMeja(id) {
+  if(confirm('Reset meja ini?')) {
+    data.mejaList.find(m => m.id === id).items = [];
+    saveData(); renderItems(id); renderTabs();
+  }
 }
 
 function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
   if (meja.items.length === 0) return alert("Meja kosong");
-  let total = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
+  let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
+  let diskonRp = subtotal * (meja.diskonPersen / 100);
+  let setelahDiskon = subtotal - diskonRp;
+  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
+  let total = setelahDiskon + ppnRp;
+
   let bill = {
     waktu: new Date().toLocaleString('id-ID'),
     waktuISO: new Date().toISOString(),
@@ -400,11 +452,11 @@ function cetakStruk(id) {
     kasir: meja.kasir || '-',
     waitress: meja.waitress || '-',
     items: meja.items,
-    total
+    subtotal, diskonRp, ppnRp, total
   };
   data.laporan.push(bill); saveData();
   alert("Bill tersimpan!");
-  meja.items = []; renderItems(id);
+  meja.items = []; renderItems(id); renderTabs();
 }
 
 function renderLaporan() {
@@ -487,3 +539,11 @@ init();
 </script>
 </body>
 </html>
+*Yang diperbaiki:*
+
+1. *Tombol Edit Meja balik lagi*
+   Ada di halaman "Meja" kolom Aksi. Klik buat ubah nama meja, kasir, waitress.
+2. *Tab meja berubah warna kalau terisi*
+   Kalau ada item di meja, tab-nya jadi warna oranye. Abis di-reset atau bill dicetak, warnanya balik normal.
+
+Upload file ini, pencet `Ctrl+Shift+R` biar cache ke-reset. Coba tambah item ke meja, tab-nya langsung berubah warna.
