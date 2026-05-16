@@ -702,7 +702,6 @@ function exportLaporanCSV() {
   a.click();
 }
 
-
 function exportData() {
   let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
   let a = document.createElement('a');
