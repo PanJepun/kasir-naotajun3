@@ -14,7 +14,7 @@
     button:hover { background: #45a049; }
     .hidden { display: none; }
     .tabs { margin-bottom: 20px; }
-    .tabs button { margin-right: 10px; }
+    .tabs button { margin-right: 10px; padding: 10px 20px; }
   </style>
 </head>
 <body>
@@ -26,14 +26,7 @@
     <button onclick="showTab('meja')">Meja</button>
   </div>
 
-  <div id="menu" class="tab-content">
-    <div id="menuForm"></div>
-    <div id="billArea" class="card">
-      <h3>Bill</h3>
-      <p>Belum ada item</p>
-    </div>
-  </div>
-
+  <div id="menu" class="tab-content"></div>
   <div id="meja" class="tab-content hidden"></div>
 
 <script>
@@ -46,7 +39,7 @@ function showTab(tab) {
 }
 
 function renderMenu() {
-  const container = document.getElementById('menuForm');
+  const container = document.getElementById('menu');
   container.innerHTML = `
     <div class="card">
       <h2>📋 Kelola Menu</h2>
@@ -62,7 +55,6 @@ function renderMenu() {
           <select id="editSubKategori">
             <option value="Minuman Ringan">Minuman Ringan</option>
             <option value="Kopi">Kopi</option>
-            <option value="Makanan Berat">Makanan Berat</option>
           </select>
         </div>
         <button onclick="simpanEdit()">Simpan</button>
@@ -70,7 +62,7 @@ function renderMenu() {
     </div>
   `;
 
-  // Event listener Enter
+  // Event listener Enter biar bisa pindah kolom
   document.getElementById('editNama').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
