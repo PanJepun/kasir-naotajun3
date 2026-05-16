@@ -270,6 +270,14 @@ function logout() {
 function renderMenuButtons() {
   const menuDiv = document.getElementById('menuButtons');
   let html = '';
+   if (['supervisor', 'kasir', 'waiter', 'dapur'].includes(currentUser.role)) {
+  html = `
+    <button class="btn btn-success nav-btn" onclick="showTab('menu')">Kelola Menu</button>
+    <button class="btn btn-primary nav-btn" onclick="showTab('kategori')">Kelola Kategori</button>
+    // ...tombol lain
+  `;
+}
+   
   if (currentUser.role === 'supervisor') {
     html = `
       <button class="btn btn-success nav-btn" onclick="showSection('menu')">🍽️ Kelola Menu</button>
