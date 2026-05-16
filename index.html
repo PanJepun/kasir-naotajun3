@@ -430,28 +430,98 @@ function resetMeja(id) {
   }
 }
 
-function cetakStruk(id) {
+  function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
   if (meja.items.length === 0) return alert("Meja kosong");
+
   let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
   let diskonRp = subtotal * (meja.diskonPersen / 100);
   let setelahDiskon = subtotal - diskonRp;
   let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
   let total = setelahDiskon + ppnRp;
 
+  let waktu = new Date().toLocaleString('id-ID');
+  let waktuISO = new Date().toISOString();
+
   let bill = {
-    waktu: new Date().toLocaleString('id-ID'),
-    waktuISO: new Date().toISOString(),
-    meja: meja.nama,
+    waktu, waktuISO, meja: meja.nama,
     kasir: meja.kasir || '-',
     waitress: meja.waitress || '-',
-    items: meja.items,
+    items: JSON.parse(JSON.stringify(meja.items)),
     subtotal, diskonRp, ppnRp, total
   };
-  data.laporan.push(bill); saveData();
-  alert("Bill tersimpan!");
-  meja.items = []; renderItems(id); renderTabs();
+
+  data.laporan.push(bill);
+  saveData();
+
+  // Buat struk tabel
+  let garis = "--------------------------------------------------";
+  let struk = `
+${garis}
+        WARUNG MADE
+${garis}
+Waktu : ${waktu}
+Meja : ${meja.nama}
+Kasir : ${meja.kasir || '-'}
+Waitress: ${meja.waitress || '-'}
+${garis}
+No Nama Harga Qty Subtotal
+${garis}
+${meja.items.map((i, idx) => {
+  let nama = i.nama.padEnd(14).substring(0,14);
+  let harga = 'Rp' + i.harga.toLocaleString('id-ID').padStart(7);
+  let qty = String(i.qty).padStart(3);
+  let sub = 'Rp' + (i.harga * i.qty).toLocaleString('id-ID').padStart(8);
+  return `${String(idx+1).padStart(2)} ${nama} ${harga} ${qty} ${sub}`;
+}).join('\n')}
+${garis}
+Subtotal: Rp${subtotal.toLocaleString('id-ID')}
+Diskon : -Rp${diskonRp.toLocaleString('id-ID')}
+PPN : Rp${ppnRp.toLocaleString('id-ID')}
+${garis}
+TOTAL : Rp${total.toLocaleString('id-ID')}
+${garis}
+      Terima Kasih!
+${garis}
+  `;
+
+  // Coba buka window print
+  let printWindow = window.open('', '', 'height=600,width=400');
+
+  if (printWindow) {
+    printWindow.document.write('<pre style="font-family:monospace; font-size:12px;">' + struk + '</pre>');
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 200);
+  } else {
+    // Kalau popup ke-block, kasih opsi download
+    if(confirm("Popup diblokir. Download struk.txt?")) {
+      downloadStruk(struk, meja.nama);
+    } else {
+      alert(struk);
+    }
+  }
+
+  meja.items = [];
+  renderItems(id);
+  renderTabs();
 }
+
+function downloadStruk(text, namaMeja) {
+  let blob = new Blob([text], {type: 'text/plain'});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = `Struk_${namaMeja}_${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+  
+
 
 function renderLaporan() {
   let tbody = document.getElementById('tbodyLaporan');
