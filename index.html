@@ -582,19 +582,101 @@ function hapusMenu(id) {
 
 // LAPORAN & BACKUP
 function renderLaporan() {
-  let div = document.getElementById('laporanContent');
-  if(data.laporan.length === 0) {
-    div.innerHTML = 'Belum ada transaksi';
-    return;
-  }
-  div.innerHTML = data.laporan.map(b =>
-    `<div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:5px;">
-      <b>${b.meja}</b> - ${b.waktu}<br>
-      Kasir: ${b.kasir || '-'} | Waitress: ${b.waitress || '-'}<br>
-      Total: Rp${b.total.toLocaleString('id-ID')}
-    </div>`
-  ).join('');
+  let today = new Date().toISOString().split('T')[0];
+  document.getElementById('tglDari').value = today;
+  document.getElementById('tglSampai').value = today;
+  filterLaporan();
 }
+
+function filterLaporan() {
+  let dari = document.getElementById('tglDari').value;
+  let sampai = document.getElementById('tglSampai').value;
+
+  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
+
+  let dariDate = new Date(dari + ' 00:00:00');
+  let sampaiDate = new Date(sampai + ' 23:59:59');
+
+  let dataFilter = data.laporan.filter(b => {
+    let tglBill = new Date(b.waktu);
+    return tglBill >= dariDate && tglBill <= sampaiDate;
+  });
+
+  let tbody = document.getElementById('tbodyLaporan');
+  tbody.innerHTML = '';
+
+  let totalOmzet = 0;
+  let totalTransaksi = dataFilter.length;
+
+  dataFilter.forEach(b => {
+    totalOmzet += b.total;
+    let items = b.items.map(i => `${i.nama} (${i.qty})`).join(', ');
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${b.waktu}</td>
+        <td>${b.meja}</td>
+        <td>${b.kasir || '-'}</td>
+        <td>${b.waitress || '-'}</td>
+        <td>${items}</td>
+        <td>Rp${b.total.toLocaleString('id-ID')}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('ringkasanLaporan').innerHTML =
+    `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${totalTransaksi} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
+}
+
+function hapusLaporan() {
+  let dari = document.getElementById('tglDari').value;
+  let sampai = document.getElementById('tglSampai').value;
+
+  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
+  if(!confirm(`Hapus semua transaksi dari ${dari} sampai ${sampai}?`)) return;
+
+  let dariDate = new Date(dari + ' 00:00:00');
+  let sampaiDate = new Date(sampai + ' 23:59:59');
+
+  data.laporan = data.laporan.filter(b => {
+    let tglBill = new Date(b.waktu);
+    return!(tglBill >= dariDate && tglBill <= sampaiDate);
+  });
+
+  saveData();
+  filterLaporan();
+  alert('Data periode tersebut dihapus');
+}
+
+function exportLaporanCSV() {
+  let dari = document.getElementById('tglDari').value;
+  let sampai = document.getElementById('tglSampai').value;
+
+  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
+
+  let dariDate = new Date(dari + ' 00:00:00');
+  let sampaiDate = new Date(sampai + ' 23:59:59');
+
+  let dataFilter = data.laporan.filter(b => {
+    let tglBill = new Date(b.waktu);
+    return tglBill >= dariDate && tglBill <= sampaiDate;
+  });
+
+  if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
+
+  let csv = 'Waktu,Meja,Kasir,Waitress,Items,Total\n';
+  dataFilter.forEach(b => {
+    let items = b.items.map(i => `${i.nama} x${i.qty}`).join('; ');
+    csv += `"${b.waktu}","${b.meja}","${b.kasir}","${b.waitress}","${items}",${b.total}\n`;
+  });
+
+  let blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `laporan_${dari}_smp_${sampai}.csv`;
+  a.click();
+}
+
 
 function exportData() {
   let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
