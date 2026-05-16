@@ -6,7 +6,6 @@
   <title>Kasir Naotajun</title>
   <style>
     :root {
-      /* Default Blue */
       --primary: #2196F3;
       --primary-dark: #1976D2;
       --accent: #ff9800;
@@ -37,6 +36,8 @@
       border-radius: 4px;
       border: none;
       cursor: pointer;
+      background: white;
+      color: #333;
     }
   .tabs {
       display: flex;
@@ -60,9 +61,6 @@
       color: var(--accent);
       border-bottom: 3px solid var(--accent);
       font-weight: bold;
-    }
-  .tabs button:hover {
-      background: var(--bg);
     }
   .tab-content {
       padding: 20px;
@@ -103,11 +101,8 @@
       background: var(--primary-dark);
     }
   .btn-delete { background: #f44336; }
-  .btn-delete:hover { background: #d32f2f; }
   .btn-warning { background: #ff9800; }
-  .btn-warning:hover { background: #f57c00; }
   .btn-info { background: #2196F3; }
-  .btn-info:hover { background: #1976D2; }
   .hidden { display: none; }
     table {
       width: 100%;
@@ -126,12 +121,6 @@
     h2, h3 {
       margin-top: 0;
       color: var(--primary-dark);
-    }
-    textarea {
-      width: 100%;
-      min-height: 200px;
-      font-family: monospace;
-      font-size: 12px;
     }
   </style>
 </head>
@@ -169,7 +158,6 @@
 let menu = JSON.parse(localStorage.getItem('menu')) || [];
 let billItems = [];
 
-// Tema disimpan ke localStorage biar nggak balik default pas refresh
 const tema = {
   blue: { primary: '#2196F3', primaryDark: '#1976D2', accent: '#ff9800', bg: '#f5f5f5' },
   pink: { primary: '#e91e63', primaryDark: '#c2185b', accent: '#ff5722', bg: '#fce4ec' },
@@ -195,7 +183,6 @@ function loadTema() {
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById(tab).classList.remove('hidden');
-
   document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
 
@@ -206,7 +193,6 @@ function showTab(tab) {
   if(tab === 'backup') renderBackup();
 }
 
-// ================= MENU =================
 function renderMenu() {
   document.getElementById('menuForm').innerHTML = `
     <div class="card">
@@ -294,7 +280,6 @@ function simpanMenu() {
   if(!nama ||!harga) return alert('Nama dan harga harus diisi!');
 
   const editIndex = document.getElementById('editForm').dataset.editIndex;
-
   if(editIndex!== undefined && editIndex!== '') {
     menu[editIndex] = {nama, harga, kategori, subKategori};
     delete document.getElementById('editForm').dataset.editIndex;
@@ -334,14 +319,12 @@ function resetForm() {
   document.getElementById('editNama').focus();
 }
 
-// ================= KASIR =================
 function renderKasir() {
   const container = document.getElementById('kasir');
   if(menu.length === 0) {
     container.innerHTML = '<div class="card"><h2>💰 Kasir</h2><p>Belum ada menu. Tambah menu dulu di tab Menu.</p></div>';
     return;
   }
-
   container.innerHTML = `
     <div class="card">
       <h2>💰 Kasir</h2>
@@ -371,7 +354,6 @@ function tambahKeBill(nama, harga) {
 function renderBill() {
   const list = document.getElementById('billList');
   const total = billItems.reduce((sum, item) => sum + parseInt(item.harga), 0);
-
   if(billItems.length === 0) {
     list.innerHTML = '<p>Belum ada item</p>';
   } else {
@@ -388,40 +370,30 @@ function hapusBillItem(index) {
   renderBill();
 }
 
-// ================= MEJA =================
 function renderMeja() {
   document.getElementById('meja').innerHTML = `
-    <div class="card">
-      <h2>🪑 Kelola Meja</h2>
-      <p>Fitur meja menyusul. Sementara pakai kasir langsung.</p>
-    </div>
+    <div class="card"><h2>🪑 Kelola Meja</h2><p>Fitur meja menyusul.</p></div>
   `;
 }
 
-// ================= LAPORAN =================
 function renderLaporan() {
   const totalPendapatan = billItems.reduce((sum, item) => sum + parseInt(item.harga), 0);
   document.getElementById('laporan').innerHTML = `
     <div class="card">
       <h2>📊 Laporan</h2>
-      <p>Total transaksi saat ini: <strong>Rp${totalPendapatan.toLocaleString('id-ID')}</strong></p>
-      <p>Jumlah item terjual: <strong>${billItems.length}</strong></p>
+      <p>Total transaksi: <strong>Rp${totalPendapatan.toLocaleString('id-ID')}</strong></p>
     </div>
   `;
 }
 
-// ================= BACKUP =================
 function renderBackup() {
   document.getElementById('backup').innerHTML = `
     <div class="card">
       <h2>💾 Backup & Restore</h2>
-      <h3>Export Data</h3>
       <button onclick="exportData()" class="btn-info">📥 Download Backup JSON</button>
-
       <h3 style="margin-top:30px;">Import Data</h3>
-      <textarea id="importData" placeholder="Paste JSON backup di sini..."></textarea>
+      <textarea id="importData" placeholder="Paste JSON backup di sini..." style="width:100%;min-height:150px;"></textarea>
       <button onclick="importData()" class="btn-warning" style="margin-top:10px;">📤 Restore Data</button>
-      <p style="color:#666; font-size:13px;">Peringatan: Restore akan menimpa data menu yang ada sekarang.</p>
     </div>
   `;
 }
@@ -440,7 +412,7 @@ function importData() {
   try {
     const data = document.getElementById('importData').value;
     const parsed = JSON.parse(data);
-    if(confirm('Yakin restore data ini? Data menu sekarang akan ditimpa.')) {
+    if(confirm('Yakin restore data ini?')) {
       menu = parsed;
       localStorage.setItem('menu', JSON.stringify(menu));
       alert('Data berhasil di-restore!');
@@ -451,7 +423,6 @@ function importData() {
   }
 }
 
-// Load awal
 loadTema();
 renderMenu();
 </script>
