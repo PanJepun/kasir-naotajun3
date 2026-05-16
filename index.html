@@ -119,6 +119,7 @@
     <button onclick="filterLaporan()">Tampilkan</button>
     <button class="btn-danger" onclick="hapusLaporan()">Hapus Data Periode</button>
     <button onclick="exportLaporanCSV()">Export CSV</button>
+    <button onclick="printlaporan()">Print Laporan</button>
   </div>
 
   <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
@@ -683,34 +684,43 @@ function hapusLaporan() {
   filterLaporan();
   alert('Data periode tersebut dihapus');
 }
-
 function exportLaporanCSV() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
-
   if(!dari ||!sampai) return alert('Pilih tanggal dulu');
 
-  let dariDate = new Date(dari + ' 00:00:00');
-  let sampaiDate = new Date(sampai + ' 23:59:59');
+  let dariDate = new Date(dari + 'T00:00:00');
+  let sampaiDate = new Date(sampai + 'T23:59:59');
 
   let dataFilter = data.laporan.filter(b => {
-    let tglBill = new Date(b.waktu);
+    // Coba pakai waktuISO dulu, kalau nggak ada pakai waktu
+    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
+    
+    // Fallback untuk format lama "16/05/2026, 15.18.08"
+    if (isNaN(tglBill)) {
+      let parts = b.waktu.split(', ');
+      if (parts.length === 2) {
+        let tgl = parts[0].split('/');
+        let jam = parts[1].split(/[:.]/);
+        tglBill = new Date(tgl[2], tgl[1]-1, tgl[0], jam[0], jam[1], jam[2]);
+      }
+    }
     return tglBill >= dariDate && tglBill <= sampaiDate;
   });
 
   if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
 
-  let csv = 'Waktu,Meja,Kasir,Waitress,Items,Total\n';
+  let csv = 'Waktu,Meja,Kasir,Waitress,Item,Total\n';
   dataFilter.forEach(b => {
-    let items = b.items.map(i => `${i.nama} x${i.qty}`).join('; ');
+    let items = b.items.map(i => `${i.nama} (${i.qty})`).join('; ');
     csv += `"${b.waktu}","${b.meja}","${b.kasir}","${b.waitress}","${items}",${b.total}\n`;
   });
 
-  let blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `laporan_${dari}_smp_${sampai}.csv`;
-  a.click();
+  let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `laporan_${dari}_sd_${sampai}.csv`;
+  link.click();
 }
 
 function exportData() {
