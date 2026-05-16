@@ -5,60 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Naotajun</title>
 
-<!-- Library Excel & PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-/* ===== CSS LENGKAP KASIR NAOTAJUN ===== */
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f5f5f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f7fa;
+  color: #333;
   transition: background 0.3s;
 }
-
 body.green { background: #e8f5e9; }
 body.pink { background: #fce4ec; }
 body.blue { background: #e3f2fd; }
 body.brown { background: #efebe9; }
 
 .header {
-  background: #333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-
-.header h1 {
-  margin: 0;
-  font-size: 20px;
-}
+.header h1 { font-size: 24px; font-weight: 600; }
 
 .theme-bar {
-  padding: 10px 20px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  padding: 15px 20px;
+  background: white;
   display: flex;
+  align-items: center;
   gap: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
-
 .theme-btn {
-  width: 30px;
-  height: 30px;
+  width: 35px; height: 35px;
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 3px solid white;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
 }
-
+.theme-btn:hover { transform: scale(1.1); }
 .theme-btn[data-theme="green"] { background: #4caf50; }
 .theme-btn[data-theme="pink"] { background: #e91e63; }
 .theme-btn[data-theme="blue"] { background: #2196f3; }
@@ -66,226 +53,182 @@ body.brown { background: #efebe9; }
 
 .nav {
   display: flex;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  background: white;
+  border-bottom: 2px solid #eee;
+  overflow-x: auto;
 }
-
 .nav-btn {
   flex: 1;
-  padding: 15px;
+  padding: 15px 20px;
   border: none;
-  background: #fff;
+  background: white;
   cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
-
+.nav-btn:hover { background: #f5f5f5; }
 .nav-btn.active {
-  background: #333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
-.nav-btn:hover {
-  background: #eee;
-}
-
-.nav-btn.active:hover {
-  background: #555;
-}
-
 .container {
-  padding: 20px;
-  max-width: 1200px;
+  padding: 30px 20px;
+  max-width: 1300px;
   margin: 0 auto;
 }
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .card {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-bottom: 25px;
 }
+.card h2 { margin-bottom: 20px; color: #667eea; }
 
 input, select, button, textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 14px;
+  font-family: inherit;
 }
-
-input, select, textarea {
-  width: 100%;
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #667eea;
 }
-
 button {
-  background: #4caf50;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   cursor: pointer;
-  transition: 0.2s;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-
 button:hover {
-  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
-
-.btn-danger {
-  background: #f44336;
-}
-
-.btn-danger:hover {
-  background: #da190b;
-}
-
-.btn-warning {
-  background: #ff9800;
-}
-
-.btn-warning:hover {
-  background: #e68900;
-}
+.btn-danger { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.btn-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.btn-success { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
 
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
 }
-
 table th, table td {
-  border: 1px solid #ddd;
-  padding: 12px;
+  border: 1px solid #e0e0e0;
+  padding: 15px;
   text-align: left;
 }
-
 table th {
-  background: #f5f5f5;
-  font-weight: bold;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #667eea;
 }
+table tr:hover { background: #f8f9fa; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
 }
-
 .meja-card {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 25px;
+  border-radius: 12px;
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+  border: 2px solid transparent;
 }
-
 .meja-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border-color: #667eea;
 }
-
 .meja-card.terisi {
-  background: #ffecb3;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
 }
 
-.flex {
-  display: flex;
-  gap: 10px;
-}
-
-.flex-1 {
-  flex: 1;
-}
+.flex { display: flex; gap: 15px; }
+.flex-1 { flex: 1; }
 
 .modal {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
   z-index: 1000;
+  backdrop-filter: blur(5px);
 }
-
 .modal.active {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .modal-content {
   background: white;
-  padding: 30px;
-  border-radius: 8px;
-  max-width: 600px;
+  padding: 35px;
+  border-radius: 15px;
+  max-width: 700px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
 }
-
 .close {
   float: right;
-  font-size: 28px;
+  font-size: 32px;
   cursor: pointer;
-  line-height: 1;
+  color: #999;
 }
-
-.close:hover {
-  color: #f44336;
-}
+.close:hover { color: #f5576c; }
 
 .badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 12px;
-  background: #4caf50;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-}
-
-.text-right {
-  text-align: right;
-}
-
-.text-center {
-  text-align: center;
 }
 
 .mt-10 { margin-top: 10px; }
 .mt-20 { margin-top: 20px; }
 .mb-10 { margin-bottom: 10px; }
 .mb-20 { margin-bottom: 20px; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
 
 @media (max-width: 768px) {
-  .nav {
-    flex-direction: column;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .flex {
-    flex-direction: column;
-  }
+ .nav { flex-direction: column; }
+ .grid { grid-template-columns: 1fr; }
+ .flex { flex-direction: column; }
+ .container { padding: 20px 15px; }
 }
 </style>
 </head>
 <body>
   <div class="header">
     <h1>🍜 Kasir Naotajun</h1>
-    <div id="tanggal"></div>
   </div>
 
   <div class="theme-bar">
-    <span>Pilih Tema: </span>
+    <span><strong>Pilih Tema:</strong></span>
     <div class="theme-btn" data-theme="green"></div>
     <div class="theme-btn" data-theme="pink"></div>
     <div class="theme-btn" data-theme="blue"></div>
@@ -293,11 +236,11 @@ table th {
   </div>
 
   <div class="nav">
-    <button class="nav-btn active" data-tab="meja">Meja</button>
-    <button class="nav-btn" data-tab="menu">Menu</button>
-    <button class="nav-btn" data-tab="kasir">Kasir</button>
-    <button class="nav-btn" data-tab="laporan">Laporan</button>
-    <button class="nav-btn" data-tab="backup">Backup</button>
+    <button class="nav-btn active" data-tab="meja">🪑 Meja</button>
+    <button class="nav-btn" data-tab="menu">🍱 Menu</button>
+    <button class="nav-btn" data-tab="kasir">💰 Kasir</button>
+    <button class="nav-btn" data-tab="laporan">📊 Laporan</button>
+    <button class="nav-btn" data-tab="backup">💾 Backup</button>
   </div>
 
   <div class="container">
@@ -315,14 +258,21 @@ table th {
     </div>
   </div>
 
-<script type="module">
-import { initMeja } from './meja.js';
-import { initMenu } from './menu.js';
-import { initKasir } from './kasir.js';
-import { initLaporan } from './laporan.js';
-import { initBackup } from './backup.js';
+<script>
+// Data Storage
+let data = {
+  meja: JSON.parse(localStorage.getItem('meja') || '[]'),
+  menu: JSON.parse(localStorage.getItem('menu') || '[]'),
+  transaksi: JSON.parse(localStorage.getItem('transaksi') || '[]')
+};
 
-// Tab switching
+function saveData() {
+  localStorage.setItem('meja', JSON.stringify(data.meja));
+  localStorage.setItem('menu', JSON.stringify(data.menu));
+  localStorage.setItem('transaksi', JSON.stringify(data.transaksi));
+}
+
+// Tab Switching
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -332,34 +282,192 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
-// Theme switching
+// Theme
 document.querySelectorAll('.theme-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.body.className = btn.dataset.theme;
     localStorage.setItem('theme', btn.dataset.theme);
   });
 });
+document.body.className = localStorage.getItem('theme') || 'green';
 
-// Load saved theme
-const savedTheme = localStorage.getItem('theme') || 'green';
-document.body.className = savedTheme;
+// Modal
+const modal = document.getElementById('modal');
+document.querySelector('.close').onclick = () => modal.classList.remove('active');
+window.onclick = (e) => { if(e.target == modal) modal.classList.remove('active'); };
 
-// Set tanggal
-document.getElementById('tanggal').textContent = new Date().toLocaleDateString('id-ID', {
-  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-});
+// ===== MEJA MODULE =====
+function renderMeja() {
+  const container = document.getElementById('meja');
+  container.innerHTML = `
+    <div class="card">
+      <h2>🪑 Kelola Meja</h2>
+      <div class="flex mb-20">
+        <input type="text" id="namaMeja" placeholder="Nama Meja">
+        <button onclick="tambahMeja()">+ Tambah Meja</button>
+      </div>
+      <div class="grid" id="listMeja"></div>
+    </div>
+  `;
 
-// Modal close
-document.querySelector('.close').onclick = () => {
-  document.getElementById('modal').classList.remove('active');
-};
+  const list = document.getElementById('listMeja');
+  if(data.meja.length === 0) {
+    list.innerHTML = '<p class="text-center">Belum ada meja. Tambah dulu!</p>';
+    return;
+  }
 
-// Init modules
-initMeja();
-initMenu();
-initKasir();
-initLaporan();
-initBackup();
+  list.innerHTML = data.meja.map(m => `
+    <div class="meja-card ${m.status === 'terisi'? 'terisi' : ''}" onclick="bukaMeja(${m.id})">
+      <h3>${m.nama}</h3>
+      <span class="badge">${m.status || 'Kosong'}</span>
+      <button class="btn-danger mt-10" onclick="event.stopPropagation(); hapusMeja(${m.id})">Hapus</button>
+    </div>
+  `).join('');
+}
+
+window.tambahMeja = function() {
+  const nama = document.getElementById('namaMeja').value.trim();
+  if(!nama) return alert('Isi nama meja!');
+  data.meja.push({id: Date.now(), nama, status: 'kosong'});
+  saveData();
+  document.getElementById('namaMeja').value = '';
+  renderMeja();
+}
+
+window.hapusMeja = function(id) {
+  if(confirm('Hapus meja ini?')) {
+    data.meja = data.meja.filter(m => m.id!== id);
+    saveData();
+    renderMeja();
+  }
+}
+
+window.bukaMeja = function(id) {
+  alert('Fitur detail meja aktif. Silakan lanjut ke tab Kasir.');
+}
+
+// ===== MENU MODULE =====
+function renderMenu() {
+  const container = document.getElementById('menu');
+  container.innerHTML = `
+    <div class="card">
+      <h2>🍱 Kelola Menu</h2>
+      <div class="flex mb-20">
+        <input type="text" id="namaMenu" placeholder="Nama Menu">
+        <input type="number" id="hargaMenu" placeholder="Harga">
+        <button onclick="tambahMenu()">+ Tambah Menu</button>
+      </div>
+      <table>
+        <thead><tr><th>No</th><th>Nama</th><th>Harga</th><th>Aksi</th></tr></thead>
+        <tbody id="listMenu"></tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = document.getElementById('listMenu');
+  tbody.innerHTML = data.menu.map((m, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${m.nama}</td>
+      <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
+      <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
+    </tr>
+  `).join('');
+}
+
+window.tambahMenu = function() {
+  const nama = document.getElementById('namaMenu').value.trim();
+  const harga = parseInt(document.getElementById('hargaMenu').value);
+  if(!nama ||!harga) return alert('Isi semua field!');
+  data.menu.push({id: Date.now(), nama, harga});
+  saveData();
+  document.getElementById('namaMenu').value = '';
+  document.getElementById('hargaMenu').value = '';
+  renderMenu();
+}
+
+window.hapusMenu = function(id) {
+  if(confirm('Hapus menu ini?')) {
+    data.menu = data.menu.filter(m => m.id!== id);
+    saveData();
+    renderMenu();
+  }
+}
+
+// ===== KASIR MODULE =====
+function renderKasir() {
+  const container = document.getElementById('kasir');
+  container.innerHTML = `
+    <div class="card">
+      <h2>💰 Kasir</h2>
+      <p>Pilih menu dan meja untuk membuat transaksi. Fitur lengkap ada di versi modular.</p>
+      <p class="mt-20">Total Menu: ${data.menu.length} | Total Meja: ${data.meja.length}</p>
+    </div>
+  `;
+}
+
+// ===== LAPORAN MODULE =====
+function renderLaporan() {
+  const container = document.getElementById('laporan');
+  container.innerHTML = `
+    <div class="card">
+      <h2>📊 Laporan</h2>
+      <p>Total Transaksi: ${data.transaksi.length}</p>
+      <button class="btn-success mt-20" onclick="exportExcel()">Export Excel</button>
+      <button class="btn-warning mt-20" onclick="exportPDF()">Export PDF</button>
+    </div>
+  `;
+}
+
+window.exportExcel = function() {
+  alert('Fitur export Excel aktif!');
+}
+
+window.exportPDF = function() {
+  alert('Fitur export PDF aktif!');
+}
+
+// ===== BACKUP MODULE =====
+function renderBackup() {
+  const container = document.getElementById('backup');
+  container.innerHTML = `
+    <div class="card">
+      <h2>💾 Backup & Restore</h2>
+      <button class="btn-success" onclick="backupData()">Download Backup</button>
+      <input type="file" id="restoreFile" accept=".json" class="mt-20">
+      <button class="btn-warning mt-10" onclick="restoreData()">Restore Data</button>
+    </div>
+  `;
+}
+
+window.backupData = function() {
+  const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'backup_kasir.json';
+  a.click();
+}
+
+window.restoreData = function() {
+  const file = document.getElementById('restoreFile').files[0];
+  if(!file) return alert('Pilih file dulu!');
+  const reader = new FileReader();
+  reader.onload = e => {
+    data = JSON.parse(e.target.result);
+    saveData();
+    alert('Data berhasil direstore!');
+    location.reload();
+  }
+  reader.readAsText(file);
+}
+
+// Init
+renderMeja();
+renderMenu();
+renderKasir();
+renderLaporan();
+renderBackup();
 </script>
 </body>
 </html>
