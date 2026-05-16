@@ -5,28 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aplikasi Kasir</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    .flex { display: flex; gap: 10px; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .flex { display: flex; gap: 10px; flex-wrap: wrap; }
     .mb-20 { margin-bottom: 20px; }
-    input, select, button { padding: 8px; font-size: 14px; }
-    button { cursor: pointer; }
+    input, select, button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    button { cursor: pointer; background: #4CAF50; color: white; border: none; }
+    button:hover { background: #45a049; }
     .hidden { display: none; }
-    .meja-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .tabs { margin-bottom: 20px; }
+    .tabs button { margin-right: 10px; }
   </style>
 </head>
 <body>
+
+  <h1>Aplikasi Kasir</h1>
 
   <div class="tabs">
     <button onclick="showTab('menu')">Menu</button>
     <button onclick="showTab('meja')">Meja</button>
   </div>
 
-  <div id="menu" class="tab-content"></div>
+  <div id="menu" class="tab-content">
+    <div id="menuForm"></div>
+    <div id="billArea" class="card">
+      <h3>Bill</h3>
+      <p>Belum ada item</p>
+    </div>
+  </div>
+
   <div id="meja" class="tab-content hidden"></div>
 
 <script>
-// ====== TAB FUNCTION ======
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById(tab).classList.remove('hidden');
@@ -35,13 +45,11 @@ function showTab(tab) {
   if(tab === 'meja') renderMeja();
 }
 
-// ====== MENU MODULE ======
 function renderMenu() {
-  const container = document.getElementById('menu');
+  const container = document.getElementById('menuForm');
   container.innerHTML = `
     <div class="card">
       <h2>📋 Kelola Menu</h2>
-      
       <div id="editForm">
         <h3>Edit Menu</h3>
         <div class="flex mb-20">
@@ -62,7 +70,7 @@ function renderMenu() {
     </div>
   `;
 
-  // Event listener Enter untuk pindah kolom
+  // Event listener Enter
   document.getElementById('editNama').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -94,28 +102,22 @@ function renderMenu() {
 
 function simpanEdit() {
   alert('Data disimpan!');
+  document.getElementById('editNama').value = '';
+  document.getElementById('editHarga').value = '';
+  document.getElementById('editNama').focus();
 }
 
-// ====== MEJA MODULE ======
 function renderMeja() {
   const container = document.getElementById('meja');
   container.innerHTML = `
     <div class="card">
       <h2>🪑 Kelola Meja</h2>
-      <div class="flex mb-20">
-        <input type="text" id="namaMeja" placeholder="Nama Meja">
-        <button onclick="tambahMeja()">+ Tambah Meja</button>
-      </div>
-      <div class="meja-grid" id="gridMeja"></div>
+      <p>Konten meja di sini</p>
     </div>
   `;
 }
 
-function tambahMeja() {
-  alert('Meja ditambah!');
-}
-
-// ====== INIT ======
+// Load awal
 renderMenu();
 </script>
 
