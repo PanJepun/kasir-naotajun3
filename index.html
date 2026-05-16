@@ -5,33 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kasir Naotajun</title>
   <style>
-    /* ===== PILIH TEMA DI SINI ===== */
-    /* Hapus /* dan */ di tema yang mau dipakai */
-
     :root {
-      * TEMA BLUE - default */
+      /* Default Blue */
       --primary: #2196F3;
       --primary-dark: #1976D2;
       --accent: #ff9800;
       --bg: #f5f5f5;
-
-    * TEMA PINK
-      --primary: #e91e63;
-      --primary-dark: #c2185b;
-      --accent: #ff5722;
-      --bg: #fce4ec; */
-
-      * TEMA GREEN
-      --primary: #4CAF50;
-      --primary-dark: #388E3C;
-      --accent: #8BC34A;
-      --bg: #e8f5e9; */
-
-      * TEMA COKLAT
-      --primary: #795548;
-      --primary-dark: #5D4037;
-      --accent: #FF5722;
-      --bg: #efebe9; */
     }
 
     * { box-sizing: border-box; }
@@ -40,21 +19,32 @@
       margin: 0;
       background: var(--bg);
       color: #333;
+      transition: 0.3s;
     }
-   .header {
+  .header {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: white;
       padding: 15px 20px;
       font-size: 20px;
       font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-   .tabs {
+  .theme-switcher {
+      font-size: 14px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+  .tabs {
       display: flex;
       background: white;
       border-bottom: 2px solid #ddd;
       overflow-x: auto;
     }
-   .tabs button {
+  .tabs button {
       flex: 1;
       min-width: 100px;
       padding: 15px;
@@ -66,18 +56,18 @@
       white-space: nowrap;
       transition: 0.3s;
     }
-   .tabs button.active {
+  .tabs button.active {
       color: var(--accent);
       border-bottom: 3px solid var(--accent);
       font-weight: bold;
     }
-   .tabs button:hover {
+  .tabs button:hover {
       background: var(--bg);
     }
-   .tab-content {
+  .tab-content {
       padding: 20px;
     }
-   .card {
+  .card {
       background: white;
       border: 1px solid #ddd;
       padding: 20px;
@@ -85,7 +75,7 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-   .flex {
+  .flex {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -112,13 +102,13 @@
     button:hover {
       background: var(--primary-dark);
     }
-   .btn-delete { background: #f44336; }
-   .btn-delete:hover { background: #d32f2f; }
-   .btn-warning { background: #ff9800; }
-   .btn-warning:hover { background: #f57c00; }
-   .btn-info { background: #2196F3; }
-   .btn-info:hover { background: #1976D2; }
-   .hidden { display: none; }
+  .btn-delete { background: #f44336; }
+  .btn-delete:hover { background: #d32f2f; }
+  .btn-warning { background: #ff9800; }
+  .btn-warning:hover { background: #f57c00; }
+  .btn-info { background: #2196F3; }
+  .btn-info:hover { background: #1976D2; }
+  .hidden { display: none; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -147,7 +137,15 @@
 </head>
 <body>
 
-  <div class="header">🍽️ Kasir Naotajun</div>
+  <div class="header">
+    🍽️ Kasir Naotajun
+    <select class="theme-switcher" onchange="gantiTema(this.value)">
+      <option value="blue">Blue</option>
+      <option value="pink">Pink</option>
+      <option value="green">Green</option>
+      <option value="brown">Coklat</option>
+    </select>
+  </div>
 
   <div class="tabs">
     <button onclick="showTab('menu')" class="active">📋 Menu</button>
@@ -170,6 +168,29 @@
 <script>
 let menu = JSON.parse(localStorage.getItem('menu')) || [];
 let billItems = [];
+
+// Tema disimpan ke localStorage biar nggak balik default pas refresh
+const tema = {
+  blue: { primary: '#2196F3', primaryDark: '#1976D2', accent: '#ff9800', bg: '#f5f5f5' },
+  pink: { primary: '#e91e63', primaryDark: '#c2185b', accent: '#ff5722', bg: '#fce4ec' },
+  green: { primary: '#4CAF50', primaryDark: '#388E3C', accent: '#8BC34A', bg: '#e8f5e9' },
+  brown: { primary: '#795548', primaryDark: '#5D4037', accent: '#FF5722', bg: '#efebe9' }
+};
+
+function gantiTema(namaTema) {
+  const t = tema[namaTema];
+  document.documentElement.style.setProperty('--primary', t.primary);
+  document.documentElement.style.setProperty('--primary-dark', t.primaryDark);
+  document.documentElement.style.setProperty('--accent', t.accent);
+  document.documentElement.style.setProperty('--bg', t.bg);
+  localStorage.setItem('tema', namaTema);
+}
+
+function loadTema() {
+  const temaTersimpan = localStorage.getItem('tema') || 'blue';
+  gantiTema(temaTersimpan);
+  document.querySelector('.theme-switcher').value = temaTersimpan;
+}
 
 function showTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -431,6 +452,7 @@ function importData() {
 }
 
 // Load awal
+loadTema();
 renderMenu();
 </script>
 
