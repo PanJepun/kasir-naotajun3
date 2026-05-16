@@ -5,14 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Naotajun3</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
- .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  h2 { text-align: center; }
+  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
+ .navbar { background: #333; padding: 10px; display: flex; gap: 10px; }
+ .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+ .navbar button.active,.navbar button:hover { background: #4CAF50; }
+
+ .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  h2 { text-align: center; margin-top: 0; }
+
+ .page { display: none; }
+ .page.active { display: block; }
+
  .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
  .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
  .tab.active { background: #4CAF50; color: white; }
  .meja { display: none; }
  .meja.active { display: block; }
+
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   th { background: #f0f0f0; }
@@ -25,12 +34,34 @@
 </style>
 </head>
 <body>
+
+<div class="navbar">
+  <button class="navbtn active" onclick="showPage('kasir')">Kasir</button>
+  <button class="navbtn" onclick="showPage('menu')">Menu</button>
+  <button class="navbtn" onclick="showPage('laporan')">Laporan</button>
+</div>
+
 <div class="container">
-  <h2>Kasir Naotajun3</h2>
 
-  <div class="tabs" id="tabs"></div>
+  <!-- Halaman Kasir -->
+  <div id="kasir" class="page active">
+    <h2>Kasir Naotajun3</h2>
+    <div class="tabs" id="tabs"></div>
+    <div id="mejaContainer"></div>
+  </div>
 
-  <div id="mejaContainer"></div>
+  <!-- Halaman Menu -->
+  <div id="menu" class="page">
+    <h2>Manajemen Menu</h2>
+    <p>Halaman untuk tambah/edit menu. Bisa dikembangkan nanti.</p>
+  </div>
+
+  <!-- Halaman Laporan -->
+  <div id="laporan" class="page">
+    <h2>Laporan Penjualan</h2>
+    <p>Halaman laporan. Bisa dikembangkan nanti.</p>
+  </div>
+
 </div>
 
 <script>
@@ -39,6 +70,14 @@ let mejaList = [
   {id: 2, nama: "Meja 2", items: [], diskonPersen: 0, ppnPersen: 10},
   {id: 3, nama: "Meja 3", items: [], diskonPersen: 0, ppnPersen: 10}
 ];
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
 
 function init() {
   renderTabs();
@@ -104,12 +143,9 @@ function tambahItem(id) {
   let nama = document.getElementById('nama' + id).value;
   let harga = parseFloat(document.getElementById('harga' + id).value);
   let qty = parseInt(document.getElementById('qty' + id).value);
-
   if(!nama || isNaN(harga) || isNaN(qty)) return alert('Isi semua field');
-
   meja.items.push({nama, harga, qty});
   renderItems(id);
-
   document.getElementById('nama' + id).value = '';
   document.getElementById('harga' + id).value = '';
   document.getElementById('qty' + id).value = '1';
@@ -120,7 +156,6 @@ function renderItems(id) {
   let tbody = document.getElementById('tbody' + id);
   tbody.innerHTML = '';
   let subtotal = 0;
-
   meja.items.forEach((item, i) => {
     let sub = item.harga * item.qty;
     subtotal += sub;
@@ -134,25 +169,21 @@ function renderItems(id) {
       </tr>
     `;
   });
-
   hitungTotal(id, subtotal);
 }
 
 function hapusItem(id, index) {
-  let meja = mejaList.find(m => m.id === id);
-  meja.items.splice(index, 1);
+  mejaList.find(m => m.id === id).items.splice(index, 1);
   renderItems(id);
 }
 
 function updateDiskon(id) {
-  let meja = mejaList.find(m => m.id === id);
-  meja.diskonPersen = parseFloat(document.getElementById('diskon' + id).value) || 0;
+  mejaList.find(m => m.id === id).diskonPersen = parseFloat(document.getElementById('diskon' + id).value) || 0;
   renderItems(id);
 }
 
 function updatePPN(id) {
-  let meja = mejaList.find(m => m.id === id);
-  meja.ppnPersen = parseFloat(document.getElementById('ppn' + id).value) || 0;
+  mejaList.find(m => m.id === id).ppnPersen = parseFloat(document.getElementById('ppn' + id).value) || 0;
   renderItems(id);
 }
 
@@ -162,7 +193,6 @@ function hitungTotal(id, subtotal) {
   let setelahDiskon = subtotal - diskonRp;
   let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
   let total = setelahDiskon + ppnRp;
-
   document.getElementById('total' + id).innerHTML = `
     Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
     Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>
@@ -189,7 +219,6 @@ Waktu : ${waktu}
 No Menu Qty Total
 
 `;
-
   meja.items.forEach((item, i) => {
     let nama = item.nama.length > 12? item.nama.substring(0, 12) : item.nama;
     nama = nama.padEnd(12, ' ');
@@ -197,7 +226,6 @@ No Menu Qty Total
     let totalItem = String((item.harga * item.qty).toLocaleString('id-ID')).padStart(8, ' ');
     struk += `${i+1}. ${nama} ${qty} Rp${totalItem}\n`;
   });
-
   struk += `--------------------------------
 Subtotal : Rp${subtotal.toLocaleString('id-ID')}
 Diskon ${meja.diskonPersen}% : -Rp${diskonRp.toLocaleString('id-ID')}
@@ -207,7 +235,6 @@ TOTAL : Rp${total.toLocaleString('id-ID')}
 
      Terima Kasih :)
 `;
-
   let printWindow = window.open('', '', 'height=600,width=400');
   printWindow.document.write('<pre style="font-family:monospace; font-size:12px;">' + struk + '</pre>');
   printWindow.document.close();
@@ -216,8 +243,7 @@ TOTAL : Rp${total.toLocaleString('id-ID')}
 
 function resetMeja(id) {
   if(confirm('Yakin reset meja ini?')) {
-    let meja = mejaList.find(m => m.id === id);
-    meja.items = [];
+    mejaList.find(m => m.id === id).items = [];
     renderItems(id);
   }
 }
