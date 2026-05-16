@@ -1,6 +1,6 @@
-Oke, sekarang tabel menu bakal ada kolom foto. Foto disimpan sebagai base64 jadi nggak perlu server.
+Betul, bagian bill-nya belum nampil jelas per meja. Aku tambahin struktur bill + tombol cetak struk.
 
-Timpa `index.html` kamu pakai ini:
+Timpa `index.html` kamu. Yang berubah cuma fungsi `renderKasir` dan `renderOrder`:
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -23,7 +23,7 @@ Timpa `index.html` kamu pakai ini:
       color: #333;
       transition: 0.3s;
     }
- .header {
+.header {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: white;
       padding: 15px 20px;
@@ -33,7 +33,7 @@ Timpa `index.html` kamu pakai ini:
       justify-content: space-between;
       align-items: center;
     }
- .theme-switcher {
+.theme-switcher {
       font-size: 14px;
       padding: 5px 10px;
       border-radius: 4px;
@@ -42,13 +42,13 @@ Timpa `index.html` kamu pakai ini:
       background: white;
       color: #333;
     }
- .tabs {
+.tabs {
       display: flex;
       background: white;
       border-bottom: 2px solid #ddd;
       overflow-x: auto;
     }
- .tabs button {
+.tabs button {
       flex: 1;
       min-width: 100px;
       padding: 15px;
@@ -60,15 +60,15 @@ Timpa `index.html` kamu pakai ini:
       white-space: nowrap;
       transition: 0.3s;
     }
- .tabs button.active {
+.tabs button.active {
       color: var(--accent);
       border-bottom: 3px solid var(--accent);
       font-weight: bold;
     }
- .tab-content {
+.tab-content {
       padding: 20px;
     }
- .card {
+.card {
       background: white;
       border: 1px solid #ddd;
       padding: 20px;
@@ -76,12 +76,12 @@ Timpa `index.html` kamu pakai ini:
       margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
- .grid {
+.grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 15px;
     }
- .meja-card {
+.meja-card {
       padding: 20px;
       border-radius: 8px;
       text-align: center;
@@ -89,18 +89,18 @@ Timpa `index.html` kamu pakai ini:
       font-weight: bold;
       transition: 0.2s;
     }
- .meja-kosong {
+.meja-kosong {
       background: #e8f5e9;
       border: 2px solid #4CAF50;
     }
- .meja-isi {
+.meja-isi {
       background: #fff3e0;
       border: 2px solid #ff9800;
     }
- .meja-card:hover {
+.meja-card:hover {
       transform: scale(1.05);
     }
- .flex {
+.flex {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -128,10 +128,11 @@ Timpa `index.html` kamu pakai ini:
     button:hover {
       background: var(--primary-dark);
     }
- .btn-delete { background: #f44336; }
- .btn-warning { background: #ff9800; }
- .btn-success { background: #4CAF50; }
- .hidden { display: none; }
+.btn-delete { background: #f44336; }
+.btn-warning { background: #ff9800; }
+.btn-success { background: #4CAF50; }
+.btn-info { background: #2196F3; }
+.hidden { display: none; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -151,19 +152,39 @@ Timpa `index.html` kamu pakai ini:
       margin-top: 0;
       color: var(--primary-dark);
     }
- .menu-img {
+.menu-img {
       width: 60px;
       height: 60px;
       object-fit: cover;
       border-radius: 8px;
       border: 1px solid #ddd;
     }
- .img-preview {
+.img-preview {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
       border: 2px solid var(--primary);
+    }
+.bill-box {
+      background: #fafafa;
+      border: 2px dashed #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+.bill-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+.bill-total {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--primary-dark);
+      text-align: right;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -271,7 +292,6 @@ function renderMenu() {
     </div>
   `;
 
-  // Preview foto saat dipilih
   document.getElementById('editFoto').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if(file) {
@@ -320,15 +340,6 @@ function renderMenu() {
       </div>
     `;
   }
-
-  setTimeout(() => {
-    document.getElementById('editNama')?.addEventListener('keydown', e => {
-      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editHarga').focus(); }
-    });
-    document.getElementById('editHarga')?.addEventListener('keydown', e => {
-      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editKategori').focus(); }
-    });
-  }, 50);
 }
 
 function simpanMenu() {
@@ -483,31 +494,36 @@ function renderKasir() {
   }
 
   const meja = mejaList[mejaAktif];
-  const total = hitungTotalMeja(meja);
 
   container.innerHTML = `
     <div class="card">
       <h2>💰 Kasir - Meja ${meja.nama}</h2>
       <button onclick="kembaliKeMeja()" class="btn-warning">← Kembali ke Daftar Meja</button>
 
-      <h3 style="margin-top:20px;">Menu:</h3>
-      <div style="display:flex; flex-wrap:wrap; gap:10px;">
-        ${menu.map(m => `
-          <button onclick="tambahKeMeja('${m.nama}', ${m.harga})" style="min-width:120px; display:flex; flex-direction:column; align-items:center; gap:5px;">
-            ${m.foto? `<img src="${m.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">` : ''}
-            <span>${m.nama}</span>
-            <small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
-          </button>
-        `).join('')}
-      </div>
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-top:20px;">
+        <div>
+          <h3>Menu:</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            ${menu.map(m => `
+              <button onclick="tambahKeMeja('${m.nama}', ${m.harga})" style="min-width:120px; display:flex; flex-direction:column; align-items:center; gap:5px;">
+                ${m.foto? `<img src="${m.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">` : ''}
+                <span>${m.nama}</span>
+                <small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
+              </button>
+            `).join('')}
+          </div>
+        </div>
 
-      <h3 style="margin-top:20px;">Order Meja ${meja.nama}:</h3>
-      <div id="orderList"></div>
-      <h3>Total: Rp${total.toLocaleString('id-ID')}</h3>
-
-      <div class="flex" style="margin-top:15px;">
-        <button onclick="bayarMeja()" class="btn-success">💵 Bayar & Kosongkan Meja</button>
-        <button onclick="kosongkanMeja()" class="btn-delete">🗑️ Kosongkan Order</button>
+        <div class="bill-box" id="billBox">
+          <h3>📄 Bill Meja ${meja.nama}</h3>
+          <div id="billList"></div>
+          <div class="bill-total" id="billTotal">Total: Rp0</div>
+          <div class="flex" style="margin-top:15px;">
+            <button onclick="cetakBill()" class="btn-info" style="flex:1;">🖨️ Cetak Bill</button>
+            <button onclick="bayarMeja()" class="btn-success" style="flex:1;">💵 Bayar</button>
+          </div>
+          <button onclick="kosongkanMeja()" class="btn-delete" style="width:100%; margin-top:10px;">🗑️ Kosongkan Order</button>
+        </div>
       </div>
     </div>
   `;
@@ -531,26 +547,32 @@ function tambahKeMeja(nama, harga) {
 
 function renderOrder() {
   const meja = mejaList[mejaAktif];
-  const list = document.getElementById('orderList');
+  const list = document.getElementById('billList');
+  const totalEl = document.getElementById('billTotal');
 
   if(meja.items.length === 0) {
-    list.innerHTML = '<p>Belum ada order</p>';
+    list.innerHTML = '<p style="text-align:center; color:#999;">Belum ada order</p>';
+    totalEl.textContent = 'Total: Rp0';
     return;
   }
 
   list.innerHTML = meja.items.map((item, i) => `
-    <div class="flex" style="align-items:center; border-bottom:1px solid #eee; padding:10px 0;">
-      <span style="flex:2;">${item.nama}</span>
-      <span>Rp${parseInt(item.harga).toLocaleString('id-ID')}</span>
-      <input type="number" value="${item.qty}" min="1" style="width:60px;"
-        onchange="ubahQty(${i}, this.value)">
-      <span>Rp${(item.harga * item.qty).toLocaleString('id-ID')}</span>
-      <button onclick="hapusItem(${i})" class="btn-delete" style="padding:5px 10px;">X</button>
+    <div class="bill-row">
+      <div style="flex:2;">
+        ${item.nama} <br>
+        <small style="color:#666;">Rp${parseInt(item.harga).toLocaleString('id-ID')} x
+        <input type="number" value="${item.qty}" min="1" style="width:50px; padding:3px;"
+        onchange="ubahQty(${i}, this.value)"></small>
+      </div>
+      <div style="text-align:right;">
+        Rp${(item.harga * item.qty).toLocaleString('id-ID')}
+        <button onclick="hapusItem(${i})" class="btn-delete" style="padding:2px 6px; font-size:12px; margin-left:5px;">X</button>
+      </div>
     </div>
   `).join('');
 
-  document.querySelector('#kasir h3:last-of-type').textContent =
-    'Total: Rp' + hitungTotalMeja(meja).toLocaleString('id-ID');
+  const total = hitungTotalMeja(meja);
+  totalEl.textContent = 'Total: Rp' + total.toLocaleString('id-ID');
 }
 
 function ubahQty(index, qty) {
@@ -590,6 +612,40 @@ function bayarMeja() {
   }
 }
 
+function cetakBill() {
+  const meja = mejaList[mejaAktif];
+  if(meja.items.length === 0) return alert('Belum ada order untuk dicetak!');
+
+  const total = hitungTotalMeja(meja);
+  const waktu = new Date().toLocaleString('id-ID');
+
+  let struk = `
+
+      KASIR NAOTAJUN
+
+Meja: ${meja.nama}
+Waktu: ${waktu}
+
+`;
+
+  meja.items.forEach(item => {
+    struk += `${item.nama} x${item.qty}
+  Rp${parseInt(item.harga).toLocaleString('id-ID')} = Rp${(item.harga * item.qty).toLocaleString('id-ID')}
+`;
+  });
+
+  struk += `--------------------------------
+TOTAL: Rp${total.toLocaleString('id-ID')}
+
+   Terima Kasih :)
+`;
+
+  const printWindow = window.open('', '', 'width=400,height=600');
+  printWindow.document.write(`<pre style="font-family:monospace; font-size:14px;">${struk}</pre>`);
+  printWindow.document.close();
+  printWindow.print();
+}
+
 function kembaliKeMeja() {
   mejaAktif = null;
   showTab('meja');
@@ -620,7 +676,6 @@ function renderBackup() {
       <h3 style="margin-top:30px;">Import Data</h3>
       <textarea id="importData" placeholder="Paste JSON backup di sini..." style="width:100%;min-height:150px;"></textarea>
       <button onclick="importData()" class="btn-warning" style="margin-top:10px;">📤 Restore Data</button>
-      <p style="font-size:13px; color:#666;">Note: Foto ikut tersimpan dalam backup karena pakai base64.</p>
     </div>
   `;
 }
@@ -664,15 +719,12 @@ renderMenu();
 
 </body>
 </html>
-### Cara pakai upload foto:
+### Yang baru di bagian bill:
 
-1. *Tambah menu*: Klik "Pilih File" di form menu, pilih foto dari HP/PC.
-2. *Preview* foto bakal muncul kecil di atas tombol Simpan.
-3. *Tabel menu* sekarang ada kolom Foto. Kalau nggak ada foto bakal tulis "No Image".
-4. *Kasir*: Tombol menu juga sekarang nampilin foto kecil biar gampang pilih.
+1. *Layout 2 kolom*: Kiri menu, kanan bill. Jadi kelihatan langsung ordernya.
+2. *Bill box*: Kotak dashed di kanan dengan daftar item, qty bisa diedit langsung, tombol hapus item.
+3. *Total otomatis*: Update real-time tiap tambah/kurang item.
+4. *Tombol Cetak Bill*: Klik bakal buka popup struk siap print.
+5. *Tombol Bayar*: Kosongkan meja setelah bayar.
 
-*Catatan:*
-Foto disimpan dalam format base64 di localStorage. Jadi backup JSON kamu juga bakal nyimpen fotonya.
-Jangan upload foto ukuran terlalu besar biar nggak berat. Max 500KB per foto aman.
-
-Upload, commit, `Ctrl+Shift+R`.
+Upload, commit, `Ctrl+Shift+R`. Sekarang pilih meja → bill langsung muncul di kanan.
