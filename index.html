@@ -476,6 +476,41 @@ function kosongkanMeja(id) {
     saveData();
   }
 }
+   function openEditMeja(id) {
+  const meja = data.mejaList.find(m => m.id === id);
+  if (!meja) return;
+  document.getElementById('editMejaId').value = meja.id;
+  document.getElementById('editMejaNama').value = meja.nama;
+  document.getElementById('editMejaModal').classList.remove('hidden');
+}
+
+function closeEditMeja() {
+  document.getElementById('editMejaModal').classList.add('hidden');
+}
+
+function saveEditMeja() {
+  const id = parseInt(document.getElementById('editMejaId').value);
+  const nama = document.getElementById('editMejaNama').value.trim();
+  if (!nama) return alert('Nama meja tidak boleh kosong');
+
+  const index = data.mejaList.findIndex(m => m.id === id);
+  if (index > -1) {
+    data.mejaList[index].nama = nama;
+    saveData();
+    closeEditMeja();
+  }
+}
+
+function hapusMeja(id) {
+  if (!['supervisor','kasir'].includes(currentUser.role)) return alert('Akses ditolak');
+  const meja = data.mejaList.find(m => m.id === id);
+  if (!meja) return;
+  if (meja.status === 'isi') return alert('Meja sedang dipakai, kosongkan dulu!');
+  if (!confirm(`Hapus meja ${meja.nama}?`)) return;
+
+  data.mejaList = data.mejaList.filter(m => m.id!== id);
+  saveData();
+}
 
 function renderPilihMeja() {
   const select = document.getElementById('pilihMeja');
