@@ -5,12 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Naotajun3</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
- .navbar { background: #333; padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  :root {
+    --primary: #4CAF50;
+    --danger: #f44336;
+    --warning: #ff9800;
+    --dark: #333;
+    --bg: #f5f5f5;
+  }
+    * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; }
+ .navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
  .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
- .navbar button.active,.navbar button:hover { background: #4CAF50; }
+ .navbar button.active,.navbar button:hover { background: var(--primary); }
 
- .container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+ .container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   h2 { text-align: center; margin-top: 0; }
 
  .page { display: none; }
@@ -18,7 +26,7 @@
 
  .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
  .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
- .tab.active { background: #4CAF50; color: white; }
+ .tab.active { background: var(--primary); color: white; }
  .meja { display: none; }
  .meja.active { display: block; }
 
@@ -27,20 +35,21 @@
   th { background: #f0f0f0; }
   input, select, button, textarea { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
   select { min-width: 150px; }
-  button { background: #4CAF50; color: white; border: none; cursor: pointer; }
-  button:hover { background: #45a049; }
- .btn-danger { background: #f44336; }
- .btn-danger:hover { background: #d32f2f; }
- .btn-warning { background: #ff9800; }
- .btn-warning:hover { background: #e68a00; }
+  button { background: var(--primary); color: white; border: none; cursor: pointer; }
+  button:hover { opacity: 0.9; }
+ .btn-danger { background: var(--danger); }
+ .btn-warning { background: var(--warning); }
  .summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+
  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
  .modal.active { display: flex; justify-content: center; align-items: center; }
  .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+
  .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
  .badge.food { background: #2196F3; }
  .badge.beverage { background: #9C27B0; }
- .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+ .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+ .action-btn { padding: 5px 8px; margin: 0 2px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -62,8 +71,10 @@
 
   <div id="meja" class="page">
     <h2>Manajemen Meja</h2>
-    <input type="text" id="namaMejaBaru" placeholder="Nama Meja Baru">
-    <button onclick="tambahMeja()">Tambah Meja</button>
+    <div class="filter-bar">
+      <input type="text" id="namaMejaBaru" placeholder="Nama Meja Baru">
+      <button onclick="tambahMeja()">Tambah Meja</button>
+    </div>
     <table>
       <thead><tr><th>ID</th><th>Nama Meja</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyMeja"></tbody>
@@ -78,6 +89,7 @@
       <select id="kategoriMenu">
         <option value="Food">Food</option>
         <option value="Beverage">Beverage</option>
+        <option value="Snack">Snack</option>
       </select>
       <button onclick="tambahMenu()">Tambah Menu</button>
     </div>
@@ -86,6 +98,7 @@
       <button onclick="filterMenu('All')">All</button>
       <button onclick="filterMenu('Food')">Food</button>
       <button onclick="filterMenu('Beverage')">Beverage</button>
+      <button onclick="filterMenu('Snack')">Snack</button>
     </div>
 
     <table>
@@ -104,18 +117,45 @@
     <button onclick="exportData()">Export Data</button>
     <button onclick="document.getElementById('fileImport').click()">Import Data</button>
     <input type="file" id="fileImport" style="display:none" accept=".json" onchange="importData(event)">
-    <textarea id="backupArea" rows="10" style="width:100%; margin-top:10px;" readonly></textarea>
+    <textarea id="backupArea" rows="12" style="width:100%; margin-top:10px;" readonly></textarea>
   </div>
 </div>
 
-<div id="modalEdit" class="modal">
+<!-- Modal Edit Item Kasir -->
+<div id="modalEditItem" class="modal">
   <div class="modal-content">
     <h3>Edit Item</h3>
-    <input type="text" id="editNama">
-    <input type="number" id="editHarga">
-    <input type="number" id="editQty">
-    <button onclick="simpanEdit()">Simpan</button>
-    <button class="btn-danger" onclick="tutupModal()">Batal</button>
+    <input type="text" id="editNamaItem">
+    <input type="number" id="editHargaItem">
+    <input type="number" id="editQtyItem">
+    <button onclick="simpanEditItem()">Simpan</button>
+    <button class="btn-danger" onclick="tutupModal('modalEditItem')">Batal</button>
+  </div>
+</div>
+
+<!-- Modal Edit Meja -->
+<div id="modalEditMeja" class="modal">
+  <div class="modal-content">
+    <h3>Edit Nama Meja</h3>
+    <input type="text" id="editNamaMeja">
+    <button onclick="simpanEditMeja()">Simpan</button>
+    <button class="btn-danger" onclick="tutupModal('modalEditMeja')">Batal</button>
+  </div>
+</div>
+
+<!-- Modal Edit Menu -->
+<div id="modalEditMenu" class="modal">
+  <div class="modal-content">
+    <h3>Edit Menu</h3>
+    <input type="text" id="editNamaMenu">
+    <input type="number" id="editHargaMenu">
+    <select id="editKategoriMenu">
+      <option value="Food">Food</option>
+      <option value="Beverage">Beverage</option>
+      <option value="Snack">Snack</option>
+    </select>
+    <button onclick="simpanEditMenu()">Simpan</button>
+    <button class="btn-danger" onclick="tutupModal('modalEditMenu')">Batal</button>
   </div>
 </div>
 
@@ -267,8 +307,8 @@ function renderItems(id) {
         <td>${item.qty}</td>
         <td>Rp${sub.toLocaleString('id-ID')}</td>
         <td>
-          <button class="btn-warning" onclick="bukaEdit(${id}, ${i})">Edit</button>
-          <button class="btn-danger" onclick="hapusItem(${id}, ${i})">Hapus</button>
+          <button class="btn-warning action-btn" onclick="bukaEditItem(${id}, ${i})">Edit</button>
+          <button class="btn-danger action-btn" onclick="hapusItem(${id}, ${i})">Hapus</button>
         </td>
       </tr>
     `;
@@ -276,28 +316,23 @@ function renderItems(id) {
   hitungTotal(id, subtotal);
 }
 
-function bukaEdit(mejaId, itemIndex) {
-  editTarget = {mejaId, itemIndex};
+function bukaEditItem(mejaId, itemIndex) {
+  editTarget = {type: 'item', mejaId, itemIndex};
   let item = data.mejaList.find(m => m.id === mejaId).items[itemIndex];
-  document.getElementById('editNama').value = item.nama;
-  document.getElementById('editHarga').value = item.harga;
-  document.getElementById('editQty').value = item.qty;
-  document.getElementById('modalEdit').classList.add('active');
+  document.getElementById('editNamaItem').value = item.nama;
+  document.getElementById('editHargaItem').value = item.harga;
+  document.getElementById('editQtyItem').value = item.qty;
+  document.getElementById('modalEditItem').classList.add('active');
 }
 
-function simpanEdit() {
+function simpanEditItem() {
   let item = data.mejaList.find(m => m.id === editTarget.mejaId).items[editTarget.itemIndex];
-  item.nama = document.getElementById('editNama').value;
-  item.harga = parseFloat(document.getElementById('editHarga').value);
-  item.qty = parseInt(document.getElementById('editQty').value);
+  item.nama = document.getElementById('editNamaItem').value;
+  item.harga = parseFloat(document.getElementById('editHargaItem').value);
+  item.qty = parseInt(document.getElementById('editQtyItem').value);
   saveData();
   renderItems(editTarget.mejaId);
-  tutupModal();
-}
-
-function tutupModal() {
-  document.getElementById('modalEdit').classList.remove('active');
-  editTarget = null;
+  tutupModal('modalEditItem');
 }
 
 function hapusItem(id, index) {
@@ -370,8 +405,9 @@ function resetMeja(id) {
   }
 }
 
+// MEJA
 function tambahMeja() {
-  let nama = document.getElementById('namaMejaBaru').value;
+  let nama = document.getElementById('namaMejaBaru').value.trim();
   if(!nama) return alert('Isi nama meja');
   let idBaru = data.mejaList.length? Math.max(...data.mejaList.map(m=>m.id)) + 1 : 1;
   data.mejaList.push({id: idBaru, nama, items: [], diskonPersen: 0, ppnPersen: 10});
@@ -386,8 +422,32 @@ function renderMejaTable() {
   let tbody = document.getElementById('tbodyMeja');
   tbody.innerHTML = '';
   data.mejaList.forEach(m => {
-    tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nama}</td><td><button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${m.id}</td>
+      <td>${m.nama}</td>
+      <td>
+        <button class="btn-warning action-btn" onclick="bukaEditMeja(${m.id})">Edit</button>
+        <button class="btn-danger action-btn" onclick="hapusMeja(${m.id})">Hapus</button>
+      </td>
+    </tr>`;
   });
+}
+
+function bukaEditMeja(id) {
+  editTarget = {type: 'meja', id};
+  let meja = data.mejaList.find(m => m.id === id);
+  document.getElementById('editNamaMeja').value = meja.nama;
+  document.getElementById('modalEditMeja').classList.add('active');
+}
+
+function simpanEditMeja() {
+  let meja = data.mejaList.find(m => m.id === editTarget.id);
+  meja.nama = document.getElementById('editNamaMeja').value.trim();
+  saveData();
+  renderMejaTable();
+  renderTabs();
+  renderMeja();
+  tutupModal('modalEditMeja');
 }
 
 function hapusMeja(id) {
@@ -400,8 +460,9 @@ function hapusMeja(id) {
   }
 }
 
+// MENU
 function tambahMenu() {
-  let nama = document.getElementById('namaMenu').value;
+  let nama = document.getElementById('namaMenu').value.trim();
   let harga = parseFloat(document.getElementById('hargaMenu').value);
   let kategori = document.getElementById('kategoriMenu').value;
   if(!nama || isNaN(harga)) return alert('Isi semua field');
@@ -425,15 +486,38 @@ function renderMenuTable() {
   let list = filterKategori === 'All'? data.menuList : data.menuList.filter(m => m.kategori === filterKategori);
 
   list.forEach(m => {
-    let badgeClass = m.kategori === 'Food'? 'food' : 'beverage';
+    let badgeClass = m.kategori.toLowerCase();
     tbody.innerHTML += `
       <tr>
         <td>${m.nama}</td>
         <td><span class="badge ${badgeClass}">${m.kategori}</span></td>
         <td>Rp${m.harga.toLocaleString('id-ID')}</td>
-        <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
+        <td>
+          <button class="btn-warning action-btn" onclick="bukaEditMenu(${m.id})">Edit</button>
+          <button class="btn-danger action-btn" onclick="hapusMenu(${m.id})">Hapus</button>
+        </td>
       </tr>`;
   });
+}
+
+function bukaEditMenu(id) {
+  editTarget = {type: 'menu', id};
+  let menu = data.menuList.find(m => m.id === id);
+  document.getElementById('editNamaMenu').value = menu.nama;
+  document.getElementById('editHargaMenu').value = menu.harga;
+  document.getElementById('editKategoriMenu').value = menu.kategori;
+  document.getElementById('modalEditMenu').classList.add('active');
+}
+
+function simpanEditMenu() {
+  let menu = data.menuList.find(m => m.id === editTarget.id);
+  menu.nama = document.getElementById('editNamaMenu').value.trim();
+  menu.harga = parseFloat(document.getElementById('editHargaMenu').value);
+  menu.kategori = document.getElementById('editKategoriMenu').value;
+  saveData();
+  renderMenuTable();
+  renderMeja();
+  tutupModal('modalEditMenu');
 }
 
 function hapusMenu(id) {
@@ -445,6 +529,7 @@ function hapusMenu(id) {
   }
 }
 
+// LAPORAN & BACKUP
 function renderLaporan() {
   let div = document.getElementById('laporanContent');
   if(data.laporan.length === 0) {
@@ -452,7 +537,7 @@ function renderLaporan() {
     return;
   }
   div.innerHTML = data.laporan.map(b =>
-    `<div style="border:1px solid #ddd; padding:10px; margin:10px 0;">
+    `<div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:5px;">
       <b>${b.meja}</b> - ${b.waktu}<br>
       Total: Rp${b.total.toLocaleString('id-ID')}
     </div>`
@@ -471,14 +556,24 @@ function importData(event) {
   let file = event.target.files[0];
   let reader = new FileReader();
   reader.onload = e => {
-    data = JSON.parse(e.target.result);
-    saveData();
-    alert('Data berhasil diimport');
-    location.reload();
+    try {
+      data = JSON.parse(e.target.result);
+      saveData();
+      alert('Data berhasil diimport');
+      location.reload();
+    } catch {
+      alert('File backup rusak');
+    }
   };
   reader.readAsText(file);
 }
 
+function tutupModal(id) {
+  document.getElementById(id).classList.remove('active');
+  editTarget = null;
+}
+
+// INIT
 loadData();
 renderMeja();
 init();
