@@ -616,27 +616,23 @@ function renderLaporan() {
 function filterLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
-
   if(!dari ||!sampai) return alert('Pilih tanggal dulu');
 
-  let dariDate = new Date(dari + ' 00:00:00');
-  let sampaiDate = new Date(sampai + ' 23:59:59');
+  let dariDate = new Date(dari + 'T00:00:00');
+  let sampaiDate = new Date(sampai + 'T23:59:59');
 
   let dataFilter = data.laporan.filter(b => {
-    let tglBill = new Date(b.waktu);
+    let tglBill = new Date(b.waktuISO);
     return tglBill >= dariDate && tglBill <= sampaiDate;
   });
 
   let tbody = document.getElementById('tbodyLaporan');
   tbody.innerHTML = '';
-
   let totalOmzet = 0;
-  let totalTransaksi = dataFilter.length;
 
   dataFilter.forEach(b => {
     totalOmzet += b.total;
     let items = b.items.map(i => `${i.nama} (${i.qty})`).join(', ');
-
     tbody.innerHTML += `
       <tr>
         <td>${b.waktu}</td>
@@ -650,7 +646,7 @@ function filterLaporan() {
   });
 
   document.getElementById('ringkasanLaporan').innerHTML =
-    `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${totalTransaksi} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
+    `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
 }
 
 function hapusLaporan() {
