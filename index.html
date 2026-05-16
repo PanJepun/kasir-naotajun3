@@ -815,19 +815,11 @@ function printLaporan() {
     </body>
     </html>
     `;
-
     let win = window.open('', '_blank');
     win.document.write(html);
     win.document.close();
 }
-
   
-   let printWindow = window.open('', '', 'height=800,width=1000');
-  printWindow.document.write(html);
-   printWindow.document.close();
-   printWindow.focus();
-   setTimeout(() => printWindow.print(), 250);
- }
 
  function tutupModal(id) {
    document.getElementById(id).classList.remove('active');
