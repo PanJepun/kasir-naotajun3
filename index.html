@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Warung</title>
+<link rel="icon" href="data:,">
 <style>
     * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
@@ -35,7 +36,6 @@
 </head>
 <body>
 
-<!-- Halaman Login -->
 <div id="loginPage" class="login-box">
   <div class="card">
     <h2 style="text-align:center; margin-top:0;">Login Kasir Warung</h2>
@@ -51,7 +51,6 @@
   </div>
 </div>
 
-<!-- Halaman Dashboard -->
 <div id="dashboardPage" class="hidden">
   <header>
     <div>
@@ -68,13 +67,11 @@
   </header>
 
   <div class="container">
-    <!-- Menu Utama -->
     <div class="card" id="menuUtama">
       <h3>Menu Utama</h3>
       <div id="menuButtons"></div>
     </div>
 
-    <!-- Section Menu -->
     <div id="section-menu" class="hidden">
       <div class="card">
         <h3>Tambah Menu</h3>
@@ -82,54 +79,32 @@
         <input type="number" id="hargaMenu" placeholder="Harga">
         <button class="btn btn-primary" onclick="tambahMenu()">Tambah</button>
       </div>
-
       <div class="card">
         <h3>Daftar Menu</h3>
         <table id="menuTable">
-          <thead>
-            <tr><th>No</th><th>Nama Menu</th><th>Harga</th><th>Aksi</th></tr>
-          </thead>
+          <thead><tr><th>No</th><th>Nama Menu</th><th>Harga</th><th>Aksi</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Section Kasir -->
     <div id="section-kasir" class="hidden">
       <div class="card">
         <h3>Pilih Meja</h3>
-        <select id="pilihMeja" style="width:100%;">
-          <option value="">-- Pilih Meja --</option>
-        </select>
+        <select id="pilihMeja" style="width:100%;"><option value="">-- Pilih Meja --</option></select>
       </div>
-
       <div class="card">
         <h3>Menu</h3>
         <div id="kasirMenuList" class="menu-grid">Belum ada menu</div>
       </div>
-
       <div class="card">
         <h3>Keranjang</h3>
         <div id="keranjangList">Keranjang kosong</div>
-
         <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-          <div style="display:flex; justify-content:space-between;">
-            <span>Subtotal:</span>
-            <span>Rp <span id="subtotalHarga">0</span></span>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span>Diskon (%):</span>
-            <input type="number" id="diskon" value="0" min="0" max="100" style="width:80px; text-align:right;" oninput="hitungBill()">
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span>PPN (11%):</span>
-            <span>Rp <span id="ppnHarga">0</span></span>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; margin-top:10px;">
-            <span>Total Bayar:</span>
-            <span>Rp <span id="totalHarga">0</span></span>
-          </div>
-
+          <div style="display:flex; justify-content:space-between;"><span>Subtotal:</span><span>Rp <span id="subtotalHarga">0</span></span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Diskon (%):</span><input type="number" id="diskon" value="0" min="0" max="100" style="width:80px; text-align:right;" oninput="hitungBill()"></div>
+          <div style="display:flex; justify-content:space-between;"><span>PPN (11%):</span><span>Rp <span id="ppnHarga">0</span></span></div>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; margin-top:10px;"><span>Total Bayar:</span><span>Rp <span id="totalHarga">0</span></span></div>
           <div style="text-align:right; margin-top:15px;">
             <button class="btn btn-success" onclick="bayar()">Bayar</button>
             <button class="btn btn-secondary" onclick="clearKeranjang()">Batal</button>
@@ -139,7 +114,6 @@
       </div>
     </div>
 
-    <!-- Section Meja -->
     <div id="section-meja" class="hidden">
       <div class="card">
         <h3>Tambah Meja</h3>
@@ -152,7 +126,6 @@
       </div>
     </div>
 
-    <!-- Section Laporan -->
     <div id="section-laporan" class="hidden">
       <div class="card">
         <h3>Filter Laporan</h3>
@@ -160,7 +133,6 @@
         <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
         <button class="btn btn-primary" onclick="printLaporan()">Cetak Laporan</button>
       </div>
-
       <div class="card">
         <h3>Ringkasan</h3>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center;">
@@ -169,19 +141,15 @@
           <div><div style="font-size:12px; color:#666;">Total PPN</div><div style="font-size:22px; font-weight:bold;" id="totalPPN">Rp 0</div></div>
         </div>
       </div>
-
       <div class="card">
         <h3>Daftar Transaksi</h3>
         <table id="laporanTable">
-          <thead>
-            <tr><th>Waktu</th><th>No Bill</th><th>Meja</th><th>Kasir</th><th>Subtotal</th><th>Diskon</th><th>PPN</th><th>Total</th><th>Aksi</th></tr>
-          </thead>
+          <thead><tr><th>Waktu</th><th>No Bill</th><th>Meja</th><th>Kasir</th><th>Subtotal</th><th>Diskon</th><th>PPN</th><th>Total</th><th>Aksi</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Section Kelola User -->
     <div id="section-user" class="hidden">
       <div class="card">
         <h3>Tambah User Baru</h3>
@@ -196,7 +164,6 @@
         </select>
         <button class="btn btn-primary" onclick="tambahUser()">Tambah</button>
       </div>
-
       <div class="card">
         <h3>Daftar User</h3>
         <table id="userTable">
@@ -208,7 +175,6 @@
   </div>
 </div>
 
-<!-- Modal Edit Menu -->
 <div id="editModal" class="modal hidden">
   <div class="modal-content">
     <h3>Edit Menu</h3>
@@ -236,7 +202,6 @@ let mejaAktif = null;
 let subtotal = 0, ppn = 0, total = 0;
 const PPN_RATE = 0.11;
 
-// Init default users
 function initUsers() {
   if (!localStorage.getItem(USER_KEY)) {
     const defaultUsers = [
@@ -248,7 +213,6 @@ function initUsers() {
   }
 }
 
-// Session
 function checkSession() {
   initUsers();
   const session = localStorage.getItem(SESSION_KEY);
@@ -290,11 +254,9 @@ function logout() {
   location.reload();
 }
 
-// Menu Buttons by Role
 function renderMenuButtons() {
   const menuDiv = document.getElementById('menuButtons');
   let html = '';
-
   if (currentUser.role === 'supervisor') {
     html = `
       <button class="btn btn-success nav-btn" onclick="showSection('menu')">🍽️ Kelola Menu</button>
@@ -316,7 +278,6 @@ function renderMenuButtons() {
   } else {
     html = `<button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>`;
   }
-
   menuDiv.innerHTML = html;
   showSection(currentUser.role === 'supervisor'? 'menu' : 'kasir');
 }
@@ -328,7 +289,6 @@ function showSection(section) {
   document.getElementById('section-' + section).classList.remove('hidden');
 }
 
-// Data Load & Save
 function loadData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -354,7 +314,6 @@ function saveData() {
   renderLaporan();
 }
 
-// Auto Backup
 function autoBackup() {
   const dataStr = localStorage.getItem(STORAGE_KEY);
   if (!dataStr) return;
@@ -393,7 +352,6 @@ function backupNow() {
   URL.revokeObjectURL(url);
 }
 
-// Menu CRUD
 function tambahMenu() {
   if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
   const nama = document.getElementById('namaMenu').value.trim();
@@ -460,7 +418,6 @@ function saveEditMenu() {
   }
 }
 
-// Meja
 function tambahMeja() {
   if (!['supervisor','kasir'].includes(currentUser.role)) return alert('Akses ditolak');
   const nama = document.getElementById('namaMeja').value.trim();
@@ -504,7 +461,6 @@ function kosongkanMeja(id) {
   }
 }
 
-// Kasir & Transaksi
 function renderPilihMeja() {
   const select = document.getElementById('pilihMeja');
   if (!select) return;
@@ -624,7 +580,7 @@ function printBill() {
     <style>body{font-family:monospace;font-size:14px;width:300px;margin:0 auto;}
     h3,p{text-align:center;margin:5px 0;}table{width:100%;}
     td{padding:4px 0;}.line{border-top:1px dashed #000;margin:10px 0;}
-  .right{text-align:right;}.bold{font-weight:bold;}</style>
+.right{text-align:right;}.bold{font-weight:bold;}</style>
     </head><body onload="window.print()">
       <h3>KASIR WARUNG</h3>
       <p>${mejaNama}</p>
@@ -649,7 +605,6 @@ function printBill() {
   billWindow.document.close();
 }
 
-// Laporan
 function renderLaporan() {
   const tbody = document.querySelector('#laporanTable tbody');
   if (!tbody) return;
@@ -718,7 +673,7 @@ function printUlangBill(id) {
     <style>body{font-family:monospace;font-size:14px;width:300px;margin:0 auto;}
     h3,p{text-align:center;margin:5px 0;}table{width:100%;}
     td{padding:4px 0;}.line{border-top:1px dashed #000;margin:10px 0;}
-  .right{text-align:right;}.bold{font-weight:bold;}</style>
+.right{text-align:right;}.bold{font-weight:bold;}</style>
     </head><body onload="window.print()">
       <h3>KASIR WARUNG</h3>
       <p>${t.mejaNama}</p>
@@ -743,7 +698,6 @@ function printUlangBill(id) {
   billWindow.document.close();
 }
 
-// User Management
 function tambahUser() {
   if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
   const username = document.getElementById('newUsername').value.trim();
@@ -777,17 +731,17 @@ function renderUserTable() {
       <td>${u.nama}</td>
       <td>${u.role}</td>
       <td>
-        ${u.username !== 'admin'? `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` : '-'}
+        ${u.username !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` : '-'}
       </td>
     </tr>
   `).join('');
 }
 
 function hapusUser(username) {
-  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
+  if (currentUser.role !== 'supervisor') return alert('Akses ditolak');
   if (!confirm('Hapus user ' + username + '?')) return;
   let users = JSON.parse(localStorage.getItem(USER_KEY));
-  users = users.filter(u => u.username!== username);
+  users = users.filter(u => u.username !== username);
   localStorage.setItem(USER_KEY, JSON.stringify(users));
   renderUserTable();
 }
