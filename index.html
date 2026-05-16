@@ -748,91 +748,80 @@ function importData(event) {
 }
   
 function printLaporan() {
-  let dari = document.getElementById('tglDari').value;
-  let sampai = document.getElementById('tglSampai').value;
-  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
+    const dari = document.getElementById('dariTanggal').value;
+    const sampai = document.getElementById('sampaiTanggal').value;
 
-  let dariDate = new Date(dari + 'T00:00:00');
-  let sampaiDate = new Date(sampai + 'T23:59:59');
+    if(!dari ||!sampai) return alert('Pilih tanggal dulu');
 
-  let dataFilter = data.laporan.filter(b => {
-    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
-    if (isNaN(tglBill)) {
-      let parts = b.waktu.split(', ');
-      if (parts.length === 2) {
-        let tgl = parts[0].split('/');
-        let jam = parts[1].split(/[:.]/);
-        tglBill = new Date(tgl[2], tgl[1]-1, tgl[0], jam[0], jam[1], jam[2]);
-      }
-    }
-    return tglBill >= dariDate && tglBill <= sampaiDate;
-  });
+    let dataFilter = penjualan.filter(b => {
+        const tgl = b.tanggal.split(' ')[0];
+        return tgl >= dari && tgl <= sampai;
+    });
 
-  if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
+    if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
 
     let totalOmzet = dataFilter.reduce((sum, b) => sum + b.total, 0);
- 
- let html = `
-     <html>
-     <head>
-       <title>Laporan Penjualan ${dari} s/d ${sampai}</title>
-       <style>
-         body { font-family: Arial, sans-serif; font-size: 12px; padding: 20px; }
-         h2 { text-align: center; margin-bottom: 5px; }
-         .info { text-align: center; margin-bottom: 20px; }
-         table { width: 100%; border-collapse: collapse; }
-         th, td { border: 1px solid #000; padding: 6px; text-align: left; }
-         th { background: #f2f2f2; }
-         .total-row { font-weight: bold; background: #f2f2f2; }
-         @media print { button { display: none; } }
-       </style>
+
+    let html = `
+    <html>
+    <head>
+        <title>Laporan Penjualan ${dari} s/d ${sampai}</title>
+        <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; padding: 20px; }
+            h2 { text-align: center; margin-bottom: 5px; }
+          .info { text-align: center; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+            th { background: #f2f2f2; }
+          .total-row { font-weight: bold; background: #f2f2f2; }
+            @media print { button { display: none; }
+        </style>
     </head>
-     <body>
-       <h2>LAPORAN PENJUALAN</h2>
-       <div class="info">
-         Periode: ${dari} s/d ${sampai}<br>
-         Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}
-       </div>
-       <table>
-         <thead>
-           <tr>
-            <th>No</th>
-             <th>Waktu</th>
-             <th>Meja</th>
-            <th>Kasir</th>
-             <th>Waitress</th>
-             <th>Item</th>
-             <th>Total</th>
-           </tr>
-         </thead>
-         <tbody>
+    <body>
+        <h2>LAPORAN PENJUALAN</h2>
+        <div class="info">
+            Periode: ${dari} s/d ${sampai}<br>
+            Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}
+        </div>
+        <table>
+            <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Items</th>
+                <th>Total</th>
+            </tr>
+    `;
 
-   dataFilter.forEach((b, i) => {
-    let items = b.items.map(it => `${it.nama} (${it.qty})`).join(', ');
+    dataFilter.forEach((b, i) => {
+        html += `
+            <tr>
+                <td>${i+1}</td>
+                <td>${b.tanggal}</td>
+                <td>${b.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
+                <td>Rp${b.total.toLocaleString('id-ID')}</td>
+            </tr>
+        `;
+    });
+
     html += `
-       <tr>
-         <td>${i+1}</td>
-         <td>${b.waktu}</td>
-        <td>${b.meja}</td>
-         <td>${b.kasir}</td>
-         <td>${b.waitress}</td>
-         <td>${items}</td>
-         <td>Rp${b.total.toLocaleString('id-ID')}</td>
-       </tr>
-     `;
-   });
+            <tr class="total-row">
+                <td colspan="3">TOTAL OMZET</td>
+                <td>Rp${totalOmzet.toLocaleString('id-ID')}</td>
+            </tr>
+        </table>
+        <br>
+        <button onclick="window.print()">Print</button>
+        <script>window.onload = function() { window.print(); }</script>
+    </body>
+    </html>
+    `;
 
-   html += `
-         <tr class="total-row">
-           <td colspan="6">TOTAL OMZET</td>
-           <td>Rp${totalOmzet.toLocaleString('id-ID')}</td>
-         </tr>
-         </tbody>
-       </table>
-     </body>
-     </html>
-   `;
+    let win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+}
 
+  
    let printWindow = window.open('', '', 'height=800,width=1000');
   printWindow.document.write(html);
    printWindow.document.close();
