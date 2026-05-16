@@ -175,7 +175,7 @@ function renderTabelMeja() {
       <td><span class="badge" style="background:${m.status==='terisi'?'#ff9800':'#4caf50'}">${m.status || 'kosong'}</span></td>
       <td>
         ${m.status==='kosong'
-        ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
+       ? `<button class="btn-success" onclick="checkInMeja(${m.id})">Check In</button>`
           : `<button class="btn-warning" onclick="bukaKasirMeja(${m.id})">Buka Kasir</button>
              <button class="btn-danger" onclick="checkOutMeja(${m.id})">Check Out</button>`
         }
@@ -195,6 +195,7 @@ function tambahMeja() {
 }
 
 function checkInMeja(id) {
+  id = parseInt(id); // FIX: convert string to number
   const meja = data.meja.find(m => m.id === id);
   if(!meja) return;
 
@@ -206,6 +207,7 @@ function checkInMeja(id) {
 }
 
 function checkOutMeja(id) {
+  id = parseInt(id); // FIX
   const meja = data.meja.find(m => m.id === id);
   if(!meja) return;
 
@@ -232,6 +234,7 @@ function checkOutMeja(id) {
 }
 
 function hapusMeja(id) {
+  id = parseInt(id); // FIX
   if(!confirm('Hapus meja ini?')) return;
   data.meja = data.meja.filter(m => m.id!== id);
   delete data.pesananAktif[id];
@@ -240,6 +243,7 @@ function hapusMeja(id) {
 }
 
 function bukaKasirMeja(id) {
+  id = parseInt(id); // FIX
   const meja = data.meja.find(m => m.id === id);
   if(!meja) return;
   if(meja.status!== 'terisi') {
@@ -358,8 +362,8 @@ function tambahMenu() {
 }
 
 function editMenu(id) {
-  editId = id;
-  const item = data.menu.find(m => m.id === id);
+  editId = parseInt(id);
+  const item = data.menu.find(m => m.id === editId);
   if(!item) return;
 
   document.getElementById('editForm').classList.remove('hidden');
@@ -400,6 +404,7 @@ function batalEdit() {
 }
 
 function hapusMenu(id) {
+  id = parseInt(id);
   if(!confirm('Hapus menu ini?')) return;
   data.menu = data.menu.filter(m => m.id!== id);
   save();
@@ -435,7 +440,7 @@ function renderKasir() {
       <button class="btn-warning" onclick="tutupKasir()">← Kembali</button>
 
       ${data.menu.length === 0
-       ? '<p style="margin-top:15px;">Belum ada menu. Tambah menu dulu di tab Menu.</p>'
+      ? '<p style="margin-top:15px;">Belum ada menu. Tambah menu dulu di tab Menu.</p>'
         : `
       <div class="flex mb-20" style="margin-top:20px;">
         <select id="selectMenu">
@@ -466,7 +471,7 @@ function renderKasir() {
 }
 
 function setMejaAktif(id) {
-  mejaAktif = id;
+  mejaAktif = parseInt(id);
   renderKasir();
 }
 
