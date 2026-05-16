@@ -610,37 +610,37 @@ function importData(e) {
 
 // Init
 renderMeja();
-612  renderMeja();
-613  // Pindah kolom dengan Enter di form tambah menu
-614  document.getElementById('namaMenu').addEventListener('keydown', function(e) {
-615    if (e.key === 'Enter') {
-616      e.preventDefault();
-617      document.getElementById('hargaMenu').focus();
-618    }
-619  });
-620
-621  document.getElementById('hargaMenu').addEventListener('keydown', function(e) {
-622    if (e.key === 'Enter') {
-623      e.preventDefault();
-624      document.getElementById('tipeMenu').focus();
-625    }
-626  });
-627
-628  document.getElementById('tipeMenu').addEventListener('keydown', function(e) {
-629    if (e.key === 'Enter') {
-630      e.preventDefault();
-631      document.getElementById('subKategoriMenu').focus();
-632    }
-633  });
-634
-635  document.getElementById('subKategoriMenu').addEventListener('keydown', function(e) {
-636    if (e.key === 'Enter') {
-637      e.preventDefault();
-638      simpanEdit();
-639    }
-640  });
-641  
-642  </script>
+ renderMeja();
+ // Pindah kolom dengan Enter di form tambah menu
+  document.getElementById('namaMenu').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('hargaMenu').focus();
+    }
+  });
+
+  document.getElementById('hargaMenu').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('tipeMenu').focus();
+    }
+  });
+
+  document.getElementById('tipeMenu').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('subKategoriMenu').focus();
+    }
+  });
+
+ document.getElementById('subKategoriMenu').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      simpanEdit();
+   }
+  });
+  renderMeja();
+  </script>
 
   
   
