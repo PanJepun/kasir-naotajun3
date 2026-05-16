@@ -6,36 +6,41 @@
 <title>Kasir Naotajun3</title>
 <style>
   body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
-.navbar { background: #333; padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-.navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
-.navbar button.active,.navbar button:hover { background: #4CAF50; }
+ .navbar { background: #333; padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+ .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+ .navbar button.active,.navbar button:hover { background: #4CAF50; }
 
-.container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+ .container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   h2 { text-align: center; margin-top: 0; }
 
-.page { display: none; }
-.page.active { display: block; }
+ .page { display: none; }
+ .page.active { display: block; }
 
-.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
-.tab.active { background: #4CAF50; color: white; }
-.meja { display: none; }
-.meja.active { display: block; }
+ .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+ .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
+ .tab.active { background: #4CAF50; color: white; }
+ .meja { display: none; }
+ .meja.active { display: block; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
   th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   th { background: #f0f0f0; }
   input, select, button, textarea { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+  select { min-width: 150px; }
   button { background: #4CAF50; color: white; border: none; cursor: pointer; }
   button:hover { background: #45a049; }
-.btn-danger { background: #f44336; }
-.btn-danger:hover { background: #d32f2f; }
-.btn-warning { background: #ff9800; }
-.btn-warning:hover { background: #e68a00; }
-.summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); }
-.modal.active { display: flex; justify-content: center; align-items: center; }
-.modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+ .btn-danger { background: #f44336; }
+ .btn-danger:hover { background: #d32f2f; }
+ .btn-warning { background: #ff9800; }
+ .btn-warning:hover { background: #e68a00; }
+ .summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+ .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+ .modal.active { display: flex; justify-content: center; align-items: center; }
+ .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+ .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
+ .badge.food { background: #2196F3; }
+ .badge.beverage { background: #9C27B0; }
+ .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -49,15 +54,12 @@
 </div>
 
 <div class="container">
-
-  <!-- Halaman Kasir -->
   <div id="kasir" class="page active">
     <h2>Kasir Naotajun3</h2>
     <div class="tabs" id="tabs"></div>
     <div id="mejaContainer"></div>
   </div>
 
-  <!-- Halaman Meja -->
   <div id="meja" class="page">
     <h2>Manajemen Meja</h2>
     <input type="text" id="namaMejaBaru" placeholder="Nama Meja Baru">
@@ -68,25 +70,35 @@
     </table>
   </div>
 
-  <!-- Halaman Menu -->
   <div id="menu" class="page">
     <h2>Manajemen Menu</h2>
-    <input type="text" id="namaMenu" placeholder="Nama Menu">
-    <input type="number" id="hargaMenu" placeholder="Harga">
-    <button onclick="tambahMenu()">Tambah Menu</button>
+    <div class="filter-bar">
+      <input type="text" id="namaMenu" placeholder="Nama Menu">
+      <input type="number" id="hargaMenu" placeholder="Harga">
+      <select id="kategoriMenu">
+        <option value="Food">Food</option>
+        <option value="Beverage">Beverage</option>
+      </select>
+      <button onclick="tambahMenu()">Tambah Menu</button>
+    </div>
+
+    <div class="filter-bar">
+      <button onclick="filterMenu('All')">All</button>
+      <button onclick="filterMenu('Food')">Food</button>
+      <button onclick="filterMenu('Beverage')">Beverage</button>
+    </div>
+
     <table>
-      <thead><tr><th>Menu</th><th>Harga</th><th>Aksi</th></tr></thead>
+      <thead><tr><th>Menu</th><th>Kategori</th><th>Harga</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyMenu"></tbody>
     </table>
   </div>
 
-  <!-- Halaman Laporan -->
   <div id="laporan" class="page">
     <h2>Laporan Penjualan</h2>
     <div id="laporanContent">Belum ada transaksi</div>
   </div>
 
-  <!-- Halaman Backup -->
   <div id="backup" class="page">
     <h2>Backup & Restore</h2>
     <button onclick="exportData()">Export Data</button>
@@ -94,10 +106,8 @@
     <input type="file" id="fileImport" style="display:none" accept=".json" onchange="importData(event)">
     <textarea id="backupArea" rows="10" style="width:100%; margin-top:10px;" readonly></textarea>
   </div>
-
 </div>
 
-<!-- Modal Edit Item -->
 <div id="modalEdit" class="modal">
   <div class="modal-content">
     <h3>Edit Item</h3>
@@ -117,12 +127,15 @@ let data = {
     {id: 3, nama: "Meja 3", items: [], diskonPersen: 0, ppnPersen: 10}
   ],
   menuList: [
-    {id: 1, nama: "Nasi Goreng", harga: 15000},
-    {id: 2, nama: "Mie Goreng", harga: 13000}
+    {id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food"},
+    {id: 2, nama: "Mie Goreng", harga: 13000, kategori: "Food"},
+    {id: 3, nama: "Es Teh", harga: 5000, kategori: "Beverage"},
+    {id: 4, nama: "Es Jeruk", harga: 7000, kategori: "Beverage"}
   ],
   laporan: []
 };
 let editTarget = null;
+let filterKategori = 'All';
 
 function loadData() {
   let saved = localStorage.getItem('kasirNaotajun3');
@@ -178,10 +191,17 @@ function renderMeja() {
     let div = document.createElement('div');
     div.id = 'meja' + meja.id;
     div.className = 'meja';
+
+    let optionMenu = '<option value="">-- Pilih Menu --</option>';
+    data.menuList.forEach(m => {
+      optionMenu += `<option value="${m.id}">${m.nama} - Rp${m.harga.toLocaleString('id-ID')}</option>`;
+    });
+
     div.innerHTML = `
       <h3>${meja.nama}</h3>
-      <input type="text" id="nama${meja.id}" placeholder="Nama Menu">
-      <input type="number" id="harga${meja.id}" placeholder="Harga">
+      <select id="selectMenu${meja.id}" onchange="pilihMenu(${meja.id})">${optionMenu}</select>
+      <input type="text" id="nama${meja.id}" placeholder="Nama Menu" readonly>
+      <input type="number" id="harga${meja.id}" placeholder="Harga" readonly>
       <input type="number" id="qty${meja.id}" placeholder="Qty" value="1">
       <button onclick="tambahItem(${meja.id})">Tambah</button>
 
@@ -205,15 +225,28 @@ function renderMeja() {
   });
 }
 
+function pilihMenu(mejaId) {
+  let menuId = document.getElementById('selectMenu' + mejaId).value;
+  if(!menuId) {
+    document.getElementById('nama' + mejaId).value = '';
+    document.getElementById('harga' + mejaId).value = '';
+    return;
+  }
+  let menu = data.menuList.find(m => m.id == menuId);
+  document.getElementById('nama' + mejaId).value = menu.nama;
+  document.getElementById('harga' + mejaId).value = menu.harga;
+}
+
 function tambahItem(id) {
   let meja = data.mejaList.find(m => m.id === id);
   let nama = document.getElementById('nama' + id).value;
   let harga = parseFloat(document.getElementById('harga' + id).value);
   let qty = parseInt(document.getElementById('qty' + id).value);
-  if(!nama || isNaN(harga) || isNaN(qty)) return alert('Isi semua field');
+  if(!nama || isNaN(harga) || isNaN(qty)) return alert('Pilih menu dulu');
   meja.items.push({nama, harga, qty});
   saveData();
   renderItems(id);
+  document.getElementById('selectMenu' + id).value = '';
   document.getElementById('nama' + id).value = '';
   document.getElementById('harga' + id).value = '';
   document.getElementById('qty' + id).value = '1';
@@ -370,27 +403,46 @@ function hapusMeja(id) {
 function tambahMenu() {
   let nama = document.getElementById('namaMenu').value;
   let harga = parseFloat(document.getElementById('hargaMenu').value);
+  let kategori = document.getElementById('kategoriMenu').value;
   if(!nama || isNaN(harga)) return alert('Isi semua field');
   let idBaru = data.menuList.length? Math.max(...data.menuList.map(m=>m.id)) + 1 : 1;
-  data.menuList.push({id: idBaru, nama, harga});
+  data.menuList.push({id: idBaru, nama, harga, kategori});
   saveData();
   document.getElementById('namaMenu').value = '';
   document.getElementById('hargaMenu').value = '';
+  renderMenuTable();
+  renderMeja();
+}
+
+function filterMenu(kategori) {
+  filterKategori = kategori;
   renderMenuTable();
 }
 
 function renderMenuTable() {
   let tbody = document.getElementById('tbodyMenu');
   tbody.innerHTML = '';
-  data.menuList.forEach(m => {
-    tbody.innerHTML += `<tr><td>${m.nama}</td><td>Rp${m.harga.toLocaleString('id-ID')}</td><td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td></tr>`;
+  let list = filterKategori === 'All'? data.menuList : data.menuList.filter(m => m.kategori === filterKategori);
+
+  list.forEach(m => {
+    let badgeClass = m.kategori === 'Food'? 'food' : 'beverage';
+    tbody.innerHTML += `
+      <tr>
+        <td>${m.nama}</td>
+        <td><span class="badge ${badgeClass}">${m.kategori}</span></td>
+        <td>Rp${m.harga.toLocaleString('id-ID')}</td>
+        <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
+      </tr>`;
   });
 }
 
 function hapusMenu(id) {
-  data.menuList = data.menuList.filter(m => m.id!== id);
-  saveData();
-  renderMenuTable();
+  if(confirm('Hapus menu ini?')) {
+    data.menuList = data.menuList.filter(m => m.id!== id);
+    saveData();
+    renderMenuTable();
+    renderMeja();
+  }
 }
 
 function renderLaporan() {
@@ -427,7 +479,6 @@ function importData(event) {
   reader.readAsText(file);
 }
 
-// Urutan penting
 loadData();
 renderMeja();
 init();
