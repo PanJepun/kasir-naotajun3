@@ -2,101 +2,188 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Sederhana</title>
 <style>
-body { font-family: Arial; padding: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-button { padding: 8px 12px; margin: 5px; cursor: pointer; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    h2, h3 { text-align: center; }
+  .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; }
+    input, button { padding: 8px; margin: 5px; }
+    button { cursor: pointer; border: none; border-radius: 5px; background: #4CAF50; color: white; }
+    button:hover { background: #45a049; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
 </style>
 </head>
 <body>
+<div class="container">
+    <h2>Kasir Sederhana</h2>
 
-<h2>Kasir Sederhana</h2>
+    <h3>Input Penjualan</h3>
+    <input type="text" id="namaItem" placeholder="Nama Item">
+    <input type="number" id="hargaItem" placeholder="Harga" min="0">
+    <input type="number" id="qtyItem" placeholder="Qty" min="1" value="1">
+    <button onclick="tambahItem()">Tambah Item</button>
+    <button onclick="simpanPenjualan()">Simpan Penjualan</button>
 
-<input type="text" id="nama" placeholder="Nama Barang">
-<input type="number" id="harga" placeholder="Harga">
-<input type="number" id="qty" value="1" placeholder="Qty">
-<button onclick="tambah()">Tambah</button>
-<button onclick="simpan()">Simpan</button>
+    <table id="tabelKeranjang">
+        <thead>
+            <tr><th>Nama</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <h3>Total: Rp<span id="totalKeranjang">0</span></h3>
 
-<h3>Keranjang</h3>
-<table id="tabel">
-<thead><tr><th>Nama</th><th>Harga</th><th>Qty</th><th>Total</th></tr></thead>
-<tbody></tbody>
-</table>
-<h3>Total: Rp<span id="total">0</span></h3>
+    <hr>
 
-<h3>Laporan</h3>
-Dari: <input type="date" id="dari">
-Sampai: <input type="date" id="sampai">
-<button onclick="printLaporan()">Print</button>
+    <h3>Laporan Penjualan</h3>
+    Dari: <input type="date" id="tglDari">
+    Sampai: <input type="date" id="tglSampai">
+    <button onclick="printLaporan()">Print Laporan</button>
+
+    <table id="tabelLaporan">
+        <thead>
+            <tr><th>Tanggal</th><th>Items</th><th>Total</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <script>
 let keranjang = [];
 let penjualan = JSON.parse(localStorage.getItem('penjualan') || '[]');
 
-function render() {
-  let tbody = document.querySelector('#tabel tbody');
-  tbody.innerHTML = '';
-  let total = 0;
-  keranjang.forEach(i => {
-    let sub = i.harga * i.qty;
-    total += sub;
-    tbody.innerHTML += `<tr><td>${i.nama}</td><td>${i.harga}</td><td>${i.qty}</td><td>${sub}</td></tr>`;
-  });
-  document.getElementById('total').innerText = total;
+function renderKeranjang() {
+    let tbody = document.querySelector('#tabelKeranjang tbody');
+    tbody.innerHTML = '';
+    let total = 0;
+    keranjang.forEach((item, i) => {
+        let subtotal = item.harga * item.qty;
+        total += subtotal;
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.nama}</td>
+                <td>Rp${item.harga.toLocaleString('id-ID')}</td>
+                <td>${item.qty}</td>
+                <td>Rp${subtotal.toLocaleString('id-ID')}</td>
+                <td><button onclick="hapusItem(${i})">Hapus</button></td>
+            </tr>
+        `;
+    });
+    document.getElementById('totalKeranjang').innerText = total.toLocaleString('id-ID');
 }
 
-function tambah() {
-  let nama = document.getElementById('nama').value;
-  let harga = parseInt(document.getElementById('harga').value);
-  let qty = parseInt(document.getElementById('qty').value);
-  if(!nama ||!harga) return alert('Isi nama dan harga');
-  keranjang.push({nama, harga, qty});
-  render();
+function tambahItem() {
+    let nama = document.getElementById('namaItem').value.trim();
+    let harga = parseInt(document.getElementById('hargaItem').value);
+    let qty = parseInt(document.getElementById('qtyItem').value);
+    if (!nama ||!harga ||!qty) return alert('Isi semua field!');
+    keranjang.push({nama, harga, qty});
+    document.getElementById('namaItem').value = '';
+    document.getElementById('hargaItem').value = '';
+    document.getElementById('qtyItem').value = 1;
+    renderKeranjang();
 }
 
-function simpan() {
-  if(keranjang.length === 0) return alert('Keranjang kosong');
-  let total = keranjang.reduce((s,i) => s + i.harga*i.qty, 0);
-  penjualan.push({tanggal: new Date().toLocaleString('id-ID'), items: keranjang, total});
-  localStorage.setItem('penjualan', JSON.stringify(penjualan));
-  keranjang = [];
-  render();
-  alert('Tersimpan!');
+function hapusItem(i) {
+    keranjang.splice(i, 1);
+    renderKeranjang();
+}
+
+function simpanPenjualan() {
+    if (keranjang.length === 0) return alert('Keranjang kosong!');
+    let total = keranjang.reduce((sum, i) => sum + i.harga * i.qty, 0);
+    let data = {
+        tanggal: new Date().toLocaleString('id-ID'),
+        items: keranjang,
+        total: total
+    };
+    penjualan.push(data);
+    localStorage.setItem('penjualan', JSON.stringify(penjualan));
+    keranjang = [];
+    renderKeranjang();
+    renderLaporan();
+    alert('Penjualan disimpan!');
+}
+
+function renderLaporan() {
+    let tbody = document.querySelector('#tabelLaporan tbody');
+    tbody.innerHTML = '';
+    penjualan.forEach(p => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${p.tanggal}</td>
+                <td>${p.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
+                <td>Rp${p.total.toLocaleString('id-ID')}</td>
+            </tr>
+        `;
+    });
 }
 
 function printLaporan() {
-  let dari = document.getElementById('dari').value;
-  let sampai = document.getElementById('sampai').value;
-  if(!dari ||!sampai) return alert('Pilih tanggal');
+    const dari = document.getElementById('tglDari').value;
+    const sampai = document.getElementById('tglSampai').value;
+    if (!dari ||!sampai) return alert('Pilih tanggal dulu');
 
-  let data = penjualan.filter(p => {
-    let tgl = new Date(p.tanggal.split(',')[0].split('/').reverse().join('-'));
-    return tgl >= new Date(dari) && tgl <= new Date(sampai);
-  });
+    let dariDate = new Date(dari);
+    let sampaiDate = new Date(sampai);
+    sampaiDate.setHours(23, 59, 59);
 
-  if(data.length === 0) return alert('Tidak ada data');
+    let dataFilter = penjualan.filter(b => {
+        let tglBill = new Date(b.tanggal.split(',')[0].split('/').reverse().join('-'));
+        return tglBill >= dariDate && tglBill <= sampaiDate;
+    });
 
-  let totalOmzet = data.reduce((s,p) => s + p.total, 0);
+    if (dataFilter.length === 0) return alert('Tidak ada data di periode ini');
 
-  let html = `
-  <html>
-  <head><title>Laporan</title></head>
-  <body>
-    <h2>Laporan ${dari} s/d ${sampai}</h2>
-    <p>Total Omzet: Rp${totalOmzet}</p>
-    <button onclick="window.print()">Print</button>
-    <script>window.onload=()=>window.print();</script>
-  </body>
-  </html>`;
+    let totalOmzet = dataFilter.reduce((sum, b) => sum + b.total, 0);
 
-  let win = window.open('', '_blank');
-  win.document.write(html);
-  win.document.close();
+    let html = `
+    <html>
+    <head>
+        <title>Laporan Penjualan</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 6px; }
+            th { background: #f2f2f2; }
+            h2 { text-align: center; }
+        </style>
+    </head>
+    <body>
+        <h2>LAPORAN PENJUALAN</h2>
+        <p>Periode: ${dari} s/d ${sampai}</p>
+        <p>Total Omzet: Rp${totalOmzet.toLocaleString('id-ID')}</p>
+        <table>
+            <tr><th>No</th><th>Tanggal</th><th>Items</th><th>Total</th></tr>
+    `;
+
+    dataFilter.forEach((b, i) => {
+        html += `
+            <tr>
+                <td>${i+1}</td>
+                <td>${b.tanggal}</td>
+                <td>${b.items.map(it => `${it.nama} x${it.qty}`).join(', ')}</td>
+                <td>Rp${b.total.toLocaleString('id-ID')}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+        </table>
+        <button onclick="window.print()">Print</button>
+        <script>window.onload = function() { window.print(); }<\/script>
+    </body>
+    </html>
+    `;
+
+    let win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
 }
-</script>
 
+renderLaporan();
+</script>
 </body>
 </html>
