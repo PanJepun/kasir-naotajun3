@@ -38,7 +38,7 @@
 .menu-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
 .menu-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin-top: 5px; display: none; }
 .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+.info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
 .badge.food { background: #2196F3; }
 .badge.beverage { background: #9C27B0; }
@@ -108,7 +108,7 @@
     </div>
     <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
     <table>
-      <thead><tr><th>Waktu</th><th>Meja</th><th>Item</th><th>Total</th></tr></thead>
+      <thead><tr><th>Waktu</th><th>Meja</th><th>Kasir</th><th>Waitress</th><th>Item</th><th>Total</th></tr></thead>
       <tbody id="tbodyLaporan"></tbody>
     </table>
   </div>
@@ -129,6 +129,19 @@
     <div style="margin-top:10px;">
       <button onclick="simpanEditMenu()">Simpan</button>
       <button class="btn-danger" onclick="tutupModal('modalEditMenu')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalEditMeja" class="modal">
+  <div class="modal-content">
+    <h3>Edit Meja</h3>
+    <input type="text" id="editNamaMeja" placeholder="Nama Meja">
+    <input type="text" id="editKasirMeja" placeholder="Nama Kasir">
+    <input type="text" id="editWaitressMeja" placeholder="Nama Waitress">
+    <div style="margin-top:10px;">
+      <button onclick="simpanEditMeja()">Simpan</button>
+      <button class="btn-danger" onclick="tutupModal('modalEditMeja')">Batal</button>
     </div>
   </div>
 </div>
@@ -243,7 +256,12 @@ function renderMeja() {
       optionMenu += `<option value="${m.id}">${m.nama} - Rp${m.harga.toLocaleString('id-ID')}</option>`;
     });
     div.innerHTML = `
-      <div class="info-meja"><b>${meja.nama}</b></div>
+      <div class="info-meja">
+        <b>${meja.nama}</b> |
+        Kasir: ${meja.kasir || '-'} |
+        Waitress: ${meja.waitress || '-'}
+        <button class="btn-warning" onclick="bukaEditMeja(${meja.id})">Edit</button>
+      </div>
       <select id="selectMenu${meja.id}" onchange="pilihMenu(${meja.id})">${optionMenu}</select>
       <input type="text" id="nama${meja.id}" readonly>
       <input type="number" id="harga${meja.id}" readonly>
@@ -330,7 +348,7 @@ function renderMenuTable() {
 }
 
 function bukaEditMenu(id) {
-  editTarget = id;
+  editTarget = {type: 'menu', id};
   let menu = data.menuList.find(m => m.id === id);
   document.getElementById('editNamaMenu').value = menu.nama;
   document.getElementById('editHargaMenu').value = menu.harga;
@@ -347,7 +365,7 @@ function bukaEditMenu(id) {
 }
 
 function simpanEditMenu() {
-  let menu = data.menuList.find(m => m.id === editTarget);
+  let menu = data.menuList.find(m => m.id === editTarget.id);
   menu.nama = document.getElementById('editNamaMenu').value.trim();
   menu.harga = parseFloat(document.getElementById('editHargaMenu').value);
   menu.kategori = document.getElementById('editKategoriMenu').value;
@@ -375,7 +393,15 @@ function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
   if (meja.items.length === 0) return alert("Meja kosong");
   let total = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
-  let bill = {waktu: new Date().toLocaleString('id-ID'), meja: meja.nama, items: meja.items, total};
+  let bill = {
+    waktu: new Date().toLocaleString('id-ID'),
+    waktuISO: new Date().toISOString(),
+    meja: meja.nama,
+    kasir: meja.kasir || '-',
+    waitress: meja.waitress || '-',
+    items: meja.items,
+    total
+  };
   data.laporan.push(bill); saveData();
   alert("Bill tersimpan!");
   meja.items = []; renderItems(id);
@@ -387,7 +413,14 @@ function renderLaporan() {
   let totalOmzet = 0;
   data.laporan.forEach(b => {
     totalOmzet += b.total;
-    tbody.innerHTML += `<tr><td>${b.waktu}</td><td>${b.meja}</td><td>${b.items.map(i => i.nama).join(', ')}</td><td>Rp${b.total.toLocaleString('id-ID')}</td></tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${b.waktu}</td>
+      <td>${b.meja}</td>
+      <td>${b.kasir || '-'}</td>
+      <td>${b.waitress || '-'}</td>
+      <td>${b.items.map(i => i.nama).join(', ')}</td>
+      <td>Rp${b.total.toLocaleString('id-ID')}</td>
+    </tr>`;
   });
   document.getElementById('ringkasanLaporan').innerHTML = `Total Transaksi: ${data.laporan.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
 }
@@ -403,14 +436,45 @@ function renderMejaTable() {
   let tbody = document.getElementById('tbodyMeja');
   tbody.innerHTML = '';
   data.mejaList.forEach(m => {
-    tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nama}</td><td>${m.kasir || '-'}</td><td>${m.waitress || '-'}</td>
-    <td><button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${m.id}</td>
+      <td>${m.nama}</td>
+      <td>${m.kasir || '-'}</td>
+      <td>${m.waitress || '-'}</td>
+      <td>
+        <button class="btn-warning" onclick="bukaEditMeja(${m.id})">Edit</button>
+        <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button>
+      </td>
+    </tr>`;
   });
 }
 
+function bukaEditMeja(id) {
+  editTarget = {type: 'meja', id};
+  let meja = data.mejaList.find(m => m.id === id);
+  document.getElementById('editNamaMeja').value = meja.nama;
+  document.getElementById('editKasirMeja').value = meja.kasir;
+  document.getElementById('editWaitressMeja').value = meja.waitress;
+  document.getElementById('modalEditMeja').classList.add('active');
+}
+
+function simpanEditMeja() {
+  let meja = data.mejaList.find(m => m.id === editTarget.id);
+  meja.nama = document.getElementById('editNamaMeja').value.trim();
+  meja.kasir = document.getElementById('editKasirMeja').value.trim();
+  meja.waitress = document.getElementById('editWaitressMeja').value.trim();
+  saveData();
+  renderMejaTable();
+  renderTabs();
+  renderMeja();
+  tutupModal('modalEditMeja');
+}
+
 function hapusMeja(id) {
-  data.mejaList = data.mejaList.filter(m => m.id!== id);
-  saveData(); renderMejaTable(); renderTabs(); renderMeja();
+  if(confirm('Hapus meja ini?')) {
+    data.mejaList = data.mejaList.filter(m => m.id!== id);
+    saveData(); renderMejaTable(); renderTabs(); renderMeja();
+  }
 }
 
 function tutupModal(id) {
