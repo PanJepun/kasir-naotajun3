@@ -382,17 +382,57 @@ function cetakStruk(id) {
   data.laporan.push(bill);
   saveData();
 
-  let struk = `================================\nKASIR NAOTAJUN3\n================================\nWaktu : ${waktu}\nMeja : ${meja.nama}\n--------------------------------\n`;
-  meja.items.forEach((item, i) => {
-    let nama = item.nama.padEnd(12, ' ');
-    let qty = String(item.qty).padStart(3, ' ');
-    let totalItem = String((item.harga * item.qty).toLocaleString('id-ID')).padStart(8, ' ');
-    struk += `${i+1}. ${nama} ${qty} Rp${totalItem}\n`;
-  });
-  struk += `--------------------------------\nTOTAL : Rp${total.toLocaleString('id-ID')}\n================================\nTerima Kasih :)`;
+  // Lebar struk 32 karakter biar pas kertas thermal 58mm
+  let lebar = 32;
+  
+  let padRight = (str, len) => str + ' '.repeat(Math.max(0, len - str.length));
+  let padLeft = (str, len) => ' '.repeat(Math.max(0, len - str.length)) + str;
+  let center = (str, len) => {
+    let pad = Math.max(0, len - str.length);
+    let left = Math.floor(pad / 2);
+    let right = pad - left;
+    return ' '.repeat(left) + str + ' '.repeat(right);
+  };
 
-  let printWindow = window.open('', '', 'height=600,width=400');
-  printWindow.document.write('<pre style="font-family:monospace; font-size:12px;">' + struk + '</pre>');
+  let line = '='.repeat(lebar);
+  let lineDash = '-'.repeat(lebar);
+
+  let struk = '';
+  struk += center('KASIR NAOTAJUN3', lebar) + '\n';
+  struk += line + '\n';
+  struk += padRight('Waktu : ' + waktu, lebar) + '\n';
+  struk += padRight('Meja : ' + meja.nama, lebar) + '\n';
+  struk += lineDash + '\n';
+
+  meja.items.forEach((item, i) => {
+    let nama = item.nama.length > 18 ? item.nama.substring(0, 18) : item.nama;
+    let qty = String(item.qty);
+    let hargaTotal = 'Rp' + (item.harga * item.qty).toLocaleString('id-ID');
+    
+    // Baris 1: No. Nama
+    struk += `${i+1}. ${nama}\n`;
+    // Baris 2: Qty dan harga rata kanan
+    struk += padRight('   ' + qty + 'x Rp' + item.harga.toLocaleString('id-ID'), lebar - hargaTotal.length) + hargaTotal + '\n';
+  });
+
+  struk += lineDash + '\n';
+  struk += padRight('Subtotal', lebar - 12) + padLeft('Rp' + subtotal.toLocaleString('id-ID'), 12) + '\n';
+  
+  if(meja.diskonPersen > 0) {
+    struk += padRight('Diskon ' + meja.diskonPersen + '%', lebar - 12) + padLeft('-Rp' + diskonRp.toLocaleString('id-ID'), 12) + '\n';
+  }
+  
+  if(meja.ppnPersen > 0) {
+    struk += padRight('PPN ' + meja.ppnPersen + '%', lebar - 12) + padLeft('Rp' + ppnRp.toLocaleString('id-ID'), 12) + '\n';
+  }
+  
+  struk += lineDash + '\n';
+  struk += padRight('TOTAL', lebar - 15) + padLeft('Rp' + total.toLocaleString('id-ID'), 15) + '\n';
+  struk += line + '\n';
+  struk += center('Terima Kasih :)', lebar) + '\n';
+
+  let printWindow = window.open('', '', 'height=600,width=300');
+  printWindow.document.write('<pre style="font-family:monospace; font-size:12px; line-height:1.2; margin:0;">' + struk + '</pre>');
   printWindow.document.close();
   printWindow.print();
 }
