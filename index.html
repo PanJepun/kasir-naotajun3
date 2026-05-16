@@ -9,21 +9,15 @@
     --primary: #4CAF50; --danger: #f44336; --warning: #ff9800; --dark: #333;
     --bg: #f5f5f5; --card: #ffffff; --text: #333; --border: #ddd; --info-bg: #e8f5e9;
   }
-  [data-theme="pink"] { --primary: #e91e63; --dark: #880e4f; --bg: #fce4ec; }
-  [data-theme="black"] { --primary: #4CAF50; --dark: #000; --bg: #121212; --card: #1e1e1e; --text: #ffffff; --border: #333; }
   [data-theme="green"] { --primary: #2e7d32; --dark: #1b5e20; --bg: #e8f5e9; --card: #ffffff; --text: #1b5e20; --border: #a5d6a7; }
-  [data-theme="brown"] { --primary: #8d6e63; --dark: #3e2723; --bg: #efebe9; --card: #ffffff; --text: #3e2723; }
-  [data-theme="blue"] { --primary: #2196F3; --dark: #0d47a1; --bg: #e3f2fd; --card: #ffffff; --text: #0d47a1; }
 
     * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); transition: 0.3s; }
+  body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
 .navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
 .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
 .navbar button.active,.navbar button:hover { background: var(--primary); }
-.theme-switcher { margin-left: auto; display: flex; gap: 5px; align-items: center; }
-.theme-btn { width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
 
-.container { max-width: 1100px; margin: 20px auto; background: var(--card); padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.container { max-width: 1100px; margin: 20px auto; background: var(--card); padding: 20px; border-radius: 10px; }
   h2 { text-align: center; margin-top: 0; }
 .page { display: none; }
 .page.active { display: block; }
@@ -34,23 +28,21 @@
 .meja.active { display: block; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+  th, td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: middle; }
   th { background: var(--border); }
-  input, select, button, textarea { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+  input, select, button { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid var(--border); }
   button { background: var(--primary); color: white; border: none; cursor: pointer; }
-  button:hover { opacity: 0.9; }
 .btn-danger { background: var(--danger); }
 .btn-warning { background: var(--warning); }
-.summary { margin-top: 15px; padding: 10px; background: var(--info-bg); border-radius: 5px; }
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
-.modal.active { display: flex; justify-content: center; align-items: center; }
-.modal-content { background: var(--card); padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+
+.menu-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+.menu-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin-top: 5px; display: none; }
+.filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; }
 .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
 .badge.food { background: #2196F3; }
 .badge.beverage { background: #9C27B0; }
 .badge.snack { background: #ff9800; }
-.filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.info-meja { background: var(--info-bg); padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
 </head>
 <body data-theme="green">
@@ -60,15 +52,6 @@
   <button class="navbtn" onclick="showPage('meja', event)">Meja</button>
   <button class="navbtn" onclick="showPage('menu', event)">Menu</button>
   <button class="navbtn" onclick="showPage('laporan', event)">Laporan</button>
-  <button class="navbtn" onclick="showPage('backup', event)">Backup</button>
-  <div class="theme-switcher">
-    <span style="color:white; font-size:12px;">Tema:</span>
-    <button class="theme-btn" style="background:#e91e63" onclick="setTheme('pink')"></button>
-    <button class="theme-btn" style="background:#000" onclick="setTheme('black')"></button>
-    <button class="theme-btn" style="background:#2e7d32" onclick="setTheme('green')"></button>
-    <button class="theme-btn" style="background:#8d6e63" onclick="setTheme('brown')"></button>
-    <button class="theme-btn" style="background:#2196F3" onclick="setTheme('blue')"></button>
-  </div>
 </div>
 
 <div class="container">
@@ -92,6 +75,7 @@
 
   <div id="menu" class="page">
     <h2>Manajemen Menu</h2>
+    <small style="color:#d32f2f;">⚠️ Maks 10 menu dengan foto. Foto otomatis dikompres biar nggak lemot.</small>
     <div class="filter-bar">
       <input type="text" id="namaMenu" placeholder="Nama Menu">
       <input type="number" id="hargaMenu" placeholder="Harga" min="0">
@@ -100,16 +84,13 @@
         <option value="Beverage">Beverage</option>
         <option value="Snack">Snack</option>
       </select>
+      <input type="file" id="fotoMenu" accept="image/*" onchange="previewFoto(this, 'previewMenu')">
       <button onclick="tambahMenu()">Tambah Menu</button>
     </div>
-    <div class="filter-bar">
-      <button onclick="filterMenu('All')">All</button>
-      <button onclick="filterMenu('Food')">Food</button>
-      <button onclick="filterMenu('Beverage')">Beverage</button>
-      <button onclick="filterMenu('Snack')">Snack</button>
-    </div>
+    <img id="previewMenu" class="menu-preview">
+
     <table>
-      <thead><tr><th>Menu</th><th>Kategori</th><th>Harga</th><th>Aksi</th></tr></thead>
+      <thead><tr><th>Foto</th><th>Menu</th><th>Kategori</th><th>Harga</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyMenu"></tbody>
     </table>
   </div>
@@ -120,55 +101,75 @@
       <label>Dari:</label><input type="date" id="tglDari">
       <label>Sampai:</label><input type="date" id="tglSampai">
       <button onclick="filterLaporan()">Tampilkan</button>
-      <button class="btn-danger" onclick="hapusLaporan()">Hapus Data Periode</button>
-      <button onclick="exportLaporanCSV()">Export CSV</button>
     </div>
     <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
     <table>
-      <thead><tr><th>Waktu</th><th>Meja</th><th>Kasir</th><th>Waitress</th><th>Item</th><th>Total</th></tr></thead>
+      <thead><tr><th>Waktu</th><th>Meja</th><th>Item</th><th>Total</th></tr></thead>
       <tbody id="tbodyLaporan"></tbody>
     </table>
   </div>
-
-  <div id="backup" class="page">
-    <h2>Backup & Restore</h2>
-    <button onclick="exportData()">Export Data</button>
-    <button onclick="document.getElementById('fileImport').click()">Import Data</button>
-    <input type="file" id="fileImport" style="display:none" accept=".json" onchange="importData(event)">
-    <textarea id="backupArea" rows="12" style="width:100%; margin-top:10px;" readonly></textarea>
-  </div>
 </div>
-
-<div id="modalEditItem" class="modal"><div class="modal-content"><h3>Edit Item</h3><input type="text" id="editNamaItem"><input type="number" id="editHargaItem"><input type="number" id="editQtyItem"><button onclick="simpanEditItem()">Simpan</button><button class="btn-danger" onclick="tutupModal('modalEditItem')">Batal</button></div></div>
-<div id="modalEditMeja" class="modal"><div class="modal-content"><h3>Edit Meja</h3><input type="text" id="editNamaMeja" placeholder="Nama Meja"><input type="text" id="editKasirMeja" placeholder="Nama Kasir"><input type="text" id="editWaitressMeja" placeholder="Nama Waitress"><button onclick="simpanEditMeja()">Simpan</button><button class="btn-danger" onclick="tutupModal('modalEditMeja')">Batal</button></div></div>
-<div id="modalEditMenu" class="modal"><div class="modal-content"><h3>Edit Menu</h3><input type="text" id="editNamaMenu"><input type="number" id="editHargaMenu"><select id="editKategoriMenu"><option value="Food">Food</option><option value="Beverage">Beverage</option><option value="Snack">Snack</option></select><button onclick="simpanEditMenu()">Simpan</button><button class="btn-danger" onclick="tutupModal('modalEditMenu')">Batal</button></div></div>
 
 <script>
 let data = {
-  mejaList: [
-    {id: 1, nama: "Meja 1", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10},
-    {id: 2, nama: "Meja 2", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10},
-    {id: 3, nama: "Meja 3", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10}
-  ],
-  menuList: [
-    {id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food"},
-    {id: 2, nama: "Mie Goreng", harga: 13000, kategori: "Food"},
-    {id: 3, nama: "Es Teh", harga: 5000, kategori: "Beverage"},
-    {id: 4, nama: "Es Jeruk", harga: 7000, kategori: "Beverage"}
-  ],
-  laporan: [],
-  tema: "green"
+  mejaList: [{id: 1, nama: "Meja 1", kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10}],
+  menuList: [{id: 1, nama: "Nasi Goreng", harga: 15000, kategori: "Food", foto: ""}],
+  laporan: []
 };
-let editTarget = null;
-let filterKategori = 'All';
 
 function loadData() {
   let saved = localStorage.getItem('kasirWarungMade');
-  if(saved) data = JSON.parse(saved);
-  setTheme(data.tema || 'green');
+  if(saved) {
+    try { data = JSON.parse(saved); } catch(e) { localStorage.clear(); }
+  }
 }
-function saveData() { localStorage.setItem('kasirWarungMade', JSON.stringify(data)); }
-function setTheme(theme) { document.body.setAttribute('data-theme', theme); data.tema = theme; saveData(); }
+function saveData() {
+  try {
+    localStorage.setItem('kasirWarungMade', JSON.stringify(data));
+  } catch(e) {
+    alert("Storage penuh! Hapus beberapa menu dengan foto.");
+  }
+}
+
+function compressImage(file, callback) {
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    let img = new Image();
+    img.onload = function() {
+      let canvas = document.createElement('canvas');
+      let ctx = canvas.getContext('2d');
+      let maxSize = 600;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+      } else {
+        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+      }
+      canvas.width = width; canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+let fotoTemp = '';
+function previewFoto(input, previewId) {
+  let file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) {
+    alert("Foto maksimal 3MB");
+    input.value = '';
+    return;
+  }
+  compressImage(file, function(compressed) {
+    fotoTemp = compressed;
+    document.getElementById(previewId).src = fotoTemp;
+    document.getElementById(previewId).style.display = 'block';
+  });
+}
 
 function showPage(pageId, event) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -178,7 +179,6 @@ function showPage(pageId, event) {
   if(pageId === 'meja') renderMejaTable();
   if(pageId === 'menu') renderMenuTable();
   if(pageId === 'laporan') renderLaporan();
-  if(pageId === 'backup') document.getElementById('backupArea').value = JSON.stringify(data, null, 2);
 }
 
 function init() {
@@ -204,8 +204,7 @@ function showTab(id) {
     el.classList.toggle('active', data.mejaList[i].id === id);
   });
   document.querySelectorAll('.meja').forEach(el => el.classList.remove('active'));
-  let target = document.getElementById('meja' + id);
-  if(target) target.classList.add('active');
+  document.getElementById('meja' + id)?.classList.add('active');
 }
 
 function renderMeja() {
@@ -220,20 +219,16 @@ function renderMeja() {
       optionMenu += `<option value="${m.id}">${m.nama} - Rp${m.harga.toLocaleString('id-ID')}</option>`;
     });
     div.innerHTML = `
-      <div class="info-meja"><b>${meja.nama}</b> | Kasir: ${meja.kasir || '-'} | Waitress: ${meja.waitress || '-'}
-      <button class="btn-warning" onclick="bukaEditMeja(${meja.id})">Edit</button></div>
+      <div class="info-meja"><b>${meja.nama}</b></div>
       <select id="selectMenu${meja.id}" onchange="pilihMenu(${meja.id})">${optionMenu}</select>
-      <input type="text" id="nama${meja.id}" placeholder="Nama Menu" readonly>
-      <input type="number" id="harga${meja.id}" placeholder="Harga" readonly>
-      <input type="number" id="qty${meja.id}" placeholder="Qty" value="1" min="1">
+      <input type="text" id="nama${meja.id}" readonly>
+      <input type="number" id="harga${meja.id}" readonly>
+      <input type="number" id="qty${meja.id}" value="1" min="1">
       <button onclick="tambahItem(${meja.id})">Tambah</button>
       <table><thead><tr><th>Menu</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead>
       <tbody id="tbody${meja.id}"></tbody></table>
-      <div class="summary">Diskon %: <input type="number" id="diskon${meja.id}" value="${meja.diskonPersen}" onchange="updateDiskon(${meja.id})" min="0" max="100">
-      PPN %: <input type="number" id="ppn${meja.id}" value="${meja.ppnPersen}" onchange="updatePPN(${meja.id})" min="0" max="100">
       <div id="total${meja.id}"></div>
-      <button onclick="cetakStruk(${meja.id})">Cetak & Simpan Bill</button>
-      <button class="btn-danger" onclick="resetMeja(${meja.id})">Reset Meja</button></div>`;
+      <button onclick="cetakStruk(${meja.id})">Cetak Bill</button>`;
     container.appendChild(div);
     renderItems(meja.id);
   });
@@ -241,7 +236,7 @@ function renderMeja() {
 
 function pilihMenu(mejaId) {
   let menuId = document.getElementById('selectMenu' + mejaId).value;
-  if(!menuId) { document.getElementById('nama' + mejaId).value = ''; document.getElementById('harga' + mejaId).value = ''; return; }
+  if(!menuId) return;
   let menu = data.menuList.find(m => m.id == menuId);
   document.getElementById('nama' + mejaId).value = menu.nama;
   document.getElementById('harga' + mejaId).value = menu.harga;
@@ -252,14 +247,10 @@ function tambahItem(id) {
   let nama = document.getElementById('nama' + id).value;
   let harga = parseFloat(document.getElementById('harga' + id).value);
   let qty = parseInt(document.getElementById('qty' + id).value);
-  if(!nama || isNaN(harga) || isNaN(qty) || qty <= 0) return alert('Pilih menu dan isi qty dengan benar');
+  if(!nama) return;
   let existing = meja.items.find(i => i.nama === nama);
   if(existing) existing.qty += qty; else meja.items.push({nama, harga, qty});
   saveData(); renderItems(id);
-  document.getElementById('selectMenu' + id).value = '';
-  document.getElementById('nama' + id).value = '';
-  document.getElementById('harga' + id).value = '';
-  document.getElementById('qty' + id).value = '1';
 }
 
 function renderItems(id) {
@@ -271,64 +262,44 @@ function renderItems(id) {
     let sub = item.harga * item.qty;
     subtotal += sub;
     tbody.innerHTML += `<tr><td>${item.nama}</td><td>Rp${item.harga.toLocaleString('id-ID')}</td><td>${item.qty}</td><td>Rp${sub.toLocaleString('id-ID')}</td>
-    <td><button class="btn-warning" onclick="bukaEditItem(${id}, ${i})">Edit</button>
-    <button class="btn-danger" onclick="hapusItem(${id}, ${i})">Hapus</button></td></tr>`;
+    <td><button class="btn-danger" onclick="hapusItem(${id}, ${i})">Hapus</button></td></tr>`;
   });
-  hitungTotal(id, subtotal);
+  document.getElementById('total' + id).innerHTML = `<b>TOTAL: Rp${subtotal.toLocaleString('id-ID')}</b>`;
 }
 
 function tambahMenu() {
+  if(data.menuList.filter(m => m.foto).length >= 10) {
+    alert("Maksimal 10 menu dengan foto. Hapus dulu menu lama.");
+    return;
+  }
   let nama = document.getElementById('namaMenu').value.trim();
   let harga = parseFloat(document.getElementById('hargaMenu').value);
   let kategori = document.getElementById('kategoriMenu').value;
-  if(!nama || isNaN(harga) || harga <= 0) return alert('Isi nama dan harga dengan benar');
-  let idBaru = data.menuList.length? Math.max(...data.menuList.map(m=>m.id)) + 1 : 1;
-  data.menuList.push({id: idBaru, nama, harga, kategori});
+  if(!nama || isNaN(harga)) return alert('Isi nama dan harga');
+  let idBaru = Date.now();
+  data.menuList.push({id: idBaru, nama, harga, kategori, foto: fotoTemp});
   saveData();
   document.getElementById('namaMenu').value = '';
   document.getElementById('hargaMenu').value = '';
+  document.getElementById('fotoMenu').value = '';
+  document.getElementById('previewMenu').style.display = 'none';
+  fotoTemp = '';
   renderMenuTable();
   renderMeja();
-}
-
-function filterMenu(kategori) {
-  filterKategori = kategori;
-  renderMenuTable();
 }
 
 function renderMenuTable() {
   let tbody = document.getElementById('tbodyMenu');
   tbody.innerHTML = '';
-  let list = filterKategori === 'All'? data.menuList : data.menuList.filter(m => m.kategori === filterKategori);
-  list.forEach(m => {
-    let badgeClass = m.kategori.toLowerCase();
+  data.menuList.forEach(m => {
+    let img = m.foto? `<img src="${m.foto}" class="menu-img">` : '-';
     tbody.innerHTML += `<tr>
+    <td>${img}</td>
     <td>${m.nama}</td>
-    <td><span class="badge ${badgeClass}">${m.kategori}</span></td>
+    <td><span class="badge ${m.kategori.toLowerCase()}">${m.kategori}</span></td>
     <td>Rp${m.harga.toLocaleString('id-ID')}</td>
-    <td><button class="btn-warning" onclick="bukaEditMenu(${m.id})">Edit</button>
-    <button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td></tr>`;
+    <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td></tr>`;
   });
-}
-
-function bukaEditMenu(id) {
-  editTarget = {type: 'menu', id};
-  let menu = data.menuList.find(m => m.id === id);
-  document.getElementById('editNamaMenu').value = menu.nama;
-  document.getElementById('editHargaMenu').value = menu.harga;
-  document.getElementById('editKategoriMenu').value = menu.kategori;
-  document.getElementById('modalEditMenu').classList.add('active');
-}
-
-function simpanEditMenu() {
-  let menu = data.menuList.find(m => m.id === editTarget.id);
-  menu.nama = document.getElementById('editNamaMenu').value.trim();
-  menu.harga = parseFloat(document.getElementById('editHargaMenu').value);
-  menu.kategori = document.getElementById('editKategoriMenu').value;
-  saveData();
-  renderMenuTable();
-  renderMeja();
-  tutupModal('modalEditMenu');
 }
 
 function hapusMenu(id) {
@@ -338,194 +309,51 @@ function hapusMenu(id) {
   }
 }
 
-function bukaEditItem(mejaId, itemIndex) {
-  editTarget = {type: 'item', mejaId, itemIndex};
-  let item = data.mejaList.find(m => m.id === mejaId).items[itemIndex];
-  document.getElementById('editNamaItem').value = item.nama;
-  document.getElementById('editHargaItem').value = item.harga;
-  document.getElementById('editQtyItem').value = item.qty;
-  document.getElementById('modalEditItem').classList.add('active');
-}
-function simpanEditItem() {
-  let item = data.mejaList.find(m => m.id === editTarget.mejaId).items[editTarget.itemIndex];
-  item.nama = document.getElementById('editNamaItem').value;
-  item.harga = parseFloat(document.getElementById('editHargaItem').value);
-  item.qty = parseInt(document.getElementById('editQtyItem').value);
-  if(item.qty <= 0) return alert('Qty harus > 0');
-  saveData(); renderItems(editTarget.mejaId); tutupModal('modalEditItem');
-}
 function hapusItem(id, index) {
-  if(confirm('Hapus item ini?')) {
-    data.mejaList.find(m => m.id === id).items.splice(index, 1);
-    saveData(); renderItems(id);
-  }
-}
-function updateDiskon(id) {
-  let val = parseFloat(document.getElementById('diskon' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).diskonPersen = Math.min(100, Math.max(0, val));
+  data.mejaList.find(m => m.id === id).items.splice(index, 1);
   saveData(); renderItems(id);
 }
-function updatePPN(id) {
-  let val = parseFloat(document.getElementById('ppn' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).ppnPersen = Math.min(100, Math.max(0, val));
-  saveData(); renderItems(id);
-}
-function hitungTotal(id, subtotal) {
-  let meja = data.mejaList.find(m => m.id === id);
-  let diskonRp = subtotal * (meja.diskonPersen / 100);
-  let setelahDiskon = subtotal - diskonRp;
-  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
-  let total = setelahDiskon + ppnRp;
-  document.getElementById('total' + id).innerHTML = `Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
-  Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
-  <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>`;
-}
+
 function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
-  if (meja.items.length === 0) return alert("Meja masih kosong");
-  let subtotal = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
-  let diskonRp = subtotal * (meja.diskonPersen / 100);
-  let setelahDiskon = subtotal - diskonRp;
-  let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
-  let total = setelahDiskon + ppnRp;
-  let waktu = new Date().toLocaleString('id-ID');
-  let waktuISO = new Date().toISOString();
-  let bill = {waktu, waktuISO, meja: meja.nama, kasir: meja.kasir || '-', waitress: meja.waitress || '-', items: JSON.parse(JSON.stringify(meja.items)), total};
+  if (meja.items.length === 0) return alert("Meja kosong");
+  let total = meja.items.reduce((a, b) => a + b.harga * b.qty, 0);
+  let bill = {waktu: new Date().toLocaleString('id-ID'), meja: meja.nama, items: meja.items, total};
   data.laporan.push(bill); saveData();
-  let printWindow = window.open('', '', 'height=600,width=300');
-  printWindow.document.write('<pre style="font-family:monospace;">' + JSON.stringify(bill, null, 2) + '</pre>');
-  printWindow.print();
+  alert("Bill tersimpan!");
   meja.items = []; renderItems(id);
 }
-function resetMeja(id) {
-  if(confirm('Reset meja ini?')) {
-    data.mejaList.find(m => m.id === id).items = [];
-    saveData(); renderItems(id);
-  }
+
+function renderLaporan() {
+  let tbody = document.getElementById('tbodyLaporan');
+  tbody.innerHTML = '';
+  let totalOmzet = 0;
+  data.laporan.forEach(b => {
+    totalOmzet += b.total;
+    tbody.innerHTML += `<tr><td>${b.waktu}</td><td>${b.meja}</td><td>${b.items.map(i => i.nama).join(', ')}</td><td>Rp${b.total.toLocaleString('id-ID')}</td></tr>`;
+  });
+  document.getElementById('ringkasanLaporan').innerHTML = `Total Transaksi: ${data.laporan.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
 }
+
 function tambahMeja() {
   let nama = document.getElementById('namaMejaBaru').value.trim();
-  if(!nama) return alert('Isi nama meja');
-  let idBaru = data.mejaList.length? Math.max(...data.mejaList.map(m=>m.id)) + 1 : 1;
-  data.mejaList.push({id: idBaru, nama, kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10});
-  saveData(); document.getElementById('namaMejaBaru').value = '';
-  renderMejaTable(); renderTabs(); renderMeja();
+  if(!nama) return;
+  data.mejaList.push({id: Date.now(), nama, kasir: "", waitress: "", items: [], diskonPersen: 0, ppnPersen: 10});
+  saveData(); renderMejaTable(); renderTabs(); renderMeja();
 }
+
 function renderMejaTable() {
   let tbody = document.getElementById('tbodyMeja');
   tbody.innerHTML = '';
   data.mejaList.forEach(m => {
     tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nama}</td><td>${m.kasir || '-'}</td><td>${m.waitress || '-'}</td>
-    <td><button class="btn-warning" onclick="bukaEditMeja(${m.id})">Edit</button>
-    <button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
+    <td><button class="btn-danger" onclick="hapusMeja(${m.id})">Hapus</button></td></tr>`;
   });
 }
-function bukaEditMeja(id) {
-  editTarget = {type: 'meja', id};
-  let meja = data.mejaList.find(m => m.id === id);
-  document.getElementById('editNamaMeja').value = meja.nama;
-  document.getElementById('editKasirMeja').value = meja.kasir;
-  document.getElementById('editWaitressMeja').value = meja.waitress;
-  document.getElementById('modalEditMeja').classList.add('active');
-}
-function simpanEditMeja() {
-  let meja = data.mejaList.find(m => m.id === editTarget.id);
-  meja.nama = document.getElementById('editNamaMeja').value.trim();
-  meja.kasir = document.getElementById('editKasirMeja').value.trim();
-  meja.waitress = document.getElementById('editWaitressMeja').value.trim();
-  saveData(); renderMejaTable(); renderTabs(); renderMeja(); tutupModal('modalEditMeja');
-}
+
 function hapusMeja(id) {
-  if(confirm('Hapus meja ini?')) {
-    data.mejaList = data.mejaList.filter(m => m.id!== id);
-    saveData(); renderMejaTable(); renderTabs(); renderMeja();
-  }
-}
-function renderLaporan() {
-  let today = new Date().toISOString().split('T')[0];
-  document.getElementById('tglDari').value = today;
-  document.getElementById('tglSampai').value = today;
-  filterLaporan();
-}
-function filterLaporan() {
-  let dari = document.getElementById('tglDari').value;
-  let sampai = document.getElementById('tglSampai').value;
-  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
-  let dariDate = new Date(dari + 'T00:00:00');
-  let sampaiDate = new Date(sampai + 'T23:59:59');
-  let dataFilter = data.laporan.filter(b => {
-    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
-    return tglBill >= dariDate && tglBill <= sampaiDate;
-  });
-  let tbody = document.getElementById('tbodyLaporan');
-  tbody.innerHTML = '';
-  let totalOmzet = 0;
-  dataFilter.forEach(b => {
-    totalOmzet += b.total;
-    let items = b.items.map(i => `${i.nama} (${i.qty})`).join(', ');
-    tbody.innerHTML += `<tr><td>${b.waktu}</td><td>${b.meja}</td><td>${b.kasir || '-'}</td><td>${b.waitress || '-'}</td><td>${items}</td><td>Rp${b.total.toLocaleString('id-ID')}</td></tr>`;
-  });
-  document.getElementById('ringkasanLaporan').innerHTML = `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
-}
-function hapusLaporan() {
-  let dari = document.getElementById('tglDari').value;
-  let sampai = document.getElementById('tglSampai').value;
-  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
-  if(!confirm(`Hapus semua transaksi dari ${dari} sampai ${sampai}?`)) return;
-  let dariDate = new Date(dari + 'T00:00:00');
-  let sampaiDate = new Date(sampai + 'T23:59:59');
-  data.laporan = data.laporan.filter(b => {
-    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
-    return!(tglBill >= dariDate && tglBill <= sampaiDate);
-  });
-  saveData(); filterLaporan(); alert('Data periode tersebut dihapus');
-}
-function exportLaporanCSV() {
-  let dari = document.getElementById('tglDari').value;
-  let sampai = document.getElementById('tglSampai').value;
-  if(!dari ||!sampai) return alert('Pilih tanggal dulu');
-  let dariDate = new Date(dari + 'T00:00:00');
-  let sampaiDate = new Date(sampai + 'T23:59:59');
-  let dataFilter = data.laporan.filter(b => {
-    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
-    return tglBill >= dariDate && tglBill <= sampaiDate;
-  });
-  if(dataFilter.length === 0) return alert('Tidak ada data di periode ini');
-  let csv = 'Waktu,Meja,Kasir,Waitress,Items,Total\n';
-  dataFilter.forEach(b => {
-    let items = b.items.map(i => `${i.nama} x${i.qty}`).join('; ');
-    csv += `"${b.waktu}","${b.meja}","${b.kasir}","${b.waitress}","${items}",${b.total}\n`;
-  });
-  let blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `laporan_${dari}_smp_${sampai}.csv`;
-  a.click();
-}
-
-function exportData() {
-  let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'backup_kasir.json';
-  a.click();
-}
-
-function importData(event) {
-  let file = event.target.files[0];
-  let reader = new FileReader();
-  reader.onload = e => {
-    try {
-      data = JSON.parse(e.target.result);
-      saveData(); alert('Data berhasil diimport'); location.reload();
-    } catch { alert('File backup rusak'); }
-  };
-  reader.readAsText(file);
-}
-
-function tutupModal(id) {
-  document.getElementById(id).classList.remove('active');
-  editTarget = null;
+  data.mejaList = data.mejaList.filter(m => m.id!== id);
+  saveData(); renderMejaTable(); renderTabs(); renderMeja();
 }
 
 loadData();
