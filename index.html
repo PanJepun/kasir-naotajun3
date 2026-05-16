@@ -7,16 +7,16 @@
 <style>
     * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-  header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+  header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
   header h1 { margin: 0; font-size: 18px; }
-.btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.btn-sm { padding: 4px 8px; font-size: 12px; }
 .btn-danger { background: #ef4444; color: white; }
 .btn-secondary { background: #6b7280; color: white; }
 .btn-primary { background: #2563eb; color: white; }
 .btn-success { background: #16a34a; color: white; }
 .btn-warning { background: #f59e0b; color: white; }
-.btn-sm { padding: 4px 8px; font-size: 12px; }
-.container { padding: 20px; max-width: 900px; margin: auto; }
+.container { padding: 20px; max-width: 1100px; margin: auto; }
 .card { background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   input, select, button { padding: 8px; margin: 4px 4px 4px 0; border: 1px solid #ccc; border-radius: 6px; }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
@@ -25,10 +25,10 @@
 .login-box { max-width: 400px; margin: 100px auto; }
 .hidden { display: none!important; }
 .user-info { font-size: 13px; opacity: 0.9; }
- table { width: 100%; border-collapse: collapse; }
- th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
- th { background: #f9fafb; font-weight: 600; }
- tr:hover { background: #f9fafb; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #f9fafb; font-weight: 600; }
+  tr:hover { background: #f9fafb; }
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
 </style>
@@ -45,7 +45,8 @@
     <p style="font-size:12px; color:#666; margin-top:15px;">
       <b>Demo Account:</b><br>
       Supervisor: admin / admin123<br>
-      User: kasir / kasir123
+      Kasir: kasir / kasir123<br>
+      Waitress: waitress / waitress123
     </p>
   </div>
 </div>
@@ -86,12 +87,7 @@
         <h3>Daftar Menu</h3>
         <table id="menuTable">
           <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Menu</th>
-              <th>Harga</th>
-              <th>Aksi</th>
-            </tr>
+            <tr><th>No</th><th>Nama Menu</th><th>Harga</th><th>Aksi</th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -101,26 +97,87 @@
     <!-- Section Kasir -->
     <div id="section-kasir" class="hidden">
       <div class="card">
-        <h3>Halaman Kasir</h3>
+        <h3>Pilih Meja</h3>
+        <select id="pilihMeja" style="width:100%;">
+          <option value="">-- Pilih Meja --</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h3>Menu</h3>
         <div id="kasirMenuList" class="menu-grid">Belum ada menu</div>
+      </div>
+
+      <div class="card">
+        <h3>Keranjang</h3>
+        <div id="keranjangList">Keranjang kosong</div>
+
+        <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+          <div style="display:flex; justify-content:space-between;">
+            <span>Subtotal:</span>
+            <span>Rp <span id="subtotalHarga">0</span></span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>Diskon (%):</span>
+            <input type="number" id="diskon" value="0" min="0" max="100" style="width:80px; text-align:right;" oninput="hitungBill()">
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>PPN (11%):</span>
+            <span>Rp <span id="ppnHarga">0</span></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; margin-top:10px;">
+            <span>Total Bayar:</span>
+            <span>Rp <span id="totalHarga">0</span></span>
+          </div>
+
+          <div style="text-align:right; margin-top:15px;">
+            <button class="btn btn-success" onclick="bayar()">Bayar</button>
+            <button class="btn btn-secondary" onclick="clearKeranjang()">Batal</button>
+            <button class="btn btn-primary" onclick="printBill()">Cetak Bill</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Section Meja -->
     <div id="section-meja" class="hidden">
       <div class="card">
-        <h3>Kelola Meja</h3>
+        <h3>Tambah Meja</h3>
         <input type="text" id="namaMeja" placeholder="Nama Meja">
         <button class="btn btn-primary" onclick="tambahMeja()">Tambah Meja</button>
-        <div id="listMeja" style="margin-top:10px;"></div>
+      </div>
+      <div class="card">
+        <h3>Daftar Meja</h3>
+        <div id="listMeja"></div>
       </div>
     </div>
 
     <!-- Section Laporan -->
     <div id="section-laporan" class="hidden">
       <div class="card">
-        <h3>Laporan Penjualan</h3>
-        <p>Belum ada transaksi</p>
+        <h3>Filter Laporan</h3>
+        <input type="date" id="filterTanggal" onchange="renderLaporan()">
+        <button class="btn btn-secondary" onclick="resetFilter()">Reset</button>
+        <button class="btn btn-primary" onclick="printLaporan()">Cetak Laporan</button>
+      </div>
+
+      <div class="card">
+        <h3>Ringkasan</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center;">
+          <div><div style="font-size:12px; color:#666;">Total Transaksi</div><div style="font-size:22px; font-weight:bold;" id="totalTransaksi">0</div></div>
+          <div><div style="font-size:12px; color:#666;">Total Penjualan</div><div style="font-size:22px; font-weight:bold;" id="totalPenjualan">Rp 0</div></div>
+          <div><div style="font-size:12px; color:#666;">Total PPN</div><div style="font-size:22px; font-weight:bold;" id="totalPPN">Rp 0</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Daftar Transaksi</h3>
+        <table id="laporanTable">
+          <thead>
+            <tr><th>Waktu</th><th>No Bill</th><th>Meja</th><th>Kasir</th><th>Subtotal</th><th>Diskon</th><th>PPN</th><th>Total</th><th>Aksi</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
@@ -132,6 +189,8 @@
         <input type="text" id="newNama" placeholder="Nama Lengkap">
         <input type="password" id="newPassword" placeholder="Password">
         <select id="newRole">
+          <option value="kasir">Kasir</option>
+          <option value="waitress">Waitress</option>
           <option value="user">User</option>
           <option value="supervisor">Supervisor</option>
         </select>
@@ -141,14 +200,7 @@
       <div class="card">
         <h3>Daftar User</h3>
         <table id="userTable">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Nama</th>
-              <th>Role</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Aksi</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -179,17 +231,24 @@ const SESSION_KEY = 'kasirWarungMade_session';
 
 let data = { menuList: [], mejaList: [], transaksi: [] };
 let currentUser = null;
+let keranjang = [];
+let mejaAktif = null;
+let subtotal = 0, ppn = 0, total = 0;
+const PPN_RATE = 0.11;
 
+// Init default users
 function initUsers() {
   if (!localStorage.getItem(USER_KEY)) {
     const defaultUsers = [
       { username: 'admin', password: 'admin123', role: 'supervisor', nama: 'Supervisor' },
-      { username: 'kasir', password: 'kasir123', role: 'user', nama: 'Kasir' }
+      { username: 'kasir', password: 'kasir123', role: 'kasir', nama: 'Kasir' },
+      { username: 'waitress', password: 'waitress123', role: 'waitress', nama: 'Waitress' }
     ];
     localStorage.setItem(USER_KEY, JSON.stringify(defaultUsers));
   }
 }
 
+// Session
 function checkSession() {
   initUsers();
   const session = localStorage.getItem(SESSION_KEY);
@@ -219,7 +278,6 @@ function login() {
   const password = document.getElementById('password').value.trim();
   const users = JSON.parse(localStorage.getItem(USER_KEY));
   const user = users.find(u => u.username === username && u.password === password);
-
   if (!user) return alert('Username atau password salah');
   currentUser = user;
   localStorage.setItem(SESSION_KEY, JSON.stringify(user));
@@ -232,6 +290,7 @@ function logout() {
   location.reload();
 }
 
+// Menu Buttons by Role
 function renderMenuButtons() {
   const menuDiv = document.getElementById('menuButtons');
   let html = '';
@@ -244,78 +303,22 @@ function renderMenuButtons() {
       <button class="btn btn-primary nav-btn" onclick="showSection('laporan')">📊 Laporan</button>
       <button class="btn btn-warning nav-btn" onclick="showSection('user')">👤 Kelola User</button>
     `;
-  } else {
+  } else if (currentUser.role === 'kasir') {
     html = `
       <button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>
       <button class="btn btn-primary nav-btn" onclick="showSection('laporan')">📊 Laporan</button>
     `;
+  } else if (currentUser.role === 'waitress') {
+    html = `
+      <button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Order</button>
+      <button class="btn btn-primary nav-btn" onclick="showSection('meja')">🪑 Status Meja</button>
+    `;
+  } else {
+    html = `<button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>`;
   }
 
   menuDiv.innerHTML = html;
   showSection(currentUser.role === 'supervisor'? 'menu' : 'kasir');
-}
-
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try { data = JSON.parse(saved); }
-    catch(e) { data = { menuList: [], mejaList: [], transaksi: [] }; }
-  }
-  renderMenuTable();
-  renderMeja();
-  renderKasirMenu();
-  renderUserTable();
-  checkBackupButton();
-}
-
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  autoBackup();
-  renderMenuTable();
-  renderMeja();
-  renderKasirMenu();
-}
-
-function autoBackup() {
-  const dataStr = localStorage.getItem(STORAGE_KEY);
-  if (!dataStr) return;
-  localStorage.setItem(BACKUP_KEY, dataStr);
-  localStorage.setItem(BACKUP_TIME_KEY, new Date().toISOString());
-  console.log('Auto backup:', new Date().toLocaleTimeString('id-ID'));
-}
-
-setInterval(autoBackup, 5 * 60 * 1000);
-
-function restoreFromAutoBackup() {
-  const backup = localStorage.getItem(BACKUP_KEY);
-  const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
-  if (!backup) return alert('Tidak ada backup otomatis ditemukan');
-  if (confirm(`Restore data backup dari ${new Date(backupTime).toLocaleString('id-ID')}?\nData sekarang akan tertimpa.`)) {
-    localStorage.setItem(STORAGE_KEY, backup);
-    location.reload();
-  }
-}
-
-function checkBackupButton() {
-  const backup = localStorage.getItem(BACKUP_KEY);
-  const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
-  const btn = document.getElementById('restoreBtn');
-  if (backup && btn && currentUser.role === 'supervisor') {
-    btn.style.display = 'inline-block';
-    btn.title = `Backup terakhir: ${new Date(backupTime).toLocaleString('id-ID')}`;
-  }
-}
-
-function backupNow() {
-  const dataStr = localStorage.getItem(STORAGE_KEY);
-  if (!dataStr) return alert('Tidak ada data untuk di-backup');
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `backup_kasir_${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function showSection(section) {
@@ -325,13 +328,77 @@ function showSection(section) {
   document.getElementById('section-' + section).classList.remove('hidden');
 }
 
-// ========== MENU ==========
+// Data Load & Save
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { data = JSON.parse(saved); }
+    catch(e) { data = { menuList: [], mejaList: [], transaksi: [] }; }
+  }
+  renderMenuTable();
+  renderMeja();
+  renderKasirMenu();
+  renderPilihMeja();
+  renderUserTable();
+  renderLaporan();
+  checkBackupButton();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  autoBackup();
+  renderMenuTable();
+  renderMeja();
+  renderKasirMenu();
+  renderPilihMeja();
+  renderLaporan();
+}
+
+// Auto Backup
+function autoBackup() {
+  const dataStr = localStorage.getItem(STORAGE_KEY);
+  if (!dataStr) return;
+  localStorage.setItem(BACKUP_KEY, dataStr);
+  localStorage.setItem(BACKUP_TIME_KEY, new Date().toISOString());
+}
+setInterval(autoBackup, 5 * 60 * 1000);
+
+function restoreFromAutoBackup() {
+  const backup = localStorage.getItem(BACKUP_KEY);
+  const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
+  if (!backup) return alert('Tidak ada backup');
+  if (confirm(`Restore backup ${new Date(backupTime).toLocaleString('id-ID')}?`)) {
+    localStorage.setItem(STORAGE_KEY, backup);
+    location.reload();
+  }
+}
+
+function checkBackupButton() {
+  const backup = localStorage.getItem(BACKUP_KEY);
+  const btn = document.getElementById('restoreBtn');
+  if (backup && btn && currentUser.role === 'supervisor') {
+    btn.style.display = 'inline-block';
+  }
+}
+
+function backupNow() {
+  const dataStr = localStorage.getItem(STORAGE_KEY);
+  if (!dataStr) return alert('Tidak ada data');
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup_kasir_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Menu CRUD
 function tambahMenu() {
-  if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa tambah menu');
+  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
   const nama = document.getElementById('namaMenu').value.trim();
   const harga = parseInt(document.getElementById('hargaMenu').value);
   if (!nama ||!harga) return alert('Isi nama dan harga');
-
   data.menuList.push({ id: Date.now(), nama, harga });
   document.getElementById('namaMenu').value = '';
   document.getElementById('hargaMenu').value = '';
@@ -341,12 +408,10 @@ function tambahMenu() {
 function renderMenuTable() {
   const tbody = document.querySelector('#menuTable tbody');
   if (!tbody) return;
-
   if (!data.menuList.length) {
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada menu</td></tr>';
     return;
   }
-
   tbody.innerHTML = data.menuList.map((m, i) => `
     <tr>
       <td>${i + 1}</td>
@@ -372,7 +437,6 @@ function hapusMenu(id) {
 
 function openEditModal(id) {
   const menu = data.menuList.find(m => m.id === id);
-  if (!menu) return;
   document.getElementById('editId').value = menu.id;
   document.getElementById('editNama').value = menu.nama;
   document.getElementById('editHarga').value = menu.harga;
@@ -388,7 +452,6 @@ function saveEditMenu() {
   const nama = document.getElementById('editNama').value.trim();
   const harga = parseInt(document.getElementById('editHarga').value);
   if (!nama ||!harga) return alert('Isi nama dan harga');
-
   const index = data.menuList.findIndex(m => m.id === id);
   if (index>-1) {
     data.menuList[index] = { id, nama, harga };
@@ -397,89 +460,303 @@ function saveEditMenu() {
   }
 }
 
-function renderKasirMenu() {
-  const el = document.getElementById('kasirMenuList');
-  if (!data.menuList.length) {
-    el.innerHTML = 'Belum ada menu';
-    return;
-  }
-  el.innerHTML = data.menuList.map(m =>
-    `<div class="menu-item"><b>${m.nama}</b><br>Rp ${m.harga.toLocaleString('id-ID')}</div>`
-  ).join('');
-}
-
-// ========== MEJA ==========
+// Meja
 function tambahMeja() {
-  if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa kelola meja');
+  if (!['supervisor','kasir'].includes(currentUser.role)) return alert('Akses ditolak');
   const nama = document.getElementById('namaMeja').value.trim();
   if (!nama) return alert('Isi nama meja');
-  data.mejaList.push({ id: Date.now(), nama });
+  data.mejaList.push({ id: Date.now(), nama, status: 'kosong' });
   document.getElementById('namaMeja').value = '';
   saveData();
 }
 
 function renderMeja() {
   const el = document.getElementById('listMeja');
+  if (!el) return;
   if (!data.mejaList.length) {
     el.innerHTML = 'Belum ada meja';
     return;
   }
-  el.innerHTML = data.mejaList.map(m =>
-    `<div style="padding:6px 0; border-bottom:1px solid #eee;">${m.nama}</div>`
+  el.innerHTML = data.mejaList.map(m => {
+    const warna = m.status === 'kosong'? '#16a34a' : '#ef4444';
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center;
+                  padding:10px; margin-bottom:8px; border-radius:6px;
+                  background:${warna}; color:white; font-weight:500;">
+        <span>${m.nama} - ${m.status}</span>
+        ${['supervisor','kasir'].includes(currentUser.role) && m.status==='isi'?
+          `<button class="btn btn-sm" style="background:white; color:#333;" onclick="kosongkanMeja(${m.id})">
+             Kosongkan
+           </button>`
+          : ''
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+function kosongkanMeja(id) {
+  if (!['supervisor','kasir'].includes(currentUser.role)) return;
+  const meja = data.mejaList.find(m => m.id === id);
+  if (meja) {
+    meja.status = 'kosong';
+    saveData();
+  }
+}
+
+// Kasir & Transaksi
+function renderPilihMeja() {
+  const select = document.getElementById('pilihMeja');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Pilih Meja --</option>' +
+    data.mejaList.map(m =>
+      `<option value="${m.id}" ${m.status==='isi'?'disabled':''}>${m.nama} - ${m.status}</option>`
+    ).join('');
+  select.onchange = function() {
+    mejaAktif = parseInt(this.value);
+    keranjang = [];
+    renderKeranjang();
+  };
+}
+
+function renderKasirMenu() {
+  const el = document.getElementById('kasirMenuList');
+  if (!el) return;
+  if (!data.menuList.length) {
+    el.innerHTML = 'Belum ada menu';
+    return;
+  }
+  el.innerHTML = data.menuList.map(m =>
+    `<div class="menu-item">
+       <b>${m.nama}</b><br>
+       Rp ${m.harga.toLocaleString('id-ID')}<br>
+       <button class="btn btn-primary btn-sm" style="margin-top:5px;" onclick="tambahKeranjang(${m.id})">+ Tambah</button>
+     </div>`
   ).join('');
 }
 
-// ========== USER ==========
+function tambahKeranjang(menuId) {
+  if (!mejaAktif) return alert('Pilih meja dulu!');
+  const menu = data.menuList.find(m => m.id === menuId);
+  const item = keranjang.find(k => k.id === menuId);
+  if (item) item.qty += 1;
+  else keranjang.push({...menu, qty: 1});
+  renderKeranjang();
+}
+
+function renderKeranjang() {
+  const el = document.getElementById('keranjangList');
+  if (!el) return;
+  if (!keranjang.length) {
+    el.innerHTML = 'Keranjang kosong';
+    hitungBill();
+    return;
+  }
+  el.innerHTML = keranjang.map(k => `
+    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee;">
+      <span>${k.nama} x${k.qty}</span>
+      <span>Rp ${(k.harga * k.qty).toLocaleString('id-ID')}</span>
+    </div>
+  `).join('');
+  hitungBill();
+}
+
+function hitungBill() {
+  subtotal = keranjang.reduce((sum, k) => sum + k.harga * k.qty, 0);
+  const diskonPersen = parseFloat(document.getElementById('diskon').value) || 0;
+  const diskonRupiah = subtotal * (diskonPersen / 100);
+  const setelahDiskon = subtotal - diskonRupiah;
+  ppn = setelahDiskon * PPN_RATE;
+  total = setelahDiskon + ppn;
+
+  document.getElementById('subtotalHarga').innerText = subtotal.toLocaleString('id-ID');
+  document.getElementById('ppnHarga').innerText = Math.round(ppn).toLocaleString('id-ID');
+  document.getElementById('totalHarga').innerText = Math.round(total).toLocaleString('id-ID');
+}
+
+function clearKeranjang() {
+  keranjang = [];
+  renderKeranjang();
+}
+
+function bayar() {
+  if (!mejaAktif) return alert('Pilih meja dulu!');
+  if (!keranjang.length) return alert('Keranjang kosong!');
+
+  const diskonPersen = parseFloat(document.getElementById('diskon').value) || 0;
+
+  data.transaksi.push({
+    id: Date.now(),
+    mejaId: mejaAktif,
+    mejaNama: data.mejaList.find(m => m.id === mejaAktif)?.nama,
+    items: [...keranjang],
+    subtotal: subtotal,
+    diskonPersen: diskonPersen,
+    ppn: Math.round(ppn),
+    total: Math.round(total),
+    waktu: new Date().toISOString(),
+    kasir: currentUser.nama
+  });
+
+  const meja = data.mejaList.find(m => m.id === mejaAktif);
+  if (meja) meja.status = 'isi';
+
+  clearKeranjang();
+  mejaAktif = null;
+  document.getElementById('pilihMeja').value = '';
+  document.getElementById('diskon').value = '0';
+
+  saveData();
+  alert('Transaksi berhasil! Total: Rp ' + Math.round(total).toLocaleString('id-ID'));
+}
+
+function printBill() {
+  if (!keranjang.length) return alert('Keranjang kosong!');
+  if (!mejaAktif) return alert('Pilih meja dulu!');
+
+  const mejaNama = data.mejaList.find(m => m.id === mejaAktif)?.nama;
+  const diskonPersen = parseFloat(document.getElementById('diskon').value) || 0;
+  const diskonRupiah = subtotal * (diskonPersen / 100);
+
+  const billWindow = window.open('', '_blank');
+  billWindow.document.write(`
+    <html><head><title>Bill - ${mejaNama}</title>
+    <style>body{font-family:monospace;font-size:14px;width:300px;margin:0 auto;}
+    h3,p{text-align:center;margin:5px 0;}table{width:100%;}
+    td{padding:4px 0;}.line{border-top:1px dashed #000;margin:10px 0;}
+  .right{text-align:right;}.bold{font-weight:bold;}</style>
+    </head><body onload="window.print()">
+      <h3>KASIR WARUNG</h3>
+      <p>${mejaNama}</p>
+      <p>${new Date().toLocaleString('id-ID')}</p>
+      <p>Kasir: ${currentUser.nama}</p>
+      <div class="line"></div>
+      <table>${keranjang.map(k => `
+        <tr><td>${k.nama} x${k.qty}</td>
+        <td class="right">Rp ${(k.harga * k.qty).toLocaleString('id-ID')}</td></tr>
+      `).join('')}</table>
+      <div class="line"></div>
+      <table>
+        <tr><td>Subtotal</td><td class="right">Rp ${subtotal.toLocaleString('id-ID')}</td></tr>
+        ${diskonPersen > 0? `<tr><td>Diskon ${diskonPersen}%</td>
+        <td class="right">- Rp ${Math.round(diskonRupiah).toLocaleString('id-ID')}</td></tr>`:''}
+        <tr><td>PPN 11%</td><td class="right">Rp ${Math.round(ppn).toLocaleString('id-ID')}</td></tr>
+        <tr class="bold"><td>TOTAL</td><td class="right">Rp ${Math.round(total).toLocaleString('id-ID')}</td></tr>
+      </table>
+      <div class="line"></div><p>Terima Kasih</p>
+    </body></html>
+  `);
+  billWindow.document.close();
+}
+
+// Laporan
+function renderLaporan() {
+  const tbody = document.querySelector('#laporanTable tbody');
+  if (!tbody) return;
+
+  const filterTanggal = document.getElementById('filterTanggal')?.value;
+  let transaksi = data.transaksi || [];
+
+  if (filterTanggal) {
+    transaksi = transaksi.filter(t => t.waktu.startsWith(filterTanggal));
+  }
+
+  transaksi.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+
+  const totalTransaksi = transaksi.length;
+  const totalPenjualan = transaksi.reduce((sum, t) => sum + t.total, 0);
+  const totalPPN = transaksi.reduce((sum, t) => sum + t.ppn, 0);
+
+  document.getElementById('totalTransaksi').innerText = totalTransaksi;
+  document.getElementById('totalPenjualan').innerText = 'Rp ' + totalPenjualan.toLocaleString('id-ID');
+  document.getElementById('totalPPN').innerText = 'Rp ' + totalPPN.toLocaleString('id-ID');
+
+  if (!transaksi.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Belum ada transaksi</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = transaksi.map(t => `
+    <tr>
+      <td>${new Date(t.waktu).toLocaleString('id-ID')}</td>
+      <td>#${t.id.toString().slice(-6)}</td>
+      <td>${t.mejaNama}</td>
+      <td>${t.kasir}</td>
+      <td>Rp ${t.subtotal.toLocaleString('id-ID')}</td>
+      <td>${t.diskonPersen}%</td>
+      <td>Rp ${t.ppn.toLocaleString('id-ID')}</td>
+      <td><b>Rp ${t.total.toLocaleString('id-ID')}</b></td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="lihatDetail(${t.id})">Detail</button>
+        <button class="btn btn-secondary btn-sm" onclick="printUlangBill(${t.id})">Cetak</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function resetFilter() {
+  document.getElementById('filterTanggal').value = '';
+  renderLaporan();
+}
+
+function printLaporan() {
+  window.print();
+}
+
+function lihatDetail(id) {
+  const t = data.transaksi.find(tr => tr.id === id);
+  if (!t) return;
+  alert(`DETAIL TRANSAKSI\nNo Bill: #${t.id.toString().slice(-6)}\nWaktu: ${new Date(t.waktu).toLocaleString('id-ID')}\nMeja: ${t.mejaNama}\nKasir: ${t.kasir}\n\nTotal: Rp ${t.total.toLocaleString('id-ID')}`);
+}
+
+function printUlangBill(id) {
+  const t = data.transaksi.find(tr => tr.id === id);
+  if (!t) return;
+  const billWindow = window.open('', '_blank');
+  billWindow.document.write(`
+    <html><head><title>Bill - ${t.mejaNama}</title>
+    <style>body{font-family:monospace;font-size:14px;width:300px;margin:0 auto;}
+    h3,p{text-align:center;margin:5px 0;}table{width:100%;}
+    td{padding:4px 0;}.line{border-top:1px dashed #000;margin:10px 0;}
+  .right{text-align:right;}.bold{font-weight:bold;}</style>
+    </head><body onload="window.print()">
+      <h3>KASIR WARUNG</h3>
+      <p>${t.mejaNama}</p>
+      <p>${new Date(t.waktu).toLocaleString('id-ID')}</p>
+      <p>Kasir: ${t.kasir}</p>
+      <div class="line"></div>
+      <table>${t.items.map(k => `
+        <tr><td>${k.nama} x${k.qty}</td>
+        <td class="right">Rp ${(k.harga * k.qty).toLocaleString('id-ID')}</td></tr>
+      `).join('')}</table>
+      <div class="line"></div>
+      <table>
+        <tr><td>Subtotal</td><td class="right">Rp ${t.subtotal.toLocaleString('id-ID')}</td></tr>
+        ${t.diskonPersen > 0? `<tr><td>Diskon ${t.diskonPersen}%</td>
+        <td class="right">- Rp ${Math.round(t.subtotal*t.diskonPersen/100).toLocaleString('id-ID')}</td></tr>`:''}
+        <tr><td>PPN 11%</td><td class="right">Rp ${t.ppn.toLocaleString('id-ID')}</td></tr>
+        <tr class="bold"><td>TOTAL</td><td class="right">Rp ${t.total.toLocaleString('id-ID')}</td></tr>
+      </table>
+      <div class="line"></div><p>Terima Kasih</p>
+    </body></html>
+  `);
+  billWindow.document.close();
+}
+
+// User Management
 function tambahUser() {
   if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
   const username = document.getElementById('newUsername').value.trim();
   const nama = document.getElementById('newNama').value.trim();
   const password = document.getElementById('newPassword').value.trim();
   const role = document.getElementById('newRole').value;
-  if (!username ||!nama ||!password) return alert('Lengkapi semua field');
+  if (!username ||!nama ||!password) return alert('Lengkapi semua data');
 
   const users = JSON.parse(localStorage.getItem(USER_KEY));
-  if (users.find(u => u.username === username)) return alert('Username sudah dipakai');
+  if (users.find(u => u.username === username)) return alert('Username sudah ada');
+
   users.push({ username, nama, password, role });
   localStorage.setItem(USER_KEY, JSON.stringify(users));
+
   document.getElementById('newUsername').value = '';
-  document.getElementById('newNama').value = '';
-  document.getElementById('newPassword').value = '';
-  renderUserTable();
-  alert('User berhasil ditambah');
-}
-
-function renderUserTable() {
-  const tbody = document.querySelector('#userTable tbody');
-  if (!tbody) return;
-  const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-  tbody.innerHTML = users.map(u => `
-    <tr>
-      <td>${u.username}</td>
-      <td>${u.nama}</td>
-      <td>${u.role}</td>
-      <td>
-        ${u.username!== currentUser.username?
-          `<button class="btn btn-danger btn-sm" onclick="hapusUser('${u.username}')">Hapus</button>` :
-          '<span>-</span>'
-        }
-      </td>
-    </tr>
-  `).join('');
-}
-
-function hapusUser(username) {
-  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
-  if (!confirm(`Hapus user ${username}?`)) return;
-  let users = JSON.parse(localStorage.getItem(USER_KEY));
-  users = users.filter(u => u.username!== username);
-  localStorage.setItem(USER_KEY, JSON.stringify(users));
-  renderUserTable();
-  alert('User dihapus');
-}
-
-window.addEventListener('load', checkSession);
-</script>
-
-</body>
-</html>
+  document.getElementById
