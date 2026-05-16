@@ -7,82 +7,137 @@
 <style>
     * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-  header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  header { background: #16a34a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
   header h1 { margin: 0; font-size: 18px; }
-.btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
 .btn-danger { background: #ef4444; color: white; }
 .btn-secondary { background: #6b7280; color: white; }
 .btn-primary { background: #2563eb; color: white; }
 .btn-success { background: #16a34a; color: white; }
+.btn-warning { background: #f59e0b; color: white; }
 .container { padding: 20px; max-width: 900px; margin: auto; }
 .card { background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   input, select, button { padding: 8px; margin: 4px 4px 4px 0; border: 1px solid #ccc; border-radius: 6px; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 .menu-item { background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; }
 .nav-btn { margin: 4px; }
+.login-box { max-width: 400px; margin: 100px auto; }
+.hidden { display: none!important; }
+.user-info { font-size: 13px; opacity: 0.9; }
+ table { width: 100%; border-collapse: collapse; }
+ th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
+ th { background: #f9fafb; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Kasir Warung</h1>
-  <div>
-    <button id="restoreBtn" class="btn btn-danger" onclick="restoreFromAutoBackup()" style="display:none;">
-      🔄 Restore Backup
-    </button>
-    <button class="btn btn-secondary" onclick="backupNow()">Backup Manual</button>
-  </div>
-</header>
-
-<div class="container">
-  <!-- Menu Utama -->
+<!-- Halaman Login -->
+<div id="loginPage" class="login-box">
   <div class="card">
-    <h3>Menu Utama</h3>
-    <button class="btn btn-success nav-btn" onclick="showSection('menu')">🍽️ Kelola Menu</button>
-    <button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>
-    <button class="btn btn-primary nav-btn" onclick="showSection('meja')">🪑 Kelola Meja</button>
-    <button class="btn btn-primary nav-btn" onclick="showSection('laporan')">📊 Laporan</button>
+    <h2 style="text-align:center; margin-top:0;">Login Kasir Warung</h2>
+    <input type="text" id="username" placeholder="Username" style="width:100%;">
+    <input type="password" id="password" placeholder="Password" style="width:100%;">
+    <button class="btn btn-primary" onclick="login()" style="width:100%; margin-top:10px;">Login</button>
+    <p style="font-size:12px; color:#666; margin-top:15px;">
+      <b>Demo Account:</b><br>
+      Supervisor: admin / admin123<br>
+      User: kasir / kasir123
+    </p>
   </div>
+</div>
 
-  <!-- Section Menu -->
-  <div id="section-menu">
-    <div class="card">
-      <h3>Tambah Menu</h3>
-      <input type="text" id="namaMenu" placeholder="Nama Menu">
-      <input type="number" id="hargaMenu" placeholder="Harga">
-      <button class="btn btn-primary" onclick="tambahMenu()">Tambah</button>
+<!-- Halaman Dashboard -->
+<div id="dashboardPage" class="hidden">
+  <header>
+    <div>
+      <h1>Kasir Warung</h1>
+      <div class="user-info" id="userInfo"></div>
+    </div>
+    <div>
+      <button id="restoreBtn" class="btn btn-danger" onclick="restoreFromAutoBackup()" style="display:none;">
+        🔄 Restore Backup
+      </button>
+      <button class="btn btn-secondary" onclick="backupNow()">Backup Manual</button>
+      <button class="btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Menu Utama -->
+    <div class="card" id="menuUtama">
+      <h3>Menu Utama</h3>
+      <div id="menuButtons"></div>
     </div>
 
-    <div class="card">
-      <h3>Daftar Menu</h3>
-      <div id="listMenu" class="menu-grid">Belum ada menu</div>
-    </div>
-  </div>
+    <!-- Section Menu -->
+    <div id="section-menu" class="hidden">
+      <div class="card">
+        <h3>Tambah Menu</h3>
+        <input type="text" id="namaMenu" placeholder="Nama Menu">
+        <input type="number" id="hargaMenu" placeholder="Harga">
+        <button class="btn btn-primary" onclick="tambahMenu()">Tambah</button>
+      </div>
 
-  <!-- Section Kasir -->
-  <div id="section-kasir" style="display:none;">
-    <div class="card">
-      <h3>Halaman Kasir</h3>
-      <p>Pilih menu untuk buat pesanan.</p>
-      <div id="kasirMenuList" class="menu-grid"></div>
+      <div class="card">
+        <h3>Daftar Menu</h3>
+        <div id="listMenu" class="menu-grid">Belum ada menu</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Section Meja -->
-  <div id="section-meja" style="display:none;">
-    <div class="card">
-      <h3>Kelola Meja</h3>
-      <input type="text" id="namaMeja" placeholder="Nama Meja">
-      <button class="btn btn-primary" onclick="tambahMeja()">Tambah Meja</button>
-      <div id="listMeja" style="margin-top:10px;"></div>
+    <!-- Section Kasir -->
+    <div id="section-kasir" class="hidden">
+      <div class="card">
+        <h3>Halaman Kasir</h3>
+        <div id="kasirMenuList" class="menu-grid">Belum ada menu</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Section Laporan -->
-  <div id="section-laporan" style="display:none;">
-    <div class="card">
-      <h3>Laporan Penjualan</h3>
-      <p>Fitur laporan akan muncul di sini.</p>
+    <!-- Section Meja -->
+    <div id="section-meja" class="hidden">
+      <div class="card">
+        <h3>Kelola Meja</h3>
+        <input type="text" id="namaMeja" placeholder="Nama Meja">
+        <button class="btn btn-primary" onclick="tambahMeja()">Tambah Meja</button>
+        <div id="listMeja" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- Section Laporan -->
+    <div id="section-laporan" class="hidden">
+      <div class="card">
+        <h3>Laporan Penjualan</h3>
+        <p>Belum ada transaksi</p>
+      </div>
+    </div>
+
+    <!-- Section Kelola User - Hanya Supervisor -->
+    <div id="section-user" class="hidden">
+      <div class="card">
+        <h3>Tambah User Baru</h3>
+        <input type="text" id="newUsername" placeholder="Username">
+        <input type="text" id="newNama" placeholder="Nama Lengkap">
+        <input type="password" id="newPassword" placeholder="Password">
+        <select id="newRole">
+          <option value="user">User</option>
+          <option value="supervisor">Supervisor</option>
+        </select>
+        <button class="btn btn-primary" onclick="tambahUser()">Tambah</button>
+      </div>
+
+      <div class="card">
+        <h3>Daftar User</h3>
+        <table id="userTable">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Nama</th>
+              <th>Role</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -91,27 +146,113 @@
 const STORAGE_KEY = 'kasirWarungMade';
 const BACKUP_KEY = 'kasirWarungMade_backup';
 const BACKUP_TIME_KEY = 'kasirWarungMade_backupTime';
+const USER_KEY = 'kasirWarungMade_users';
+const SESSION_KEY = 'kasirWarungMade_session';
 
-let data = { menuList: [], mejaList: [], userList: [] };
+let data = { menuList: [], mejaList: [], transaksi: [] };
+let currentUser = null;
 
-// Load data saat buka halaman
+// Init default users
+function initUsers() {
+  if (!localStorage.getItem(USER_KEY)) {
+    const defaultUsers = [
+      { username: 'admin', password: 'admin123', role: 'supervisor', nama: 'Supervisor' },
+      { username: 'kasir', password: 'kasir123', role: 'user', nama: 'Kasir' }
+    ];
+    localStorage.setItem(USER_KEY, JSON.stringify(defaultUsers));
+  }
+}
+
+// Cek session saat load
+function checkSession() {
+  initUsers();
+  const session = localStorage.getItem(SESSION_KEY);
+  if (session) {
+    currentUser = JSON.parse(session);
+    showDashboard();
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('dashboardPage').classList.add('hidden');
+}
+
+function showDashboard() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('dashboardPage').classList.remove('hidden');
+
+  document.getElementById('userInfo').innerText = `${currentUser.nama} - ${currentUser.role}`;
+  renderMenuButtons();
+  loadData();
+}
+
+function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  const users = JSON.parse(localStorage.getItem(USER_KEY));
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (!user) {
+    alert('Username atau password salah');
+    return;
+  }
+
+  currentUser = user;
+  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  showDashboard();
+}
+
+function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  location.reload();
+}
+
+// Render tombol menu sesuai role
+function renderMenuButtons() {
+  const menuDiv = document.getElementById('menuButtons');
+  let html = '';
+
+  if (currentUser.role === 'supervisor') {
+    html = `
+      <button class="btn btn-success nav-btn" onclick="showSection('menu')">🍽️ Kelola Menu</button>
+      <button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>
+      <button class="btn btn-primary nav-btn" onclick="showSection('meja')">🪑 Kelola Meja</button>
+      <button class="btn btn-primary nav-btn" onclick="showSection('laporan')">📊 Laporan</button>
+      <button class="btn btn-warning nav-btn" onclick="showSection('user')">👤 Kelola User</button>
+    `;
+  } else {
+    html = `
+      <button class="btn btn-primary nav-btn" onclick="showSection('kasir')">💵 Kasir</button>
+      <button class="btn btn-primary nav-btn" onclick="showSection('laporan')">📊 Laporan</button>
+    `;
+  }
+
+  menuDiv.innerHTML = html;
+  showSection(currentUser.role === 'supervisor'? 'menu' : 'kasir');
+}
+
+// Load data kasir
 function loadData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
       data = JSON.parse(saved);
     } catch(e) {
-      console.error('Data corrupt:', e);
-      data = { menuList: [], mejaList: [], userList: [] };
+      data = { menuList: [], mejaList: [], transaksi: [] };
     }
   }
   renderMenu();
   renderMeja();
   renderKasirMenu();
+  renderUserTable();
   checkBackupButton();
 }
 
-// Simpan data + auto backup
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   autoBackup();
@@ -120,19 +261,16 @@ function saveData() {
   renderKasirMenu();
 }
 
-// Auto backup tiap save
 function autoBackup() {
   const dataStr = localStorage.getItem(STORAGE_KEY);
   if (!dataStr) return;
   localStorage.setItem(BACKUP_KEY, dataStr);
   localStorage.setItem(BACKUP_TIME_KEY, new Date().toISOString());
-  console.log('Auto backup:', new Date().toLocaleTimeString());
+  console.log('Auto backup:', new Date().toLocaleTimeString('id-ID'));
 }
 
-// Auto backup tiap 5 menit
 setInterval(autoBackup, 5 * 60 * 1000);
 
-// Restore dari backup otomatis
 function restoreFromAutoBackup() {
   const backup = localStorage.getItem(BACKUP_KEY);
   const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
@@ -148,19 +286,17 @@ function restoreFromAutoBackup() {
   }
 }
 
-// Tampilkan tombol restore kalau ada backup
 function checkBackupButton() {
   const backup = localStorage.getItem(BACKUP_KEY);
   const backupTime = localStorage.getItem(BACKUP_TIME_KEY);
   const btn = document.getElementById('restoreBtn');
 
-  if (backup && btn) {
+  if (backup && btn && currentUser.role === 'supervisor') {
     btn.style.display = 'inline-block';
     btn.title = `Backup terakhir: ${new Date(backupTime).toLocaleString('id-ID')}`;
   }
 }
 
-// Backup manual + download file
 function backupNow() {
   const dataStr = localStorage.getItem(STORAGE_KEY);
   if (!dataStr) {
@@ -176,17 +312,17 @@ function backupNow() {
   URL.revokeObjectURL(url);
 }
 
-// Navigasi antar section
 function showSection(section) {
-  document.getElementById('section-menu').style.display = 'none';
-  document.getElementById('section-kasir').style.display = 'none';
-  document.getElementById('section-meja').style.display = 'none';
-  document.getElementById('section-laporan').style.display = 'none';
-  document.getElementById('section-' + section).style.display = 'block';
+  ['menu','kasir','meja','laporan','user'].forEach(s => {
+    document.getElementById('section-' + s).classList.add('hidden');
+  });
+  document.getElementById('section-' + section).classList.remove('hidden');
 }
 
 // Tambah menu
 function tambahMenu() {
+  if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa tambah menu');
+
   const nama = document.getElementById('namaMenu').value.trim();
   const harga = parseInt(document.getElementById('hargaMenu').value);
   if (!nama ||!harga) return alert('Isi nama dan harga');
@@ -197,7 +333,6 @@ function tambahMenu() {
   saveData();
 }
 
-// Render daftar menu
 function renderMenu() {
   const el = document.getElementById('listMenu');
   if (!data.menuList.length) {
@@ -209,7 +344,6 @@ function renderMenu() {
   ).join('');
 }
 
-// Render menu untuk halaman kasir
 function renderKasirMenu() {
   const el = document.getElementById('kasirMenuList');
   if (!data.menuList.length) {
@@ -217,12 +351,14 @@ function renderKasirMenu() {
     return;
   }
   el.innerHTML = data.menuList.map(m =>
-    `<div class="menu-item"><b>${m.nama}</b><br>Rp ${m.harga.toLocaleString('id-ID')}<br><button class="btn btn-primary" style="margin-top:5px;">Pesan</button></div>`
+    `<div class="menu-item"><b>${m.nama}</b><br>Rp ${m.harga.toLocaleString('id-ID')}</div>`
   ).join('');
 }
 
 // Tambah meja
 function tambahMeja() {
+  if (currentUser.role!== 'supervisor') return alert('Hanya supervisor yang bisa kelola meja');
+
   const nama = document.getElementById('namaMeja').value.trim();
   if (!nama) return alert('Isi nama meja');
 
@@ -231,7 +367,6 @@ function tambahMeja() {
   saveData();
 }
 
-// Render daftar meja
 function renderMeja() {
   const el = document.getElementById('listMeja');
   if (!data.mejaList.length) {
@@ -243,8 +378,64 @@ function renderMeja() {
   ).join('');
 }
 
-// Jalanin saat halaman load
-window.addEventListener('load', loadData);
+// Kelola User
+function tambahUser() {
+  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
+
+  const username = document.getElementById('newUsername').value.trim();
+  const nama = document.getElementById('newNama').value.trim();
+  const password = document.getElementById('newPassword').value.trim();
+  const role = document.getElementById('newRole').value;
+
+  if (!username ||!nama ||!password) return alert('Lengkapi semua field');
+
+  const users = JSON.parse(localStorage.getItem(USER_KEY));
+  if (users.find(u => u.username === username)) {
+    return alert('Username sudah dipakai');
+  }
+
+  users.push({ username, nama, password, role });
+  localStorage.setItem(USER_KEY, JSON.stringify(users));
+
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newNama').value = '';
+  document.getElementById('newPassword').value = '';
+  renderUserTable();
+  alert('User berhasil ditambah');
+}
+
+function renderUserTable() {
+  const tbody = document.querySelector('#userTable tbody');
+  if (!tbody) return;
+
+  const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>${u.username}</td>
+      <td>${u.nama}</td>
+      <td>${u.role}</td>
+      <td>
+        ${u.username!== currentUser.username?
+          `<button class="btn btn-danger" onclick="hapusUser('${u.username}')">Hapus</button>` :
+          '<span>-</span>'
+        }
+      </td>
+    </tr>
+  `).join('');
+}
+
+function hapusUser(username) {
+  if (currentUser.role!== 'supervisor') return alert('Akses ditolak');
+  if (!confirm(`Hapus user ${username}?`)) return;
+
+  let users = JSON.parse(localStorage.getItem(USER_KEY));
+  users = users.filter(u => u.username!== username);
+  localStorage.setItem(USER_KEY, JSON.stringify(users));
+  renderUserTable();
+  alert('User dihapus');
+}
+
+window.addEventListener('load', checkSession);
 </script>
 
 </body>
