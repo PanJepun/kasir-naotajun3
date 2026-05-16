@@ -13,51 +13,44 @@
     --bg: #f5f5f5;
   }
     * { box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; }
- .navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
- .navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; transition: 0.2s; }
- .navbar button.active,.navbar button:hover { background: var(--primary); }
+  body { font-family: Arial, sans-serif; background: var(--bg); margin: 0; }
+.navbar { background: var(--dark); padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+.navbar button { background: #555; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+.navbar button.active,.navbar button:hover { background: var(--primary); }
 
- .container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  h2 { text-align: center; margin-top: 0; color: #2c3e50; }
+.container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  h2 { text-align: center; margin-top: 0; }
 
- .page { display: none; }
- .page.active { display: block; }
+.page { display: none; }
+.page.active { display: block; }
 
- .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
- .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; transition: 0.2s; }
- .tab.active { background: var(--primary); color: white; }
- .meja { display: none; }
- .meja.active { display: block; }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab { padding: 10px 15px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
+.tab.active { background: var(--primary); color: white; }
+.meja { display: none; }
+.meja.active { display: block; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
   th { background: #f0f0f0; }
-  input, select, button, textarea { padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; }
+  input, select, button, textarea { padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
   select { min-width: 150px; }
-  button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.2s; }
+  button { background: var(--primary); color: white; border: none; cursor: pointer; }
   button:hover { opacity: 0.9; }
- .btn-danger { background: var(--danger); }
- .btn-warning { background: var(--warning); }
- .summary { margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 5px; }
+.btn-danger { background: var(--danger); }
+.btn-warning { background: var(--warning); }
+.summary { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
 
- .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
- .modal.active { display: flex; justify-content: center; align-items: center; }
- .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+.modal.active { display: flex; justify-content: center; align-items: center; }
+.modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
 
- .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
- .badge.food { background: #2196F3; }
- .badge.beverage { background: #9C27B0; }
- .badge.snack { background: #FF9800; }
- .filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
- .action-btn { padding: 5px 8px; margin: 0 2px; font-size: 13px; }
- .info-meja { background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-
-  @media (max-width: 768px) {
-   .container { margin: 10px; padding: 15px; }
-   .filter-bar { flex-direction: column; align-items: stretch; }
-    input, select, button { width: 100%; }
-  }
+.badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
+.badge.food { background: #2196F3; }
+.badge.beverage { background: #9C27B0; }
+.filter-bar { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.action-btn { padding: 5px 8px; margin: 0 2px; font-size: 13px; }
+.info-meja { background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -93,7 +86,7 @@
     <h2>Manajemen Menu</h2>
     <div class="filter-bar">
       <input type="text" id="namaMenu" placeholder="Nama Menu">
-      <input type="number" id="hargaMenu" placeholder="Harga" min="0">
+      <input type="number" id="hargaMenu" placeholder="Harga">
       <select id="kategoriMenu">
         <option value="Food">Food</option>
         <option value="Beverage">Beverage</option>
@@ -115,28 +108,36 @@
     </table>
   </div>
 
-  <div id="laporan" class="page">
-    <h2>Laporan Penjualan</h2>
-    <div class="filter-bar">
-      <label>Dari:</label>
-      <input type="date" id="tglDari">
-      <label>Sampai:</label>
-      <input type="date" id="tglSampai">
-      <button onclick="filterLaporan()">Tampilkan</button>
-      <button class="btn-danger" onclick="hapusLaporan()">Hapus Data Periode</button>
-      <button onclick="exportLaporanCSV()">Export CSV</button>
-      <button onclick="printLaporan()">Print Laporan</button>
-    </div>
-    <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
-    <table>
-      <thead>
-        <tr>
-          <th>Waktu</th><th>Meja</th><th>Kasir</th><th>Waitress</th><th>Item</th><th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyLaporan"></tbody>
-    </table>
+   <div id="laporan" class="page">
+  <h2>Laporan Penjualan</h2>
+
+  <div class="filter-bar">
+    <label>Dari:</label>
+    <input type="date" id="tglDari">
+    <label>Sampai:</label>
+    <input type="date" id="tglSampai">
+    <button onclick="filterLaporan()">Tampilkan</button>
+    <button class="btn-danger" onclick="hapusLaporan()">Hapus Data Periode</button>
+    <button onclick="exportLaporanCSV()">Export CSV</button>
+    <button onclick="printlaporan()">Print Laporan</button>
   </div>
+
+  <div id="ringkasanLaporan" style="margin: 15px 0; font-weight: bold;"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Waktu</th>
+        <th>Meja</th>
+        <th>Kasir</th>
+        <th>Waitress</th>
+        <th>Item</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="tbodyLaporan"></tbody>
+  </table>
+</div>
 
   <div id="backup" class="page">
     <h2>Backup & Restore</h2>
@@ -225,8 +226,7 @@ function showPage(pageId, event) {
 
 function init() {
   renderTabs();
-  renderMeja(); // FIX: ini yang hilang
-  if(data.mejaList.length > 0) showTab(data.mejaList[0].id);
+  showTab(1);
 }
 
 function renderTabs() {
@@ -274,7 +274,7 @@ function renderMeja() {
       <select id="selectMenu${meja.id}" onchange="pilihMenu(${meja.id})">${optionMenu}</select>
       <input type="text" id="nama${meja.id}" placeholder="Nama Menu" readonly>
       <input type="number" id="harga${meja.id}" placeholder="Harga" readonly>
-      <input type="number" id="qty${meja.id}" placeholder="Qty" value="1" min="1">
+      <input type="number" id="qty${meja.id}" placeholder="Qty" value="1">
       <button onclick="tambahItem(${meja.id})">Tambah</button>
 
       <table>
@@ -285,8 +285,8 @@ function renderMeja() {
       </table>
 
       <div class="summary">
-        Diskon %: <input type="number" id="diskon${meja.id}" value="${meja.diskonPersen}" onchange="updateDiskon(${meja.id})" min="0" max="100">
-        PPN %: <input type="number" id="ppn${meja.id}" value="${meja.ppnPersen}" onchange="updatePPN(${meja.id})" min="0" max="100">
+        Diskon %: <input type="number" id="diskon${meja.id}" value="${meja.diskonPersen}" onchange="updateDiskon(${meja.id})">
+        PPN %: <input type="number" id="ppn${meja.id}" value="${meja.ppnPersen}" onchange="updatePPN(${meja.id})">
         <div id="total${meja.id}"></div>
         <button onclick="cetakStruk(${meja.id})">Cetak & Simpan Bill</button>
         <button class="btn-danger" onclick="resetMeja(${meja.id})">Reset Meja</button>
@@ -314,15 +314,8 @@ function tambahItem(id) {
   let nama = document.getElementById('nama' + id).value;
   let harga = parseFloat(document.getElementById('harga' + id).value);
   let qty = parseInt(document.getElementById('qty' + id).value);
-  if(!nama || isNaN(harga) || isNaN(qty) || qty <= 0) return alert('Pilih menu dan isi qty dengan benar');
-
-  let existing = meja.items.find(i => i.nama === nama);
-  if(existing) {
-    existing.qty += qty;
-  } else {
-    meja.items.push({nama, harga, qty});
-  }
-
+  if(!nama || isNaN(harga) || isNaN(qty)) return alert('Pilih menu dulu');
+  meja.items.push({nama, harga, qty});
   saveData();
   renderItems(id);
   document.getElementById('selectMenu' + id).value = '';
@@ -369,7 +362,6 @@ function simpanEditItem() {
   item.nama = document.getElementById('editNamaItem').value;
   item.harga = parseFloat(document.getElementById('editHargaItem').value);
   item.qty = parseInt(document.getElementById('editQtyItem').value);
-  if(item.qty <= 0) return alert('Qty harus > 0');
   saveData();
   renderItems(editTarget.mejaId);
   tutupModal('modalEditItem');
@@ -384,15 +376,13 @@ function hapusItem(id, index) {
 }
 
 function updateDiskon(id) {
-  let val = parseFloat(document.getElementById('diskon' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).diskonPersen = Math.min(100, Math.max(0, val));
+  data.mejaList.find(m => m.id === id).diskonPersen = parseFloat(document.getElementById('diskon' + id).value) || 0;
   saveData();
   renderItems(id);
 }
 
 function updatePPN(id) {
-  let val = parseFloat(document.getElementById('ppn' + id).value) || 0;
-  data.mejaList.find(m => m.id === id).ppnPersen = Math.min(100, Math.max(0, val));
+  data.mejaList.find(m => m.id === id).ppnPersen = parseFloat(document.getElementById('ppn' + id).value) || 0;
   saveData();
   renderItems(id);
 }
@@ -407,11 +397,11 @@ function hitungTotal(id, subtotal) {
     Subtotal: Rp${subtotal.toLocaleString('id-ID')}<br>
     Diskon: -Rp${diskonRp.toLocaleString('id-ID')}<br>
     PPN: Rp${ppnRp.toLocaleString('id-ID')}<br>
-    <b style="font-size:18px;">TOTAL: Rp${total.toLocaleString('id-ID')}</b>
+    <b>TOTAL: Rp${total.toLocaleString('id-ID')}</b>
   `;
 }
 
-function cetakStruk(id) {
+  function cetakStruk(id) {
   let meja = data.mejaList.find(m => m.id === id);
   if (meja.items.length === 0) {
     alert("Meja masih kosong, belum ada item");
@@ -424,20 +414,22 @@ function cetakStruk(id) {
   let ppnRp = setelahDiskon * (meja.ppnPersen / 100);
   let total = setelahDiskon + ppnRp;
   let waktu = new Date().toLocaleString('id-ID');
-  let waktuISO = new Date().toISOString();
+  let waktuISO = new Date().toISOString(); // simpan format ISO buat filter tanggal
 
+  // Simpan ke laporan
   let bill = {
-    waktu: waktu,
-    waktuISO: waktuISO,
-    meja: meja.nama,
-    kasir: meja.kasir || '-',
-    waitress: meja.waitress || '-',
-    items: JSON.parse(JSON.stringify(meja.items)),
+    waktu: waktu, 
+    waktuISO: waktuISO, // buat filter periode
+    meja: meja.nama, 
+    kasir: meja.kasir || '-', 
+    waitress: meja.waitress || '-', 
+    items: JSON.parse(JSON.stringify(meja.items)), 
     total: total
   };
-
+  
   data.laporan.push(bill);
   saveData();
+  console.log("Berhasil simpan:", bill);
 
   // Print struk
   let lebar = 32;
@@ -463,7 +455,7 @@ function cetakStruk(id) {
   struk += lineDash + '\n';
 
   meja.items.forEach((item, i) => {
-    let nama = item.nama.length > 18? item.nama.substring(0, 18) : item.nama;
+    let nama = item.nama.length > 18 ? item.nama.substring(0, 18) : item.nama;
     let hargaTotal = 'Rp' + (item.harga * item.qty).toLocaleString('id-ID');
     struk += `${i+1}. ${nama}\n`;
     struk += padRight(' ' + item.qty + 'x Rp' + item.harga.toLocaleString('id-ID'), lebar - hargaTotal.length) + hargaTotal + '\n';
@@ -479,16 +471,9 @@ function cetakStruk(id) {
   printWindow.document.close();
   printWindow.print();
 
+  // Reset meja
   meja.items = [];
   renderItems(id);
-}
-
-function resetMeja(id) {
-  if(confirm('Reset meja ini?')) {
-    data.mejaList.find(m => m.id === id).items = [];
-    saveData();
-    renderItems(id);
-  }
 }
 
 // MEJA
@@ -557,7 +542,7 @@ function tambahMenu() {
   let nama = document.getElementById('namaMenu').value.trim();
   let harga = parseFloat(document.getElementById('hargaMenu').value);
   let kategori = document.getElementById('kategoriMenu').value;
-  if(!nama || isNaN(harga) || harga <= 0) return alert('Isi nama dan harga dengan benar');
+  if(!nama || isNaN(harga)) return alert('Isi semua field');
   let idBaru = data.menuList.length? Math.max(...data.menuList.map(m=>m.id)) + 1 : 1;
   data.menuList.push({id: idBaru, nama, harga, kategori});
   saveData();
@@ -628,7 +613,6 @@ function renderLaporan() {
   document.getElementById('tglSampai').value = today;
   filterLaporan();
 }
-
 function filterLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -638,15 +622,20 @@ function filterLaporan() {
   let sampaiDate = new Date(sampai + 'T23:59:59');
 
   let dataFilter = data.laporan.filter(b => {
+    // Coba pakai waktuISO dulu, kalau nggak ada pakai waktu
     let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
+
+    // Cek kalau Invalid Date
     if (isNaN(tglBill)) {
+      // Coba parse format Indonesia "16/05/2026, 14:53:12"
       let parts = b.waktu.split(', ');
       if (parts.length === 2) {
         let tgl = parts[0].split('/');
-        let jam = parts[1].split(/[:.]/);
+        let jam = parts[1].split(':');
         tglBill = new Date(tgl[2], tgl[1]-1, tgl[0], jam[0], jam[1], jam[2]);
       }
     }
+
     return tglBill >= dariDate && tglBill <= sampaiDate;
   });
 
@@ -671,19 +660,23 @@ function filterLaporan() {
 
   document.getElementById('ringkasanLaporan').innerHTML =
     `Periode: ${dari} s/d ${sampai} | Total Transaksi: ${dataFilter.length} | Omzet: Rp${totalOmzet.toLocaleString('id-ID')}`;
+
+  console.log(`Filter ketemu ${dataFilter.length} data`);
 }
+  
 
 function hapusLaporan() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
+
   if(!dari ||!sampai) return alert('Pilih tanggal dulu');
   if(!confirm(`Hapus semua transaksi dari ${dari} sampai ${sampai}?`)) return;
 
-  let dariDate = new Date(dari + 'T00:00:00');
-  let sampaiDate = new Date(sampai + 'T23:59:59');
+  let dariDate = new Date(dari + ' 00:00:00');
+  let sampaiDate = new Date(sampai + ' 23:59:59');
 
   data.laporan = data.laporan.filter(b => {
-    let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
+    let tglBill = new Date(b.waktu);
     return!(tglBill >= dariDate && tglBill <= sampaiDate);
   });
 
@@ -691,7 +684,6 @@ function hapusLaporan() {
   filterLaporan();
   alert('Data periode tersebut dihapus');
 }
-
 function exportLaporanCSV() {
   let dari = document.getElementById('tglDari').value;
   let sampai = document.getElementById('tglSampai').value;
@@ -701,7 +693,10 @@ function exportLaporanCSV() {
   let sampaiDate = new Date(sampai + 'T23:59:59');
 
   let dataFilter = data.laporan.filter(b => {
+    // Coba pakai waktuISO dulu, kalau nggak ada pakai waktu
     let tglBill = b.waktuISO? new Date(b.waktuISO) : new Date(b.waktu);
+    
+    // Fallback untuk format lama "16/05/2026, 15.18.08"
     if (isNaN(tglBill)) {
       let parts = b.waktu.split(', ');
       if (parts.length === 2) {
@@ -718,4 +713,48 @@ function exportLaporanCSV() {
   let csv = 'Waktu,Meja,Kasir,Waitress,Item,Total\n';
   dataFilter.forEach(b => {
     let items = b.items.map(i => `${i.nama} (${i.qty})`).join('; ');
-    csv += `"${b.waktu}
+    csv += `"${b.waktu}","${b.meja}","${b.kasir}","${b.waitress}","${items}",${b.total}\n`;
+  });
+
+  let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `laporan_${dari}_sd_${sampai}.csv`;
+  link.click();
+}
+
+function exportData() {
+  let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'backup_kasir.json';
+  a.click();
+}
+
+function importData(event) {
+  let file = event.target.files[0];
+  let reader = new FileReader();
+  reader.onload = e => {
+    try {
+      data = JSON.parse(e.target.result);
+      saveData();
+      alert('Data berhasil diimport');
+      location.reload();
+    } catch {
+      alert('File backup rusak');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function tutupModal(id) {
+  document.getElementById(id).classList.remove('active');
+  editTarget = null;
+}
+
+loadData();
+renderMeja();
+init();
+</script>
+</body>
+</html>
