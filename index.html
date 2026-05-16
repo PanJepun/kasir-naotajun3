@@ -3,118 +3,317 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Kasir</title>
+  <title>Aplikasi Kasir Naotajun</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    .card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    .flex { display: flex; gap: 10px; flex-wrap: wrap; }
-    .mb-20 { margin-bottom: 20px; }
-    input, select, button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { cursor: pointer; background: #4CAF50; color: white; border: none; }
-    button:hover { background: #45a049; }
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      margin: 0; 
+      background: #f5f5f5; 
+      color: #333;
+    }
+    .header {
+      background: linear-gradient(135deg, #2196F3, #1976D2);
+      color: white;
+      padding: 15px 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .tabs { 
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .tabs button { 
+      flex: 1;
+      padding: 15px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      color: #666;
+    }
+    .tabs button.active {
+      color: #ff9800;
+      border-bottom: 3px solid #ff9800;
+      font-weight: bold;
+    }
+    .card { 
+      background: white; 
+      border: 1px solid #ddd; 
+      padding: 20px; 
+      border-radius: 8px; 
+      margin: 0 20px 20px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .flex { 
+      display: flex; 
+      gap: 10px; 
+      flex-wrap: wrap; 
+      margin-bottom: 15px;
+    }
+    input, select, button { 
+      padding: 10px; 
+      font-size: 14px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2196F3;
+    }
+    button { 
+      cursor: pointer; 
+      background: #4CAF50; 
+      color: white; 
+      border: none;
+      font-weight: bold;
+    }
+    button:hover { 
+      background: #45a049; 
+    }
+    .btn-delete {
+      background: #f44336;
+    }
+    .btn-delete:hover {
+      background: #d32f2f;
+    }
     .hidden { display: none; }
-    .tabs { margin-bottom: 20px; }
-    .tabs button { margin-right: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+    h2, h3 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Aplikasi Kasir</h1>
+  <div class="header">🍽️ Kasir Naotajun</div>
 
   <div class="tabs">
-    <button onclick="showTab('menu')">Menu</button>
-    <button onclick="showTab('meja')">Meja</button>
+    <button onclick="showTab('meja')">🪑 Meja</button>
+    <button onclick="showTab('menu')" class="active">📋 Menu</button>
+    <button onclick="showTab('kasir')">💰 Kasir</button>
+    <button onclick="showTab('laporan')">📊 Laporan</button>
   </div>
 
   <div id="menu" class="tab-content">
     <div id="menuForm"></div>
-    <div id="billArea" class="card">
-      <h3>Bill</h3>
-      <p>Belum ada item</p>
-    </div>
+    <div id="daftarMenuArea"></div>
   </div>
 
+  <div id="kasir" class="tab-content hidden"></div>
   <div id="meja" class="tab-content hidden"></div>
+  <div id="laporan" class="tab-content hidden"></div>
 
 <script>
+let menu = JSON.parse(localStorage.getItem('menu')) || [];
+let activeTab = 'menu';
+
 function showTab(tab) {
+  activeTab = tab;
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.getElementById(tab).classList.remove('hidden');
   
+  document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
   if(tab === 'menu') renderMenu();
+  if(tab === 'kasir') renderKasir();
   if(tab === 'meja') renderMeja();
+  if(tab === 'laporan') renderLaporan();
 }
 
 function renderMenu() {
+  // Form tambah/edit menu
   const container = document.getElementById('menuForm');
   container.innerHTML = `
     <div class="card">
       <h2>📋 Kelola Menu</h2>
       <div id="editForm">
-        <h3>Edit Menu</h3>
-        <div class="flex mb-20">
-          <input type="text" id="editNama" placeholder="Nama Menu">
-          <input type="number" id="editHarga" placeholder="Harga">
-          <select id="editTipe">
+        <h3>Tambah/Edit Menu</h3>
+        <div class="flex">
+          <input type="text" id="editNama" placeholder="Nama Menu" style="flex:2">
+          <input type="number" id="editHarga" placeholder="Harga" style="flex:1">
+          <select id="editKategori" style="flex:1">
             <option value="Food">Food</option>
             <option value="Beverage">Beverage</option>
           </select>
-          <select id="editSubKategori">
-            <option value="Minuman Ringan">Minuman Ringan</option>
-            <option value="Kopi">Kopi</option>
+          <select id="editSubKategori" style="flex:1">
             <option value="Makanan Berat">Makanan Berat</option>
+            <option value="Snack">Snack</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Kopi">Kopi</option>
+            <option value="Teh">Teh</option>
+            <option value="Jus">Jus</option>
+            <option value="Minuman Ringan">Minuman Ringan</option>
           </select>
         </div>
-        <button onclick="simpanEdit()">Simpan</button>
+        <button onclick="simpanMenu()">💾 Simpan</button>
+        <button onclick="resetForm()" style="background:#ff9800">🔄 Reset</button>
       </div>
     </div>
   `;
 
-  // Event listener Enter
-  document.getElementById('editNama').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('editHarga').focus();
-    }
-  });
+  // Daftar menu
+  const daftarArea = document.getElementById('daftarMenuArea');
+  if(menu.length === 0) {
+    daftarArea.innerHTML = '<div class="card"><p>Belum ada menu. Tambah menu di atas.</p></div>';
+  } else {
+    daftarArea.innerHTML = `
+      <div class="card">
+        <h3>Daftar Menu (${menu.length})</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Kategori</th>
+              <th>Sub Kategori</th>
+              <th>Harga</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${menu.map((m, i) => `
+              <tr>
+                <td>${i+1}</td>
+                <td>${m.nama}</td>
+                <td>${m.kategori}</td>
+                <td>${m.subKategori}</td>
+                <td>Rp${parseInt(m.harga).toLocaleString('id-ID')}</td>
+                <td>
+                  <button onclick="editMenu(${i})" style="padding:5px 10px">Edit</button>
+                  <button onclick="hapusMenu(${i})" class="btn-delete" style="padding:5px 10px">Hapus</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
 
-  document.getElementById('editHarga').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('editTipe').focus();
-    }
-  });
-
-  document.getElementById('editTipe').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('editSubKategori').focus();
-    }
-  });
-
-  document.getElementById('editSubKategori').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      simpanEdit();
-    }
-  });
+  // Pasang event listener Enter setelah render
+  setTimeout(() => {
+    document.getElementById('editNama')?.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editHarga').focus(); }
+    });
+    document.getElementById('editHarga')?.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editKategori').focus(); }
+    });
+    document.getElementById('editKategori')?.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('editSubKategori').focus(); }
+    });
+    document.getElementById('editSubKategori')?.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); simpanMenu(); }
+    });
+  }, 50);
 }
 
-function simpanEdit() {
-  alert('Data disimpan!');
-  document.getElementById('editNama').value = '';
-  document.getElementById('editHarga').value = '';
+function simpanMenu() {
+  const nama = document.getElementById('editNama').value.trim();
+  const harga = document.getElementById('editHarga').value;
+  const kategori = document.getElementById('editKategori').value;
+  const subKategori = document.getElementById('editSubKategori').value;
+  
+  if(!nama || !harga) {
+    alert('Nama dan harga harus diisi!');
+    return;
+  }
+  
+  const editIndex = document.getElementById('editForm').dataset.editIndex;
+  
+  if(editIndex !== undefined && editIndex !== '') {
+    menu[editIndex] = {nama, harga, kategori, subKategori};
+    delete document.getElementById('editForm').dataset.editIndex;
+  } else {
+    menu.push({nama, harga, kategori, subKategori});
+  }
+  
+  localStorage.setItem('menu', JSON.stringify(menu));
+  resetForm();
+  renderMenu();
+}
+
+function editMenu(index) {
+  const m = menu[index];
+  document.getElementById('editNama').value = m.nama;
+  document.getElementById('editHarga').value = m.harga;
+  document.getElementById('editKategori').value = m.kategori;
+  document.getElementById('editSubKategori').value = m.subKategori;
+  document.getElementById('editForm').dataset.editIndex = index;
   document.getElementById('editNama').focus();
 }
 
-function renderMeja() {
-  const container = document.getElementById('meja');
+function hapusMenu(index) {
+  if(confirm('Hapus menu ini?')) {
+    menu.splice(index, 1);
+    localStorage.setItem('menu', JSON.stringify(menu));
+    renderMenu();
+  }
+}
+
+function resetForm() {
+  document.getElementById('editNama').value = '';
+  document.getElementById('editHarga').value = '';
+  document.getElementById('editKategori').value = 'Food';
+  document.getElementById('editSubKategori').value = 'Makanan Berat';
+  delete document.getElementById('editForm').dataset.editIndex;
+  document.getElementById('editNama').focus();
+}
+
+function renderKasir() {
+  const container = document.getElementById('kasir');
+  if(menu.length === 0) {
+    container.innerHTML = '<div class="card"><h2>💰 Kasir</h2><p>Belum ada menu. Tambah menu dulu di tab Menu.</p></div>';
+    return;
+  }
+  
   container.innerHTML = `
     <div class="card">
-      <h2>🪑 Kelola Meja</h2>
-      <p>Konten meja di sini</p>
+      <h2>💰 Kasir</h2>
+      <h3>Pilih Menu:</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        ${menu.map(m => `
+          <button onclick="tambahKeBill('${m.nama}', ${m.harga})" style="min-width:120px;">
+            ${m.nama}<br><small>Rp${parseInt(m.harga).toLocaleString('id-ID')}</small>
+          </button>
+        `).join('')}
+      </div>
+      <div id="billArea" style="margin-top:20px;"></div>
     </div>
   `;
+}
+
+function renderMeja() {
+  document.getElementById('meja').innerHTML = `
+    <div class="card"><h2>🪑 Kelola Meja</h2><p>Fitur meja menyusul.</p></div>
+  `;
+}
+
+function renderLaporan() {
+  document.getElementById('laporan').innerHTML = `
+    <div class="card"><h2>📊 Laporan</h2><p>Fitur laporan menyusul.</p></div>
+  `;
+}
+
+let billItems = [];
+function tambahKeBill(nama, harga) {
+  billItems.push({nama, harga});
+  alert(nama + ' ditambahkan ke bill');
 }
 
 // Load awal
