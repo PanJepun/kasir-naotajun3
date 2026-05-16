@@ -165,6 +165,9 @@ function hapusMeja(id) {
 
 // ===== MENU MODULE =====
 function renderMenu() {
+ <script>
+// ===== MENU MODULE =====
+function renderMenu() {
   const container = document.getElementById('menu');
   container.innerHTML = `
     <div class="card">
@@ -172,29 +175,75 @@ function renderMenu() {
       <div class="flex mb-20">
         <input type="text" id="namaMenu" placeholder="Nama Menu">
         <input type="number" id="hargaMenu" placeholder="Harga">
+        <select id="kategoriMenu">
+          <option value="Food">Food</option>
+          <option value="Beverage">Beverage</option>
+        </select>
         <button onclick="tambahMenu()">+ Tambah Menu</button>
       </div>
+      
+      <div class="flex mb-20">
+        <button onclick="filterMenu('All')" class="btn-success">All</button>
+        <button onclick="filterMenu('Food')">Food</button>
+        <button onclick="filterMenu('Beverage')">Beverage</button>
+      </div>
+
       <table>
         <thead>
-          <tr><th>No</th><th>Nama Menu</th><th>Harga</th><th>Aksi</th></tr>
+          <tr><th>No</th><th>Nama Menu</th><th>Kategori</th><th>Harga</th><th>Aksi</th></tr>
         </thead>
         <tbody id="listMenu"></tbody>
       </table>
     </div>
   `;
+  filterMenu('All');
+}
+
+let filterAktif = 'All';
+function filterMenu(kategori) {
+  filterAktif = kategori;
   const tbody = document.getElementById('listMenu');
-  if(data.menu.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada menu</td></tr>`;
+  let dataFilter = kategori === 'All' ? data.menu : data.menu.filter(m => m.kategori === kategori);
+  
+  if(dataFilter.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada menu ${kategori}</td></tr>`;
     return;
   }
-  tbody.innerHTML = data.menu.map((m, i) => `
+  tbody.innerHTML = dataFilter.map((m, i) => `
     <tr>
       <td>${i+1}</td>
       <td>${m.nama}</td>
+      <td><span class="badge" style="background:${m.kategori==='Food'?'#4caf50':'#2196f3'}">${m.kategori}</span></td>
       <td>Rp ${m.harga.toLocaleString('id-ID')}</td>
       <td><button class="btn-danger" onclick="hapusMenu(${m.id})">Hapus</button></td>
     </tr>
   `).join('');
+}
+
+function tambahMenu() {
+  const nama = document.getElementById('namaMenu').value.trim();
+  const harga = parseInt(document.getElementById('hargaMenu').value);
+  const kategori = document.getElementById('kategoriMenu').value;
+  if(!nama || !harga) return alert('Lengkapi data!');
+  data.menu.push({id: Date.now(), nama, harga, kategori});
+  save();
+  filterMenu(filterAktif);
+  document.getElementById('namaMenu').value = '';
+  document.getElementById('hargaMenu').value = '';
+}
+
+function hapusMenu(id) {
+  if(!confirm('Hapus menu ini?')) return;
+  data.menu = data.menu.filter(m => m.id !== id);
+  save();
+  filterMenu(filterAktif);
+}
+</script>
+  
+  
+
+
+  
 }
 
 function tambahMenu() {
